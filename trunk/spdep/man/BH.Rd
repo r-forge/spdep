@@ -34,8 +34,10 @@ data(BH)
 plotpolys(BH.polys, BH.bbs)
 plot(BH.nb, BH.xy, add=TRUE)
 p <- BH$HOMICIDES / BH$POP
+names(p) <- rownames(BH)
 p.f <- ordered(cut(p*100000, breaks=c(0,1,6,15,40,625),
  include.lowest=TRUE))
+names(p.f) <- names(p)
 plotpolys(BH.polys, BH.bbs,
  col=rev(c("black", heat.colors(4)))[codes(p.f)])
 legend(c(618000, 624000), c(781000, 787000),
@@ -44,11 +46,16 @@ legend(c(618000, 624000), c(781000, 787000),
 title("Homicide rates per 100,000, Belo Horizonte, 1994")
 joincount.mc(p.f, nb2listw(BH.nb, style="B"), nsim=999)
 moran.test(p, nb2listw(BH.nb, style="B"), randomisation=FALSE)
-moran.test(p[order(BH$UP)], nb2listw(BH.nb, style="B"),
- randomisation=FALSE)
+tmp <- try(moran.test(p[order(BH$UP)], nb2listw(BH.nb, style="B"),
+ randomisation=FALSE, spChk=FALSE))
+print(tmp)
+tmp <- try(moran.test(p[order(BH$UP)], nb2listw(BH.nb, style="B"),
+ randomisation=FALSE, spChk=TRUE))
+print(tmp)
 moran.test(p, nb2listw(BH.nb, style="B"))
 moran.mc(p, nb2listw(BH.nb, style="B"), nsim=999)
-EBImoran.mc(BH$HOMICIDES, BH$POP, nb2listw(BH.nb, style="B"), nsim=999)
+EBImoran.mc(spNamedVec("HOMICIDES", BH), spNamedVec("POP", BH),
+ nb2listw(BH.nb, style="B"), nsim=999)
 outlier <- which(p*100000 == 625)
 BH[outlier,]
 plot(log10(BH$POP), BH$HOMICIDES,
@@ -61,8 +68,8 @@ text(log10(BH$POP)[outlier], BH$HOMICIDES[outlier],
 moran.mc(p[-outlier],
  nb2listw(subset(BH.nb, !(attr(BH.nb, "region.id") == BH$UP[outlier])),
  style="B"), nsim=999)
-EBImoran.mc(BH$HOMICIDES[-outlier], BH$POP[-outlier],
- nb2listw(subset(BH.nb, !(attr(BH.nb, "region.id") == BH$UP[outlier])),
- style="B"), nsim=999)
+EBImoran.mc(spNamedVec("HOMICIDES", BH)[-outlier],
+ spNamedVec("POP", BH)[-outlier], nb2listw(subset(BH.nb,
+ !(attr(BH.nb, "region.id") == BH$UP[outlier])), style="B"), nsim=999)
 }
 \keyword{datasets}

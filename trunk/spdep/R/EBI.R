@@ -11,7 +11,7 @@ EBImoran <- function(z, listw, nn, S0, zero.policy=FALSE) {
 }
 
 EBImoran.mc <- function(n, x, listw, nsim, zero.policy=FALSE,
-	alternative="greater") {
+	alternative="greater", spChk=NULL) {
 	if(class(listw) != "listw") stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
 	if(!is.numeric(x)) stop(paste(deparse(substitute(x)),
@@ -24,6 +24,11 @@ EBImoran.mc <- function(n, x, listw, nsim, zero.policy=FALSE,
 	m <- length(listw$neighbours)
 	if (m != length(x)) stop("objects of different length")
 	if (m != length(n)) stop("objects of different length")
+	if (is.null(spChk)) spChk <- get.spChkOption()
+	if (spChk && !chkIDs(x, listw))
+		stop("Check of data and weights ID integrity failed")
+	if (spChk && !chkIDs(n, listw))
+		stop("Check of data and weights ID integrity failed")
 	if(nsim > gamma(m+1))
 		stop("nsim too large for this number of observations")
 	S0 <- Szero(listw)

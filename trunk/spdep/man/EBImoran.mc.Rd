@@ -8,7 +8,8 @@
   An empirical Bayes index modification of Moran's I for testing for spatial autocorrelation in a rate, typically the number of observed cases in a population at risk. The index value is tested by using nsim random permutations of the index for the given spatial weighting scheme, to establish the rank of the observed statistic in relation to the nsim simulated values.
 }
 \usage{
-EBImoran.mc(n, x, listw, nsim, zero.policy = FALSE, alternative = "greater")
+EBImoran.mc(n, x, listw, nsim, zero.policy = FALSE, 
+ alternative = "greater", spChk=NULL)
 }
 EBImoran(z, listw, nn, S0, zero.policy=FALSE)
 %- maybe also `usage' for other objects documented here.
@@ -19,6 +20,7 @@ EBImoran(z, listw, nn, S0, zero.policy=FALSE)
   \item{nsim}{number of permutations}
   \item{zero.policy}{if TRUE assign zero to the lagged value of zones without neighbours, if FALSE assign NA}
   \item{alternative}{a character string specifying the alternative hypothesis, must be one of greater (default), less or two.sided}
+  \item{spChk}{should the data vector names be checked against the spatial objects for identity integrity, TRUE, or FALSE, default NULL to use \code{get.spChkOption()}}}
   \item{z}{a vector of indices based on n and x}
   \item{nn}{the number of observations}
   \item{S0}{global sum of weights}
@@ -58,9 +60,11 @@ following components:
 
 \examples{
 data(nc.sids)
-EBImoran.mc(nc.sids$SID74, nc.sids$BIR74, nb2listw(sidsorig.nb,
- style="B", zero.policy=TRUE), nsim=999, zero.policy=TRUE)
+EBImoran.mc(spNamedVec("SID74", nc.sids), spNamedVec("BIR74", nc.sids),
+ nb2listw(sidsorig.nb, style="B", zero.policy=TRUE), nsim=999,
+ zero.policy=TRUE)
 sids.p <- nc.sids$SID74 / nc.sids$BIR74
+names(sids.p) <- rownames(nc.sids)
 moran.mc(sids.p, nb2listw(sidsorig.nb, style="B", zero.policy=TRUE),
  nsim=999, zero.policy=TRUE)
 }

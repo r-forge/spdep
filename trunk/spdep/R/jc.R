@@ -15,7 +15,7 @@ joincount <- function(dums, listw) {
 }
 
 joincount.test <- function(fx, listw, zero.policy=FALSE,
-	alternative="greater") {
+	alternative="greater", spChk=NULL) {
 	if (class(listw) != "listw") stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
 	if (!is.factor(fx)) stop(paste(deparse(substitute(x)),
@@ -26,6 +26,9 @@ joincount.test <- function(fx, listw, zero.policy=FALSE,
 	cards <- card(listw$neighbours)
 	if (!zero.policy && any(cards == 0))
 		stop("regions with no neighbours found")
+	if (is.null(spChk)) spChk <- get.spChkOption()
+	if (spChk && !chkIDs(fx, listw))
+		stop("Check of data and weights ID integrity failed")
 	wc <- spweights.constants(listw, zero.policy=zero.policy)
 	S02 <- wc$S0*wc$S0
 
@@ -72,7 +75,7 @@ print.jclist <- function(x, ...) {
 }
 
 joincount.mc <- function(fx, listw, nsim, zero.policy=FALSE,
-	alternative="greater") {
+	alternative="greater", spChk=NULL) {
 	if(class(listw) != "listw") stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
 	if(!is.factor(fx)) stop(paste(deparse(substitute(fx)),
@@ -84,6 +87,9 @@ joincount.mc <- function(fx, listw, nsim, zero.policy=FALSE,
 	cards <- card(listw$neighbours)
 	if (!zero.policy && any(cards == 0))
 		stop("regions with no neighbours found")
+	if (is.null(spChk)) spChk <- get.spChkOption()
+	if (spChk && !chkIDs(fx, listw))
+		stop("Check of data and weights ID integrity failed")
 	if(nsim > gamma(n+1)) stop("nsim too large for this n")
 	ff <- ~ fx - 1
 	dums <- model.matrix(ff, model.frame(ff))
