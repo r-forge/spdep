@@ -27,6 +27,8 @@ poly2nb <- function(pl, bb, row.names=NULL, snap=sqrt(.Machine$double.eps),
 		else {
 			if(length(row.names) != n)
 				stop("row.names wrong length")
+			else if (length(unique(row.names)) != length(row.names))
+	    			stop("non-unique row.names given")
 			else regid <- row.names
 		}
 	}

@@ -52,6 +52,8 @@ localmoran              Local Moran's I statistic
 localmoran.sad          Saddlepoint approximation of local Moran's Ii
                         tests
 LR.sarlm                Likelihood ratio test
+mat2listw               Convert a square spatial weights matrix to a
+                        weights list object
 moran.mc                Permutation test for Moran's I statistic
 moran.plot              Moran scatterplot
 moran                   Compute Moran's I
