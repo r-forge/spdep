@@ -18,8 +18,8 @@ joincount <- function(dums, listw) {
 	res
 }
 
-joincount.test <- function(fx, listw,
-	alternative="greater", zero.policy=FALSE) {
+joincount.test <- function(fx, listw, zero.policy=FALSE,
+	alternative="greater") {
 	if (class(listw) != "listw") stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
 	if (!is.factor(fx)) stop(paste(deparse(substitute(x)),

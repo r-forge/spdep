@@ -55,7 +55,7 @@ text(utm18.countyseats[card(sidsorig.nb) == 0,],
   rownames(nc.sids)[card(sidsorig.nb) == 0], pos=3)
 moran.plot(ft.SID74, nb2listw(sidsorig.nb, zero.policy=TRUE),
   zero.policy=TRUE)
-drop.no.neighs <- !(1:length(sidsorig.nb) %in% which(card(sidsorig.nb) == 0))
+drop.no.neighs <- !(1:length(sidsorig.nb) \%in\% which(card(sidsorig.nb) == 0))
 sub.sidsorig.nb <- subset(sidsorig.nb, drop.no.neighs)
 sub.ft.SID74 <- subset(ft.SID74, drop.no.neighs)
 moran.plot(sub.ft.SID74, nb2listw(sub.sidsorig.nb),

@@ -3,7 +3,7 @@
 
 lagsarlm <- function(formula, data = list(), listw, type="lag",
 	method="eigen", quiet=TRUE, zero.policy=FALSE, tol.solve=1.0e-7, 
-        tol.opt=.Machine$double.eps^0.5) {
+        tol.opt=.Machine$double.eps^0.5, sparsedebug=FALSE) {
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, method="model.frame")
 	if (missing(listw)) stop("No neighbourhood list")
@@ -59,12 +59,15 @@ lagsarlm <- function(formula, data = list(), listw, type="lag",
 			maximum=TRUE, tol=tol.opt, eig=eig,
 			e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet)
 	} else {
-		opt <- dosparse(listw, y, x, wy, K, quiet, tol.opt)
+		opt <- dosparse(listw, y, x, wy, K, quiet, tol.opt, 
+			sparsedebug)
 	}
 	rho <- c(opt$maximum)
+	names(rho) <- "rho"
 	LL <- c(opt$objective)
 	lm.lag <- lm((y - rho*wy) ~ x - 1)
 	r <- residuals(lm.lag)
+	fit <- y - r
 	coef.rho <- coefficients(lm.lag)
 	names(coef.rho) <- colnames(x)
 	SSE <- deviance(lm.lag)
@@ -109,12 +112,12 @@ lagsarlm <- function(formula, data = list(), listw, type="lag",
 		coefficients=coef.rho, rest.se=rest.se, 
 		LL=LL, s2=s2, SSE=SSE, parameters=(m+1), lm.model=lm.null,
 		method=method, call=call, residuals=r, 
-		lm.target=lm.lag, fitted.values=predict(lm.lag),
-		se.fit=predict(lm.lag, se.fit=TRUE)$se.fit,
+		lm.target=lm.lag, fitted.values=fit,
+		se.fit=NULL, formula=formula,
 		ase=ase, LLs=LLs, rho.se=rho.se, LMtest=LMtest, 
 		zero.policy=zero.policy), class=c("sarlm"))
 	if (zero.policy) {
-		zero.regs <- attr(new, 
+		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]
 		if (length(zero.regs) > 0)
 			attr(ret, "zero.regs") <- zero.regs
@@ -132,18 +135,18 @@ sar.lag.mixed.f <- function(rho, eig, e.a, e.b, e.c, n, quiet)
 	ret
 }
 
-sar.lag.mixed.f.s <- function(rho, sn, e.a, e.b, e.c, n, quiet)
+sar.lag.mixed.f.s <- function(rho, sn, e.a, e.b, e.c, n, quiet, sparsedebug)
 {
 	SSE <- e.a - 2*rho*e.b + rho*rho*e.c
 	s2 <- SSE/n
-	ret <- (log.spwdet(sparseweights=sn, rho=rho) - ((n/2)*log(2*pi))
-		- (n/2)*log(s2) - (1/(2*s2))*SSE)
+	ret <- (log.spwdet(sparseweights=sn, rho=rho, debug=sparsedebug)
+		- ((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*s2))*SSE)
 	if (!quiet) cat("Rho:\t", rho, "\tfunction value:\t", ret, "\n")
 	ret
 }
 
 
-dosparse <- function (listw, y, x, wy, K, quiet, tol.opt) {
+dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, sparsedebug) {
 	sn <- listw2sn(listw)
 	m <- ncol(x)
 	n <- nrow(x)
@@ -160,7 +163,8 @@ dosparse <- function (listw, y, x, wy, K, quiet, tol.opt) {
 		e.c <- t(e.w) %*% e.w
 		LLs[[j]] <- optimize(sar.lag.mixed.f.s, interval=c(-1,1),
 		maximum=TRUE, tol=tol.opt, sn=sn,
-		e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet)$objective
+		e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet,
+		sparsedebug=sparsedebug)$objective
 		attr(LLs[[j]], "nall") <- n
 		attr(LLs[[j]], "nobs") <- n
 		attr(LLs[[j]], "df") <- m-1
@@ -178,7 +182,8 @@ dosparse <- function (listw, y, x, wy, K, quiet, tol.opt) {
 	sn <- listw2sn(listw)
 	opt <- optimize(sar.lag.mixed.f.s, interval=c(-1,1),
 		maximum=TRUE, tol=tol.opt, sn=sn,
-		e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet)
+		e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet, 
+		sparsedebug=sparsedebug)
 	maximum <- opt$maximum
 	objective <- opt$objective
 	res <- list(maximum=maximum, objective=objective, LLs=LLs,

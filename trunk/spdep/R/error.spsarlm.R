@@ -3,7 +3,7 @@
 
 errorsarlm <- function(formula, data = list(), listw, method="eigen",
 	quiet=TRUE, zero.policy=FALSE, tol.solve=1.0e-7, 
-        tol.opt=.Machine$double.eps^0.5) {
+        tol.opt=.Machine$double.eps^0.5, sparsedebug=FALSE) {
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, method="model.frame")
 	if (class(listw) != "listw") stop("No neighbourhood list")
@@ -23,12 +23,14 @@ errorsarlm <- function(formula, data = list(), listw, method="eigen",
 	xcolnames <- colnames(x)
 	K <- ifelse(xcolnames[1] == "(Intercept)", 2, 1)
 	wy <- lag.listw(listw, y, zero.policy=zero.policy)
-	if (any(is.na(wy))) stop("NAs in lagged dependent variable")
+	if (any(is.na(wy)))
+	    stop("NAs in lagged dependent variable")
 	if (m > 1) {
 	    WX <- matrix(nrow=n,ncol=(m-(K-1)))
 	    for (k in K:m) {
 		wx <- lag.listw(listw, x[,k], zero.policy=zero.policy)
-		if (any(is.na(wx))) stop("NAs in lagged independent variable")
+		if (any(is.na(wx)))
+		    stop("NAs in lagged independent variable")
 		WX[,(k-(K-1))] <- wx
 	    }
 	}
@@ -50,13 +52,15 @@ errorsarlm <- function(formula, data = list(), listw, method="eigen",
 	} else {
 		sn <- listw2sn(listw)
 		opt <- optimize(sar.error.f.s, interval=c(-1,1), maximum=TRUE,
-			tol=tol.opt, sn=sn,
-			y=y, wy=wy, x=x, WX=WX, n=n, quiet=quiet)
+			tol=tol.opt, sn=sn, y=y, wy=wy, x=x, WX=WX, 
+			n=n, quiet=quiet, sparsedebug=sparsedebug)
 	}
 	lambda <- opt$maximum
+	names(lambda) <- "lambda"
 	LL <- opt$objective
 	lm.target <- lm(I(y - lambda*wy) ~ I(x - lambda*WX) - 1)
-	r <- residuals(lm.target)
+	r <- as.vector(residuals(lm.target))
+	fit <- as.vector(y - r)
 	p <- lm.target$rank
 	SSE <- deviance(lm.target)
 	s2 <- SSE/n
@@ -85,12 +89,12 @@ errorsarlm <- function(formula, data = list(), listw, method="eigen",
 		coefficients=coef.lambda, rest.se=rest.se, 
 		LL=LL, s2=s2, SSE=SSE, parameters=(m+1), lm.model=lm.model, 
 		method=method, call=call, residuals=r, lm.target=lm.target,
-		fitted.values=predict(lm.target), ase=ase,
-		se.fit=predict(lm.target, se.fit=TRUE)$se.fit,
+		fitted.values=fit, ase=ase, formula=formula,
+		se.fit=NULL,
 		lambda.se=lambda.se, LMtest=LMtest, zero.policy=zero.policy), 
 		class=c("sarlm"))
 	if (zero.policy) {
-		zero.regs <- attr(new, 
+		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]
 		if (length(zero.regs) > 0)
 			attr(ret, "zero.regs") <- zero.regs
@@ -112,7 +116,7 @@ sar.error.f <- function(lambda, eig, y, wy, x, WX, n, quiet)
 	ret
 }
 
-sar.error.f.s <- function(lambda, sn, y, wy, x, WX, n, quiet)
+sar.error.f.s <- function(lambda, sn, y, wy, x, WX, n, quiet, sparsedebug)
 {
 	yl <- y - lambda*wy
 	xl <- x - lambda*WX
@@ -120,7 +124,7 @@ sar.error.f.s <- function(lambda, sn, y, wy, x, WX, n, quiet)
 	xl.q.yl <- t(xl.q) %*% yl
 	SSE <- t(yl) %*% yl - t(xl.q.yl) %*% xl.q.yl
 	s2 <- SSE/n
-	ret <- (log.spwdet(sparseweights=sn, rho=lambda) - 
+	ret <- (log.spwdet(sparseweights=sn, rho=lambda, debug=sparsedebug) - 
 		((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
 	if (!quiet) cat("Lambda:\t", lambda, "\tfunction value:\t", ret, "\n")
 	ret

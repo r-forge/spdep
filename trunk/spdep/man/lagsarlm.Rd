@@ -9,7 +9,7 @@
   Maximum likelihood estimation of spatial simultaneous autoregressive
 lag and mixed models of the form:
 
-\deqn{y = \rho W y + X \beta + \varepsilon}
+\deqn{y = \rho W y + X \beta + \varepsilon}{y = rho W y + X beta + e}
 
 where $\rho$ is found by \code{optimize()} first and $\beta$ and other
 parameters by generalized least squares subsequently. In the mixed model,
@@ -17,10 +17,11 @@ the spatially lagged independent variables are added to X.
 }
 \usage{
 lagsarlm(formula, data=list(), listw, type="lag", method="eigen", quiet=TRUE,
-  zero.policy=FALSE, tol.solve=1.0e-7, tol.opt=.Machine$double.eps^0.5)
-sar.lag.mixed.f.s(rho, sn, e.a, e.b, e.c, n, quiet)
+  zero.policy=FALSE, tol.solve=1.0e-7, tol.opt=.Machine$double.eps^0.5,
+  sparsedebug=FALSE)
+sar.lag.mixed.f.s(rho, sn, e.a, e.b, e.c, n, quiet, sparsedebug)
 sar.lag.mixed.f(rho, eig, e.a, e.b, e.c, n, quiet)
-dosparse(listw, y, x, wy, K, quiet, tol.opt)
+dosparse(listw, y, x, wy, K, quiet, tol.opt, sparsedebug)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -40,6 +41,9 @@ determinant of the sparse matrix (I - rho*W) directly using \code{log.spwdet}.
 neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminate with an error}
   \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=1.0e-7). This may be used if necessary to extract coefficient standard errors, but errors in \code{solve()} do constitute indicatations of model misspecification}
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()} (default=square root of double precision machine tolerance)}
+  \item{sparsedebug}{if TRUE, writes a log file on sparse matrix operations
+(name sparsestats) in the current directory. To be used if sparse estimation
+fails!}
   \item{rho}{value of the spatial parameter}
   \item{eig}{eigenvalues of the full spatial weights matrix from \code{eigenw}}
   \item{y}{dependent variable}
@@ -53,7 +57,19 @@ neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminat
   \item{sn}{sparse spatial neighbour object from \code{listw2sn}}
 }
 \details{
-  
+When using the sparse method, the user takes (unfortunately) full
+responsibility for possible failures, including R terminating with
+a core dump! Safeguards have been put in place to try to trap errant
+behaviour in the sparse functions' memory allocation, but they may
+not always help. When sparsedebug is TRUE, a log file (sparsestats)
+is written in the working directory - the figure of interest is the
+number of allocated blocks. At present, \code{spwdet} will fail when
+this increases over the number initially allocated, but will not release
+memory allocated by the sparse functions. In the event of problems,
+save your workspace and quit R. Problems seem to be related to larger
+n, and to an unknown trigger precipitating incontrolled fillin, in the
+course of which the sparse routines lose track of their memory pointers,
+and then provoke a segmentation fault trying to free unallocated memory.
 }
 \value{
   A list object of class \code{sarlm}
@@ -70,9 +86,9 @@ neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminat
   \item{call}{the call used to create this object}
   \item{residuals}{GLS residuals}
   \item{lm.target}{the \code{lm} object returned for the GLS fit}
-  \item{fitted.values}{GLS fitted values}
-  \item{se.fit}{The GLS standard errors of the fitted values (not taking into
-account the standard error of $\lambda$)}
+  \item{fitted.values}{Difference between residuals and response variable}
+  \item{se.fit}{Not used yet}
+  \item{formula}{model formula}
   \item{ase}{TRUE if method=eigen}
   \item{LLs}{if ase=FALSE (for method="sparse"), the log likelihood values of
 models estimated dropping each of the independent variables in turn, used
@@ -102,7 +118,8 @@ pp. 237-289.}
 Bernat for contributions to the asymptotic standard error code.}
 
 \seealso{\code{\link{lm}}, \code{\link{errorsarlm}}, 
-\code{\link{eigenw}}, \code{\link{log.spwdet}}
+\code{\link{eigenw}}, \code{\link{log.spwdet}}, \code{\link{predict.sarlm}},
+\code{\link{residuals.sarlm}}
 }
 
 \examples{

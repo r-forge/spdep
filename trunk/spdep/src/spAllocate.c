@@ -50,7 +50,7 @@
 static char copyright[] =
     "Sparse1.3: Copyright (c) 1985,86,87,88 by Kenneth S. Kundert";
 static char RCSid[] =
-    "@(#)$Header: /home/rsb/tmp/SPDEP_CVS_SVN/spdep/src/spAllocate.c,v 1.1 2002-03-19 12:05:59 rsb Exp $";
+    "@(#)$Header: /home/rsb/tmp/SPDEP_CVS_SVN/spdep/src/spAllocate.c,v 1.2 2002-08-06 11:35:41 rsb Exp $";
 #endif */
 
 
@@ -197,6 +197,7 @@ int  AllocatedSize;
     Matrix->RecordsRemaining = 0;
     Matrix->ElementsRemaining = 0;
     Matrix->FillinsRemaining = 0;
+    Matrix->AllocBlockHits = 0; /* 2002-04-18 RSB */
 
     RecordAllocation( Matrix, (char *)Matrix );
     if (Matrix->Error == spNO_MEMORY) goto MemoryError;
@@ -600,6 +601,7 @@ register  AllocationListPtr  ListPtr;
 /* Record allocation of space for allocation list on allocation list. */
     Matrix->TopOfAllocationList->AllocatedPtr = (char *)ListPtr;
     Matrix->RecordsRemaining = ELEMENTS_PER_ALLOCATION;
+    Matrix->AllocBlockHits++; /* 2002-04-18 RSB */
 
     return;
 }
@@ -659,18 +661,30 @@ register  AllocationListPtr  ListPtr, NextListPtr;
 
 /* Sequentially step through the list of allocated pointers freeing pointers
  * along the way. */
-    ListPtr = Matrix->TopOfAllocationList;
-/*    while (ListPtr != NULL) changed RSB 2002-03-19 */
-    while (ListPtr->NextRecord != NULL)
+    ListPtr = Matrix->TopOfAllocationList; 
+  /*  while (ListPtr != NULL)  changed RSB 2002-03-19 */
+    while (ListPtr->NextRecord != NULL) 
     {   NextListPtr = ListPtr->NextRecord;
-        FREE( ListPtr->AllocatedPtr );
+        FREE( ListPtr->AllocatedPtr ); 
+	 /* FREE( ListPtr );  RSB 2002-04-17 */
         ListPtr = NextListPtr;
-    }
+    } 
+    
     return;
 }
 
 
+/* RSB 2002-04-18 */
 
+int spHowManyHits( eMatrix )
+
+register char *eMatrix;
+{
+MatrixPtr Matrix = (MatrixPtr)eMatrix;
+
+	return(Matrix->AllocBlockHits);
+
+}
 
 
 
