@@ -20,7 +20,7 @@ nb2listw <- function(neighbours, glist=NULL, style="W", zero.policy=FALSE)
 		attr(vlist, as.character(source)) <- TRUE
 	}
 	if (length(glist) != n) stop("glist wrong length")
-	if (cardnb != unlist(lapply(glist, length)))
+	if (any(cardnb != unlist(lapply(glist, length))))
 		stop("neighbours and glist do not conform")
 	if (any(is.na(unlist(glist))))
 		stop ("NAs in general weights list")

@@ -30,9 +30,9 @@ and a \code{parameters} attribute list with components:
 
 \examples{
 data(auckland)
-res <- EBest(auckland$Deaths.1977.85, (9/1000)*auckland$Under.5.1981)
+res <- EBest(auckland$Deaths.1977.85, 9*auckland$Under.5.1981)
 attr(res, "parameters")
-res.f <- as.ordered(cut(res$estmm, breaks=c(-Inf,2,2.5,3,3.5,Inf),
+res.f <- as.ordered(cut(res$estmm*1000, breaks=c(-Inf,2,2.5,3,3.5,Inf),
  include.lowest=TRUE))
 cols <- grey(6:2/7)
 plotpolys(auckpolys, auckbbs, col=cols[codes(res.f)])

@@ -36,8 +36,8 @@ and a \code{parameters} attribute list with components:
 \examples{
 data(auckland)
 res <- EBlocal(spNamedVec("Deaths.1977.85", auckland),
- (9/1000)*spNamedVec("Under.5.1981", auckland), auckland.nb)
-res.f <- as.ordered(cut(res$est, breaks=c(-Inf,2,2.5,3,3.5,Inf),
+ 9*spNamedVec("Under.5.1981", auckland), auckland.nb)
+res.f <- as.ordered(cut(res$est*1000, breaks=c(-Inf,2,2.5,3,3.5,Inf),
  include.lowest=TRUE))
 cols <- grey(6:2/7)
 plotpolys(auckpolys, auckbbs, col=cols[codes(res.f)])

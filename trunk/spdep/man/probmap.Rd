@@ -28,8 +28,8 @@ probmap(n, x)
 
 \examples{
 data(auckland)
-res <- probmap(auckland$Deaths.1977.85, (9/1000)*auckland$Under.5.1981)
-res.f <- as.ordered(cut(res$raw, breaks=c(-Inf,2,2.5,3,3.5,Inf),
+res <- probmap(auckland$Deaths.1977.85, 9*auckland$Under.5.1981)
+res.f <- as.ordered(cut(res$raw*1000, breaks=c(-Inf,2,2.5,3,3.5,Inf),
  include.lowest=TRUE))
 cols <- grey(6:2/7)
 plotpolys(auckpolys, auckbbs, col=cols[codes(res.f)])
