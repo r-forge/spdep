@@ -31,8 +31,7 @@ listw2star(listw, ireg, style, n, D, a, zero.policy=FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{model}{an object of class \code{lm} returned by \code{lm}; weights
-and offsets should not be used}
+  \item{model}{an object of class \code{lm} returned by \code{lm} (assuming no global spatial autocorrelation), or an object of class \code{sarlm} returned by a spatial simultaneous autoregressive model fit (assuming global spatial autocorrelation represented by the model spatial coefficient); weights and offsets should not be used}
   \item{select}{an integer vector of the id. numbers of zones to be tested}
   \item{nb}{a list of neighbours of class \code{nb}}
   \item{glist}{a list of general weights corresponding to neighbours}

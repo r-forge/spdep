@@ -120,7 +120,6 @@ Wald1.sarlm <- function(object) {
 print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 	signif.stars = FALSE, ...)
 {
-	if (version$minor < 8) printCoefmat <- print.coefmat
 	cat("\nCall:", deparse(x$call),	sep = "", fill=TRUE)
 	cat("\nResiduals:\n")
 	resid <- residuals(x)
