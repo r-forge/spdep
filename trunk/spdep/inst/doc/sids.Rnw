@@ -3,7 +3,7 @@
 %\VignetteKeywords{spatial}
 %\VignettePackage{spdep}
 \documentclass[a4paper,10pt]{article} 
-\usepackage{/usr/local/lib/R/share/texmf/Sweave}
+\usepackage{Sweave}
 \usepackage{times}
 \usepackage{mathptm}
 \usepackage{hyperref}
