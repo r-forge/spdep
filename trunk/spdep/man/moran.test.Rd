@@ -7,7 +7,7 @@
 }
 \usage{
 moran.test(x, listw, randomisation=TRUE, zero.policy=FALSE,
-	alternative="greater", spChk=NULL)
+	alternative="greater", rank = FALSE, spChk=NULL)
 }
 \arguments{
   \item{x}{a numeric vector the same length as the neighbours list in listw}
@@ -15,6 +15,7 @@ moran.test(x, listw, randomisation=TRUE, zero.policy=FALSE,
   \item{randomisation}{variance of I calculated under the assumption of randomisation, if FALSE normality}
   \item{zero.policy}{if TRUE assign zero to the lagged value of zones without neighbours, if FALSE assign NA}
   \item{alternative}{a character string specifying the alternative hypothesis, must be one of greater (default), less or two.sided.}
+  \item{rank}{logical value - default FALSE for continuous variables, if TRUE, uses the adaptation of Moran's I for ranks suggested by Cliff and Ord (1981, p. 46)}
   \item{spChk}{should the data vector names be checked against the spatial objects for identity integrity, TRUE, or FALSE, default NULL to use \code{get.spChkOption()}}
 }
 
@@ -51,5 +52,8 @@ moran.test(spNamedVec("CRIME", COL.OLD), nb2listw(colold.lags[[2]],
  style="W"))
 moran.test(spNamedVec("CRIME", COL.OLD), nb2listw(colold.lags[[3]],
  style="W"))
+ranks <- rank(COL.OLD$CRIME)
+names(ranks) <- rownames(COL.OLD)
+moran.test(ranks, nb2listw(COL.nb, style="W"), rank=TRUE)
 }
 \keyword{spatial}

@@ -12,8 +12,8 @@ moran <- function(x, listw, n, S0, zero.policy=FALSE) {
 }
 
 moran.test <- function(x, listw, randomisation=TRUE, zero.policy=FALSE,
-	alternative="greater", spChk=NULL) {
-	if (class(listw) != "listw") stop(paste(deparse(substitute(listw)),
+	alternative="greater", rank = FALSE, spChk=NULL) {
+	if (!inherits(listw, "listw")) stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
 	if (!is.numeric(x)) stop(paste(deparse(substitute(x)),
 		"is not a numeric vector"))
@@ -28,6 +28,7 @@ moran.test <- function(x, listw, randomisation=TRUE, zero.policy=FALSE,
 	res <- moran(x, listw, wc$n, wc$S0, zero.policy=zero.policy)
 	I <- res$I
 	K <- res$K
+	if (rank) K <- (3*(3*wc$n^2 -7))/(5*(wc$n^2 - 1))
 	EI <- (-1) / wc$n1
 	if(randomisation) {
 		VI <- wc$n*(wc$S1*(wc$nn - 3*wc$n + 3) - wc$n*wc$S2 + 3*S02)
@@ -49,8 +50,9 @@ moran.test <- function(x, listw, randomisation=TRUE, zero.policy=FALSE,
 	names(vec) <- c("Moran I statistic", "Expectation", "Variance")
 	method <- paste("Moran's I test under", ifelse(randomisation,
 	    "randomisation", "normality"))
-	data.name <- paste(deparse(substitute(x)), "\nweights:",
-	    deparse(substitute(listw)), "\n")
+	data.name <- paste(deparse(substitute(x)), ifelse(rank,
+		"using rank correction",""), "\nweights:",
+		deparse(substitute(listw)), "\n")
 	res <- list(statistic=statistic, p.value=PrI, estimate=vec, 
 	    alternative=alternative, method=method, data.name=data.name)
 	class(res) <- "htest"
@@ -59,7 +61,7 @@ moran.test <- function(x, listw, randomisation=TRUE, zero.policy=FALSE,
 
 moran.mc <- function(x, listw, nsim, zero.policy=FALSE,
 	alternative="greater", spChk=NULL) {
-	if(class(listw) != "listw") stop(paste(deparse(substitute(listw)),
+	if(!inherits(listw, "listw")) stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
 	if(!is.numeric(x)) stop(paste(deparse(substitute(x)),
 		"is not a numeric vector"))

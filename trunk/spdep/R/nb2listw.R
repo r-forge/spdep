@@ -73,7 +73,7 @@ nb2listw <- function(neighbours, glist=NULL, style="W", zero.policy=FALSE)
 		if (any(is.na(unlist(vlist))))
 			stop ("NAs in coding scheme weights list")
 	res <- list(style=style, neighbours=neighbours, weights=vlist)
-	class(res) <- "listw"
+	class(res) <- c("listw", "nb")
 	attr(res, "region.id") <- attr(neighbours, "region.id")
 	attr(res, "call") <- match.call()
 	invisible(res)
