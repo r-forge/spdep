@@ -7,12 +7,13 @@
 A permutation test for same colour join count statistics calculated by using nsim random permutations of fx for the given spatial weighting scheme, to establish the ranks of the observed statistics (for each colour) in relation to the nsim simulated values.
 }
 \usage{
-joincount.mc(fx, listw, nsim, alternative="greater")
+joincount.mc(fx, listw, nsim, zero.policy=FALSE, alternative="greater")
 }
 \arguments{
   \item{fx}{a factor of the same length as the neighbours and weights objects in listw}
   \item{listw}{a \code{listw} object created for example by \code{nb2listw}}
   \item{nsim}{number of permutations}
+  \item{zero.policy}{if TRUE assign zero to the lagged value of zones without neighbours, if FALSE assign NA}
   \item{alternative}{a character string specifying the alternative hypothesis, must be one of greater (default), less or two.sided.}
 }
 

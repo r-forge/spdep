@@ -1,3 +1,4 @@
+% Copyright 2003 by Roger S. Bivand
 \name{BH}
 \alias{BH}
 \alias{BH.polys}
@@ -8,7 +9,7 @@
 \title{Belo Horizont 1994 homicide data}
 \usage{data(BH)}
 \description{
-The \code{BH} data frame has 81 rows and 4 columns for 81 planning units (UP) in the city. The dataset also includes \code{BH.polys} UP polygon boundaries, \code{BH.xy} UP polygon centroids, \code{BH.bbs} UP polygon bounding boxes, and \code{BH.nb} the neighbours list used in Assuncao and Reis (1999), 
+The \code{BH} data frame has 81 rows and 4 columns for 81 planning units (UP) in the city. The dataset also includes \code{BH.polys} UP polygon boundaries, \code{BH.xy} UP polygon centroids, \code{BH.bbs} UP polygon bounding boxes, and \code{BH.nb} the neighbours list used in Assunção and Reis (1999), 
 }
 \format{
   This data frame contains the following columns:
@@ -20,13 +21,13 @@ The \code{BH} data frame has 81 rows and 4 columns for 81 planning units (UP) in
   }
 }
 \details{
- The dataset was originally used to motivate and test a new proposal for adjusting Moran's I when the variable being tested for spatial autocorrelation is a rate (see \code{EBImoran.mc()}}. The examples do not replicate the printed results because of an unfortunate re-ordering of the data - see the \code{moran.test()} with the re-ordered rate \code{p} to retrieve a printed result), but the substantive conclusions are sustained.
+ The dataset was originally used to motivate and test a new proposal for adjusting Moran's I when the variable being tested for spatial autocorrelation is a rate (see \code{EBImoran.mc()}). The examples do not replicate the printed results because of an unfortunate re-ordering of the data - see the \code{moran.test()} with the re-ordered rate \code{p} to retrieve a printed result), but the substantive conclusions are sustained.
 }
 \source{
  Data obtained from paper authors directly.
 }
 \references{
-Assuncao RM, Reis EA 1999 A new proposal to adjust Moran's I for population density. Statistics in Medicine 18, pp. 2147--2162
+Assunção RM, Reis EA 1999 A new proposal to adjust Moran's I for population density. Statistics in Medicine 18, pp. 2147--2162
 }
 \examples{
 data(BH)

@@ -1,3 +1,4 @@
+% Copyright 2003 by Roger S. Bivand
 \name{EBImoran.mc}
 \alias{EBImoran.mc}
 \alias{EBImoran}
@@ -24,7 +25,7 @@ EBImoran(z, listw, nn, S0, zero.policy=FALSE)
 }
 \details{
 The statistic used is (m is the number of observations):
-\deqn{EBI = \frac{m}{\sum_{i=1}^{m}\sum_{j=1}^{n}w_{ij}}
+\deqn{EBI = \frac{m}{\sum_{i=1}^{m}\sum_{j=1}^{m}w_{ij}}
 \frac{\sum_{i=1}^{m}\sum_{j=1}^{m}w_{ij}z_i z_j}{\sum_{i=1}^{m}(z_i - \bar{z})^2}
 }{EBI = (n sum_i sum_j w_ij z_i z_ji) / (S0 sum_i (z_i - zbar)^2)}
 where:
@@ -38,12 +39,22 @@ and:
   
 }
 \value{
-  
+A list with class \code{htest} and \code{mc.sim} containing the 
+following components:
+  \item{statistic}{the value of the observed Moran's I.}
+  \item{parameter}{the rank of the observed Moran's I.}
+  \item{p.value}{the pseudo p-value of the test.}
+  \item{alternative}{a character string describing the alternative hypothesis.}
+  \item{method}{a character string giving the method used.}
+  \item{data.name}{a character string giving the name(s) of the data, and the number of simulations.}
+  \item{res}{nsim simulated values of statistic, final value is observed statistic}
+  \item{z}{a numerical vector of Empirical Bayes indices as z above}
+
 }
-\references{Assuncao RM, Reis EA 1999 A new proposal to adjust Moran's I for population density. Statistics in Medicine 18, pp. 2147--2162}
+\references{Assunção RM, Reis EA 1999 A new proposal to adjust Moran's I for population density. Statistics in Medicine 18, pp. 2147--2162}
 \author{Roger Bivand \email{Roger.Bivand@nhh.no}}
 
-\seealso{\code{\link{moran}}, \code{\link{moran.mc}}, \code{\link{BHhom}}}
+\seealso{\code{\link{moran}}, \code{\link{moran.mc}}, \code{\link{BH}}}
 
 \examples{
 data(nc.sids)

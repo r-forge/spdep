@@ -1,4 +1,4 @@
-# Copyright 2002 by Roger Bivand 
+# Copyright 2002-2003 by Roger Bivand 
 #
 
 EBImoran <- function(z, listw, nn, S0, zero.policy=FALSE) {
