@@ -3,6 +3,7 @@ oldcol                   Columbus OH spatial analysis data set - old
 LR.sarlm                 Likelihood ratio test
 afcon                    Spatial patterns of conflict in Africa 1966-78
 airdist                  Measure distance from plot
+boston                   Corrected Boston Housing Data
 card                     Cardinalities for neighbours lists
 cell2nb                  Generate neighbours list for grid cells
 columbus                 Columbus OH spatial analysis data set

@@ -49,7 +49,7 @@ of influence neighbours list as \code{boston.soi}.
  10,000 per town (constant for all Boston tracts)}
     \item{PTRATIO}{a numeric vector of pupil-teacher ratios per town
  (constant for all Boston tracts)}
-    \item{B}{a numeric vector of 1000*(Bk - 0.63)^2 where Bk is the
+    \item{B}{a numeric vector of \code{1000*(Bk - 0.63)^2} where Bk is the
  proportion of blacks}
     \item{LSTAT}{a numeric vector of percentage values of lower status
  population}
