@@ -20,6 +20,7 @@ geary                   Compute Geary's C
 geary.mc                Permutation test for Geary's C statistic
 geary.test              Geary's C test for spatial autocorrelation
 getisord                Getis-Ord remote sensing example data
+globalG.test            test for spatial autocorrelation
 graphneigh              Graph based spatial weights
 include.self            Include self in neighbours list
 invIrM                  Compute SAR generating operator
@@ -61,6 +62,9 @@ predict.sarlm           Prediction for spatial simultaneous
 read.gal                Read a GAL lattice file into a neighbours list
 residuals.sarlm         Access functions for spatial simultaneous
                         autoregressive linear model objects
+sp.correlogram          Spatial correlogram
+sp.mantel.mc            Mantel-Hubert spatial general cross product
+                        statistic
 spweights.constants     Provides constants for spatial weights matrices
 subset.nb               Subset a neighbours list
 summary.nb              Summary function for neighbours lists

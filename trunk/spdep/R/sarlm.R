@@ -47,7 +47,7 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 		if (object$type == "error") {
 			B <- coefficients(object$lm.target)
 			tt <- terms(object$lm.model) 
-			X <- model.matrix(delete.response(tt), newdata)
+			X <- model.matrix(delete.response(tt), data=newdata)
 			trend <- X %*% B
 			signal <- rep(0, length(trend))
 			res <- trend + signal
@@ -78,10 +78,14 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 			attr(res, "signal") <- signal
 
 		} else {
-			trend <- predict(object$lm.target, newdata)
+			B <- coefficients(object$lm.target)
+			mt <- terms(object$formula, data = newdata)
+			mf <- lm(object$formula, newdata, method="model.frame")
+			X <- model.matrix(mt, mf)
+			trend <- X %*% B
+			raw.sig <- invIrW(listw, object$rho) %*% trend
 			signal <- object$rho * lag.listw(listw, 
-				(invIrW(listw, object$rho) %*% trend), 
-				zero.policy=zero.policy)
+				raw.sig, zero.policy=zero.policy)
 			res <- trend + signal
 			attr(res, "trend") <- trend
 			attr(res, "signal") <- signal

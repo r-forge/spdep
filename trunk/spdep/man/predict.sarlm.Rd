@@ -52,13 +52,11 @@ smooth is expressed in terms of the error:
 In the lag model, the signal can be expressed in the following way:
 
 \deqn{(I - \rho W) y = X \beta + \varepsilon}{(I - rho W) y = X beta + e},
-\deqn{y = (I - \rho W)^{-1} X \beta + (I - \rho W)^{-1} \varepsilon}
-{y = inv(I - rho W) X beta + inv(I - rho W) e}
+\deqn{y = (I - \rho W)^{-1} X \beta + (I - \rho W)^{-1} \varepsilon}{y = inv(I - rho W) X beta + inv(I - rho W) e}
 
 giving a feasible signal component of:
 
-\deqn{\rho W y = \rho W (I - \rho W)^{-1} X \beta}
-{rho W y = rho W inv(I - rho W) X beta}
+\deqn{\rho W y = \rho W (I - \rho W)^{-1} X \beta}{rho W y = rho W inv(I - rho W) X beta}
 
 setting the error term to zero. This also means that predictions of the
 signal component for lag and mixed models require the inversion of an 
