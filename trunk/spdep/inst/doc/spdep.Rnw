@@ -5,13 +5,19 @@
 \documentclass[a4paper,10pt]{article} 
 \usepackage{/usr/local/lib/R/share/texmf/Sweave}
 \usepackage{times}
+\usepackage{mathptm}
 \usepackage{hyperref}
 \setkeys{Gin}{width=0.95\textwidth}
 \newcommand{\strong}[1]{{\normalfont\fontseries{b}\selectfont #1}}
 \let\pkg=\strong
-\newcommand\code{\bgroup\@codex}
-\def\@codex#1{{\normalfont\ttfamily\hyphenchar\font=-1 #1}\egroup}
-\def\RR{\texttt{R}\/}
+\RequirePackage{alltt}
+\newenvironment{example}{\begin{alltt}}{\end{alltt}}
+\newenvironment{smallexample}{\begin{alltt}\small}{\end{alltt}}
+\newcommand{\code}[1]{\texttt{\small #1}}
+\def\RR{\textsf{R}\/}
+\def\SP{\texttt{S-PLUS}\/}
+\def\SS{\texttt{S}\/}
+
 
 \title{\pkg{spdep}: an \RR~package for analysing spatial dependence in areal data} 
 \author{Roger Bivand} 
@@ -19,6 +25,12 @@
 \begin{document} 
 
 \maketitle 
+
+<<echo=FALSE>>=
+owidth <- getOption("width")
+opar <- par(mar=c(3,2,2,2)+0.1)
+options("width"=80)
+@
 
 \section{Introduction}
 
@@ -33,7 +45,10 @@ approximations for global and local Moran's I; and functions for
 estimating spatial simultaneous autoregressive (SAR) models.
 
 
-\subsection{Installation instructions}
 
+<<echo=FALSE>>=
+options("width"=owidth)
+par(opar)
+@
 
 \end{document}

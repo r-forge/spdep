@@ -41,6 +41,7 @@ stem(floor(sort(1000*(nc.sids$SID74 + 1)/nc.sids$BIR74)*10)/10, scale=2)
 pm <- probmap(nc.sids$SID74, nc.sids$BIR74)$pmap
 brks <- c(0.0, 0.01, 0.05, 0.1, 0.9, 0.95, 0.99, 1)
 cols <- cm.colors(7)
+library(maptools)
 plotpolys(nc.utm.polys, nc.utmbbs, col=cols[findInterval2(pm, brks)])
 legend(c(-280, -70), c(3700, 3900), legend=paste("prob.", leglabs(brks)),
   fill=cols, bty="n")
