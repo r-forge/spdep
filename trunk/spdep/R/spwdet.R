@@ -33,10 +33,7 @@ log.spwdet <- function(sparseweights, rho)
 		stop("rho incorrectly specified")
 	res <- spwdet(sparseweights, rho=rho)
 	det <- res$det * 10^res$exp
-	if (det < .Machine$double.eps^0.5) {
-		warning(paste("failure in spwdet:", det, res$det, res$exp))
-		fres <- NaN
-	} else	fres <- log(det)
+	fres <- log(det)
 	fres
 }
 
