@@ -37,10 +37,10 @@ International), 261--277.}
 \examples{
 data(afcon)
 oid <- order(afcon$id)
-resG <- localG(afcon$totcon, nb2listw(include.self(paper.nb)))
-print(data.frame(resG[oid], row.names=afcon$name[oid]), digits=2)
 resI <- localmoran(afcon$totcon, nb2listw(paper.nb))
 print(data.frame(resI[oid,], row.names=afcon$name[oid]), digits=2)
+resG <- localG(afcon$totcon, nb2listw(include.self(paper.nb)))
+print(data.frame(resG[oid], row.names=afcon$name[oid]), digits=2)
 
 }
 \keyword{spatial}
