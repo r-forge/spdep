@@ -29,8 +29,8 @@ nb1 <- knn2nb(knn1, row.names=rownames(columbus))
 nb2 <- knn2nb(knn2, row.names=rownames(columbus))
 diffs <- diffnb(nb2, nb1)
 plotpolys(polys, bbs, border="grey")
-plot(nb1, coords, add=T)
-plot(diffs, coords, add=T, col="red", lty=2)
+plot(nb1, coords, add=TRUE)
+plot(diffs, coords, add=TRUE, col="red", lty=2)
 title(main="Plot of first (black) and second (red)\nnearest neighbours")
 }
 \keyword{spatial}

@@ -14,7 +14,7 @@ where $\lambda$ is found by \code{optimize()} first and $\beta$ and other
 parameters by generalized least squares subsequently.
 }
 \usage{
-errorsarlm(formula, data=list(), listw, method="eigen", quiet=T,
+errorsarlm(formula, data=list(), listw, method="eigen", quiet=TRUE,
   zero.policy=FALSE, tol.solve=1.0e-7, tol.opt=.Machine$double.eps^0.5)
 sar.error.f(lambda, eig, y, wy, x, WX, n, quiet)
 %sar.error.f.s(lambda, sn, y, wy, x, WX, n, quiet)
@@ -32,7 +32,7 @@ of (1 - rho*eigenvalue) using \code{eigenw}
 %, and "sparse" - computes the 
 %determinant of the sparse matrix (I - rho*W) directly using \code{log.spwdet}.
 }
-  \item{quiet}{default=T; if F, reports function values during optimization.}
+  \item{quiet}{default=TRUE; if FALSE, reports function values during optimization.}
   \item{zero.policy}{if TRUE assign zero to the lagged value of zones without 
 neighbours, if FALSE (default) assign NA - causing \code{errorsarlm()} to terminate with an error}
   \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=1.0e-7)}

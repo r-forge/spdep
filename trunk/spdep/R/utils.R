@@ -60,14 +60,15 @@ lag.listw <- function(listw, x, zero.policy=FALSE) {
 		if (length(x) != n) stop("object lengths differ")
 		res <- .Call("lagw", listw$neighbours, listw$weights,
 			as.numeric(x), as.integer(cardnb),
-			as.logical(zero.policy))
+			as.logical(zero.policy), PACKAGE="spdep")
 	} else if (is.matrix(x)) {
 		if (nrow(x) != n) stop("object lengths differ")
 		res <- matrix(0, nrow=nrow(x), ncol=ncol(x))
 		for (i in 1:ncol(x)) {
 			res[,i] <- .Call("lagw", listw$neighbours,
 				listw$weights, as.numeric(x[,i]),
-				as.integer(cardnb), as.logical(zero.policy))
+				as.integer(cardnb), as.logical(zero.policy),
+				PACKAGE="spdep")
 
 		}
 	} else {

@@ -24,7 +24,7 @@ dnearneigh <- function(x, d1, d2, row.names=NULL) {
     if (d1 < 0) d1 <- 0.0
     if (d2 > sqrt(md)) d2 <- sqrt(md)
     z <- .Call("dnearneigh", as.double(d1), as.double(d2), as.integer(np),
-        as.integer(dimension), as.matrix(x))
+        as.integer(dimension), as.matrix(x), PACKAGE="spdep")
     attr(z[[1]], "region.id") <- row.names
     attr(z[[1]], "call") <- match.call()
     attr(z[[1]], "dnn") <- c(d1, d2)

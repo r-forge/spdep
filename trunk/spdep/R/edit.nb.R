@@ -24,7 +24,7 @@
 #	plot.new()
 #        plot.window(xlim = xlim, ylim = ylim, "", asp=1)
 #	if (!is.null(polys) && !is.null(bbs))
-#		plotpolys(polys,bbs, border="grey", add=T)
+#		plotpolys(polys,bbs, border="grey", add=TRUE)
 #	for (i in 1:n) {
 #        	inb <- nb[[i]]
 #        	for (j in inb)
@@ -64,7 +64,7 @@
 #			plot.new()
 #	        	plot.window(xlim = xlim, ylim = ylim, "", asp=1)
 #			if (!is.null(polys) && !is.null(bbs))
-#				plotpolys(polys,bbs, border="grey", add=T)
+#				plotpolys(polys,bbs, border="grey", add=TRUE)
 #			for (i in 1:n) {
 #	        		inb <- nb[[i]]
 #	        		for (j in inb)
@@ -91,7 +91,7 @@
 #				plot.new()
 #	        		plot.window(xlim = xlim, ylim = ylim, "", asp=1)
 #				if (!is.null(polys) && !is.null(bbs))
-#				plotpolys(polys,bbs, border="grey", add=T)
+#				plotpolys(polys,bbs, border="grey", add=TRUE)
 #				for (i in 1:n) {
 #	        			inb <- nb[[i]]
 #	        			for (j in inb)
@@ -126,7 +126,7 @@ edit.nb <- function(name, coords, polys=NULL, bbs=NULL, ...) {
   plot.new()
   plot.window(xlim = xlim, ylim = ylim, "", asp=1)
   if (!is.null(polys) && !is.null(bbs))
-    plotpolys(polys,bbs, border="grey", add=T)
+    plotpolys(polys,bbs, border="grey", add=TRUE)
   for (i in 1:n) {
     #arrows(x[i],y[i],x[nb[[i]]],y[nb[[i]]],lenght=.08, angle=.15)
 ###
@@ -180,7 +180,7 @@ edit.nb <- function(name, coords, polys=NULL, bbs=NULL, ...) {
       #plot.new()
       #plot.window(xlim = xlim, ylim = ylim, "", asp=1)
       #if (!is.null(polys) && !is.null(bbs))
-      #  plotpolys(polys,bbs, border="grey", add=T)
+      #  plotpolys(polys,bbs, border="grey", add=TRUE)
       #for (i in 1:n) {
       #  inb <- nb[[i]]
       #  for (j in inb)
@@ -212,7 +212,7 @@ edit.nb <- function(name, coords, polys=NULL, bbs=NULL, ...) {
 #          plot.new()
 #          plot.window(xlim = xlim, ylim = ylim, "", asp=1)
 #          if (!is.null(polys) && !is.null(bbs))
-#            plotpolys(polys,bbs, border="grey", add=T)
+#            plotpolys(polys,bbs, border="grey", add=TRUE)
 #          for (i in 1:n) {
 #            inb <- nb[[i]]
 #            for (j in inb)
@@ -230,7 +230,7 @@ edit.nb <- function(name, coords, polys=NULL, bbs=NULL, ...) {
       plot.new()
       plot.window(xlim = xlim, ylim = ylim, "", asp=1)
       if (!is.null(polys) && !is.null(bbs))
-        plotpolys(polys,bbs, border="grey", add=T)
+        plotpolys(polys,bbs, border="grey", add=TRUE)
       for (i in 1:n) {
         if(nb[[i]][1]!=0 & length(nb[[i]])>0)
           segments(x[i],y[i],x[nb[[i]]],y[nb[[i]]])

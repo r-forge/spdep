@@ -30,7 +30,7 @@ The function generates the full weights matrix V, checks that rho lies in its fe
 
 \examples{
 
-nb7rt <- cell2nb(7, 7, torus=T)
+nb7rt <- cell2nb(7, 7, torus=TRUE)
 x <- matrix(rnorm(500*length(nb7rt)), nrow=length(nb7rt))
 res0 <- apply(invIrM(nb7rt, rho=0.0) \%*\% x, 2, function(x) var(x)/length(x))
 res2 <- apply(invIrM(nb7rt, rho=0.2) \%*\% x, 2, function(x) var(x)/length(x))

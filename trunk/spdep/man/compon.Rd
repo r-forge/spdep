@@ -25,7 +25,7 @@ A list of:
 data(columbus)
 plot(col.gal.nb, coords, col="grey")
 col2 <- droplinks(col.gal.nb, 21)
-plot(col2, coords, add=T)
+plot(col2, coords, add=TRUE)
 res <- n.comp.nb(col2)
 table(res$comp.id)
 points(coords, col=res$comp.id, pch=16)

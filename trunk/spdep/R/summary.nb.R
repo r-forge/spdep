@@ -50,7 +50,7 @@ summary.nb <- function(object, coords=NULL, ...) {
 	if(np != n.nb) stop("Number of coords not equal to number of regions")
         dimension <- ncol(coords)
 	dlist <- .Call("nbdists", nb, as.matrix(coords), as.integer(np), 
-	    as.integer(dimension))[[1]]
+	    as.integer(dimension), PACKAGE="spdep")[[1]]
 	cat("Summary of link distances:\n")
 	print(summary(unlist(dlist)))
 	stem(unlist(dlist))

@@ -52,17 +52,17 @@ lm.LMtests <- function(model, listw, zero.policy=FALSE, test="LMerr") {
 	p1 <- 1:p
 	XtXinv <- chol2inv(model$qr$qr[p1, p1, drop = FALSE])
 	sigma2 <- (t(u) %*% u) / N
-	T <- tracew(listw)
+	TrW <- tracew(listw)
 	Wu <- lag.listw(listw, u, zero.policy)
 	Wy <- lag.listw(listw, y, zero.policy)
 	Wyhat <- lag.listw(listw, yhat, zero.policy)
 	XtWyhat <- t(X) %*% Wyhat
 	dutWu <- (t(u) %*% Wu) / sigma2
-	resa <- (dutWu ^ 2) / T
+	resa <- (dutWu ^ 2) / TrW
 	J <- (1/(N*sigma2)) *
 		((t(Wyhat) %*% Wyhat) -
 		(t(XtWyhat) %*% XtXinv %*% XtWyhat) +
-		(T * sigma2))
+		(TrW * sigma2))
 	dutWy <- (t(u) %*% Wy) / sigma2
 	nt <- length(test)
 	tres <- vector(mode="list", length=nt)
@@ -72,10 +72,10 @@ lm.LMtests <- function(model, listw, zero.policy=FALSE, test="LMerr") {
 		zz <- switch(testi,
 		LMerr = vec <- c(resa, 1),
 		LMlag = vec <- c((dutWy ^ 2) / (N * J), 1),
-		RLMerr = vec <- c(((dutWu - (T*((N*J)^-1))*dutWy)^2) /
-			(T * (1 - T*((N*J)^-1))), 1),
-		RLMlag = vec <- c(((dutWy - dutWu)^2)/ ((N*J) - T), 1),
-		SARMA = vec <- c(((dutWy - dutWu)^2)/ ((N*J) - T) + resa, 2)
+		RLMerr = vec <- c(((dutWu - (TrW*((N*J)^-1))*dutWy)^2) /
+			(TrW * (1 - TrW*((N*J)^-1))), 1),
+		RLMlag = vec <- c(((dutWy - dutWu)^2)/ ((N*J) - TrW), 1),
+		SARMA = vec <- c(((dutWy - dutWu)^2)/ ((N*J) - TrW) + resa, 2)
 		)
 		if (is.null(zz)) stop(paste(testi, ": no such test", sep=""))
 		statistic <- vec[1]

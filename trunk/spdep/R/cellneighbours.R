@@ -11,7 +11,7 @@
 #  GNU General Public License for more details.
 #
 
-rookcell <- function(rowcol, nrow, ncol, torus=F, rmin=1, cmin=1) {
+rookcell <- function(rowcol, nrow, ncol, torus=FALSE, rmin=1, cmin=1) {
 	if (is.null(dim(rowcol))) rowcol <- t(as.matrix(rowcol))
         if(nrow(rowcol) != 1) stop("only single grid cell handled")
 	row <- rowcol[1]
@@ -35,7 +35,7 @@ rookcell <- function(rowcol, nrow, ncol, torus=F, rmin=1, cmin=1) {
 	res
 }
 
-queencell <- function(rowcol, nrow, ncol, torus=F, rmin=1, cmin=1) {
+queencell <- function(rowcol, nrow, ncol, torus=FALSE, rmin=1, cmin=1) {
 	if (is.null(dim(rowcol))) rowcol <- t(as.matrix(rowcol))
         if(nrow(rowcol) != 1) stop("only single grid cell handled")
  	row <- rowcol[1]

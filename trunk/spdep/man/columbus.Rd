@@ -69,7 +69,7 @@ e-mail: lanselin@utdallas.edu
 data(columbus)
 crime.f <- as.ordered(cut(columbus$CRIME,
   breaks=quantile(columbus$CRIME, probs=seq(0,1,0.2)),
-  include.lowest=T))
+  include.lowest=TRUE))
 colours <- c("salmon1", "salmon2", "red3", "brown", "black")
 plot(bbs[,1], bbs[,4], xlab="", ylab="", asp=1, type="n",
   xlim=range(c(bbs[,1],bbs[,3])), ylim=range(c(bbs[,2],bbs[,4])))

@@ -33,7 +33,7 @@ TRUE if symmetric, FALSE if not
 
 \examples{
 data(columbus)
-print(is.symmetric.nb(col.gal.nb, verbose=T, force=T))
+print(is.symmetric.nb(col.gal.nb, verbose=TRUE, force=TRUE))
 k4 <- knn2nb(knearneigh(coords, k=4), row.names=rownames(columbus))
 k4 <- sym.attr.nb(k4)
 print(is.symmetric.nb(k4))

@@ -12,7 +12,7 @@
 #
 
 moran <- function(x, listw, n, S0, zero.policy=FALSE) {
-	z <- scale(x, scale=F)
+	z <- scale(x, scale=FALSE)
 	zz <- sum(z^2)
 	K <- (n*sum(z^4))/(zz^2)
 	lz <- lag.listw(listw, z, zero.policy)

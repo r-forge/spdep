@@ -27,7 +27,7 @@ require(tripack)
 data(columbus)
 col.tri.nb <- tri2nb(coords, row.names=rownames(columbus))
 plotpolys(polys, bbs, border="grey")
-plot(col.tri.nb, coords, add=T)
+plot(col.tri.nb, coords, add=TRUE)
 title(main="Raw triangulation links")
 }
 \keyword{spatial}

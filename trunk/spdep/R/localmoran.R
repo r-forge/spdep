@@ -25,7 +25,7 @@ localmoran <- function(x, listw, zero.policy=FALSE)
 	if (n != length(x))stop("Different numbers of observations")
 	res <- data.frame(matrix(nrow=n,ncol=4))
 	colnames(res) <- c("Ii", "E.Ii", "Var.Ii", "Z.Ii")
-	z <- scale(x, scale=F)
+	z <- scale(x, scale=FALSE)
 	lz <- lag.listw(listw, z, zero.policy=zero.policy)
 	s2 <- sum(z^2)/n
 	res[,1] <- (z/s2) * lz

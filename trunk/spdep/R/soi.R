@@ -26,7 +26,8 @@ soi.graph <- function(tri.nb,coords){
      to=as.integer(g2), nedges=as.integer(noedges),
      notri.nb=as.integer(noneigh), tri.nb=as.integer(neigh),
      nn=as.integer(nearneigh), 
-     circles=as.double(rad), x=as.double(x[,1]), y=as.double(x[,2]))
+     circles=as.double(rad), x=as.double(x[,1]), y=as.double(x[,2]),
+     PACKAGE="spdep")
   answ$from<-answ$from[1:answ$nedges]
   answ$to<-answ$to[1:answ$nedges]
   answ<-list(np=answ$np,nedges=answ$nedges,

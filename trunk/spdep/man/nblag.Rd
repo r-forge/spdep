@@ -23,10 +23,10 @@ returns a list of lagged neighbours lists each with class \code{nb}
 data(columbus)
 summary(col.gal.nb, coords)
 plotpolys(polys, bbs, border="grey")
-plot(col.gal.nb, coords, add=T)
+plot(col.gal.nb, coords, add=TRUE)
 title(main="GAL order 1 (black) and 2 (red) links")
 col.lags <- nblag(col.gal.nb, 2)
 summary(col.lags[[2]], coords)
-plot(col.lags[[2]], coords, add=T, col="red", lty=2)
+plot(col.lags[[2]], coords, add=TRUE, col="red", lty=2)
 }
 \keyword{spatial}

@@ -11,7 +11,7 @@
 #  GNU General Public License for more details.
 #
 errorsarlm <- function(formula, data = list(), listw, method="eigen",
-	quiet=T, zero.policy=FALSE, tol.solve=1.0e-7, 
+	quiet=TRUE, zero.policy=FALSE, tol.solve=1.0e-7, 
         tol.opt=.Machine$double.eps^0.5) {
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, method="model.frame")
@@ -53,12 +53,12 @@ errorsarlm <- function(formula, data = list(), listw, method="eigen",
 		eig <- eigenw(listw)
 		cat("\n")
 		eig.range <- range(eig)
-		opt <- optimize(sar.error.f, interval=eig.range, maximum=T,
+		opt <- optimize(sar.error.f, interval=eig.range, maximum=TRUE,
 			tol=tol.opt, eig=eig,
 			y=y, wy=wy, x=x, WX=WX, n=n, quiet=quiet)
 	} #else {
 	#	sn <- listw2sn(listw)
-	#	opt <- optimize(sar.error.f.s, interval=c(-1,1), maximum=T,
+	#	opt <- optimize(sar.error.f.s, interval=c(-1,1), maximum=TRUE,
 	#		tol=tol.opt, sn=sn,
 	#		y=y, wy=wy, x=x, WX=WX, n=n, quiet=quiet)
 	#}

@@ -25,7 +25,7 @@ nbdists <- function(nb, coords) {
             stop("Number of coords not equal to number of regions")
         dimension <- ncol(coords)
         dlist <- .Call("nbdists", nb, as.matrix(coords), as.integer(np), 
-            as.integer(dimension))
+            as.integer(dimension), PACKAGE="spdep")
 	attr(dlist[[1]], "call") <- match.call()
 	invisible(dlist[[1]])
 }

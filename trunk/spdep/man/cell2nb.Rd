@@ -16,8 +16,8 @@ grid is mapped onto a torus, removing edge effects.
 \usage{
 cell2nb(nrow, ncol, type="rook", torus=FALSE)
 mrc2vi(rowcol, nrow, ncol)
-rookcell(rowcol, nrow, ncol, torus=F, rmin=1, cmin=1)
-queencell(rowcol, nrow, ncol, torus=F, rmin=1, cmin=1)
+rookcell(rowcol, nrow, ncol, torus=FALSE, rmin=1, cmin=1)
+queencell(rowcol, nrow, ncol, torus=FALSE, rmin=1, cmin=1)
 vi2mrc(i, nrow, ncol)
 }
 \arguments{
@@ -42,9 +42,9 @@ The function returns an object of class \code{nb} with a list of integer vectors
 nb7rt <- cell2nb(7, 7)
 summary(nb7rt)
 xyc <- attr(nb7rt, "region.id")
-xy <- matrix(as.integer(unlist(strsplit(xyc, ":"))), ncol=2, byrow=T)
+xy <- matrix(as.integer(unlist(strsplit(xyc, ":"))), ncol=2, byrow=TRUE)
 plot(nb7rt, xy)
-nb7rt <- cell2nb(7, 7, torus=T)
+nb7rt <- cell2nb(7, 7, torus=TRUE)
 summary(nb7rt)
 }
 \keyword{spatial}

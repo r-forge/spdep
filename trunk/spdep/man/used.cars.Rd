@@ -26,7 +26,7 @@ data(used.cars)
 moran.test(used.cars$price.1960, nb2listw(usa48.nb))
 moran.plot(used.cars$price.1960, nb2listw(usa48.nb),
   labels=rownames(used.cars))
-uc.lm <- lm(price.1960 ~ tax.charges, data=used.cars, y=T, x=T)
+uc.lm <- lm(price.1960 ~ tax.charges, data=used.cars)
 summary(uc.lm)
 lm.morantest(uc.lm, nb2listw(usa48.nb))
 lm.morantest.sad(uc.lm, nb2listw(usa48.nb))

@@ -31,7 +31,7 @@ is.symmetric.nb <- function(nb, verbose=TRUE, force=FALSE)
 	if(!is.null(nbsym)) res <- nbsym
 	if(force || is.null(nbsym)) {
 		res <- .Call("symtest", nb=nb, card=as.integer(card(nb)),
-			verbose=as.logical(verbose))
+			verbose=as.logical(verbose), PACKAGE="spdep")
 	}
 	if(!res && verbose) cat("Non-symmetric neighbours list\n")
 	invisible(res)

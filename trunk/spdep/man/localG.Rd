@@ -66,7 +66,7 @@ G150 <- localG(xyz$val, nb2listw(nb150, style="B"))
 G150[length(xyz$val)-136]
 brks <- seq(-5,5,1)
 cm.col <- cm.colors(length(brks)-1)
-image(x, y, t(matrix(G30, nrow=16, ncol=16, byrow=T)),
+image(x, y, t(matrix(G30, nrow=16, ncol=16, byrow=TRUE)),
   breaks=brks, col=cm.col, asp=1)
 text(xyz$x, xyz$y, round(G30, digits=1), cex=0.7)
 polygon(c(195,225,225,195), c(195,195,225,225), lwd=2)
@@ -79,7 +79,7 @@ cat(paste("value given by Getis and Ord (1996), p. 267",
 G30s[length(xyz$val)-136] *
   (sqrt(sum(scale(xyz$val, scale=FALSE)^2)/length(xyz$val)) /
   sqrt(var(xyz$val)))
-image(x, y, t(matrix(G30s, nrow=16, ncol=16, byrow=T)),
+image(x, y, t(matrix(G30s, nrow=16, ncol=16, byrow=TRUE)),
   breaks=brks, col=cm.col, asp=1)
 text(xyz$x, xyz$y, round(G30s, digits=1), cex=0.7)
 polygon(c(195,225,225,195), c(195,195,225,225), lwd=2)

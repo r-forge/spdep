@@ -21,7 +21,7 @@ gabrielneigh <- function(coords) {
     nogab <- 0
     z <- .C("compute_gabriel", np=as.integer(np), from=as.integer(g1),
              to=as.integer(g2), nedges=as.integer(nogab),
-             x=as.double(x[,1]), y=as.double(x[,2]))
+             x=as.double(x[,1]), y=as.double(x[,2]), PACKAGE="spdep")
     z$from<-z$from[1:z$nedges]
     z$to<-z$to[1:z$nedges]
     attr(z, "call") <- match.call()

@@ -25,8 +25,9 @@ knearneigh <- function(x, k=1)
     dnn <- double(np*k)
     z <- .C("knearneigh", k=as.integer(k), np=as.integer(np),
         dimension=as.integer(dimension),
-        xx=as.double(xx), nn=as.integer(nn), dnn=as.double(dnn))
-    res <- list(nn=matrix(z$nn, np, k, byrow=T), np=np, k=k,
+        xx=as.double(xx), nn=as.integer(nn), dnn=as.double(dnn),
+	PACKAGE="spdep")
+    res <- list(nn=matrix(z$nn, np, k, byrow=TRUE), np=np, k=k,
     	dimension=dimension, x=x)
     class(res) <- "knn"
     attr(res, "call") <- match.call()

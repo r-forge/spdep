@@ -27,6 +27,6 @@ Vx <- lag.listw(nb2listw(COL.nb, style="W"), COL.OLD$CRIME)
 plot(Vx, COL.OLD$CRIME)
 require(stepfun)
 plot(ecdf(COL.OLD$CRIME))
-plot(ecdf(Vx), add=T, col.points="red", col.hor="red")
+plot(ecdf(Vx), add=TRUE, col.points="red", col.hor="red")
 }
 \keyword{spatial}

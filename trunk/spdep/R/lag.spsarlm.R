@@ -12,7 +12,7 @@
 #
 
 lagsarlm <- function(formula, data = list(), listw, type="lag",
-	method="eigen", quiet=T, zero.policy=FALSE, tol.solve=1.0e-7, 
+	method="eigen", quiet=TRUE, zero.policy=FALSE, tol.solve=1.0e-7, 
         tol.opt=.Machine$double.eps^0.5) {
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, method="model.frame")
@@ -66,7 +66,7 @@ lagsarlm <- function(formula, data = list(), listw, type="lag",
 		e.b <- t(e.w) %*% e.null
 		e.c <- t(e.w) %*% e.w
 		opt <- optimize(sar.lag.mixed.f, interval=eig.range,
-			maximum=T, tol=tol.opt, eig=eig,
+			maximum=TRUE, tol=tol.opt, eig=eig,
 			e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet)
 	} #else {
 	#	opt <- dosparse(listw, y, x, wy, K, quiet, tol.opt)
@@ -169,7 +169,7 @@ sar.lag.mixed.f <- function(rho, eig, e.a, e.b, e.c, n, quiet)
 #		e.b <- t(e.w) %*% e.null
 #		e.c <- t(e.w) %*% e.w
 #		LLs[[j]] <- optimize(sar.lag.mixed.f.s, interval=c(-1,1),
-#		maximum=T, tol=tol.opt, sn=sn,
+#		maximum=TRUE, tol=tol.opt, sn=sn,
 #		e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet)$objective
 #		attr(LLs[[j]], "nall") <- n
 #		attr(LLs[[j]], "nobs") <- n
@@ -187,7 +187,7 @@ sar.lag.mixed.f <- function(rho, eig, e.a, e.b, e.c, n, quiet)
 #	e.c <- t(e.w) %*% e.w
 #	sn <- listw2sn(listw)
 #	opt <- optimize(sar.lag.mixed.f.s, interval=c(-1,1),
-#		maximum=T, tol=tol.opt, sn=sn,
+#		maximum=TRUE, tol=tol.opt, sn=sn,
 #		e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet)
 #	maximum <- opt$maximum
 #	objective <- opt$objective

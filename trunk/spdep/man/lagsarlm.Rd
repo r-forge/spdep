@@ -16,7 +16,7 @@ parameters by generalized least squares subsequently. In the mixed model,
 the spatially lagged independent variables are added to X.
 }
 \usage{
-lagsarlm(formula, data=list(), listw, type="lag", method="eigen", quiet=T,
+lagsarlm(formula, data=list(), listw, type="lag", method="eigen", quiet=TRUE,
   zero.policy=FALSE, tol.solve=1.0e-7, tol.opt=.Machine$double.eps^0.5)
 %sar.lag.mixed.f.s(rho, sn, e.a, e.b, e.c, n, quiet)
 sar.lag.mixed.f(rho, eig, e.a, e.b, e.c, n, quiet)
@@ -35,7 +35,7 @@ is called.}
 of (1 - rho*eigenvalue) using \code{eigenw} %, and "sparse" - computes the 
 %determinant of the sparse matrix (I - rho*W) directly using \code{log.spwdet}.
 }
-  \item{quiet}{default=T; if F, reports function values during optimization.}
+  \item{quiet}{default=TRUE; if FALSE, reports function values during optimization.}
   \item{zero.policy}{if TRUE assign zero to the lagged value of zones without 
 neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminate with an error}
   \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=1.0e-7). This may be used if necessary to extract coefficient standard errors, but errors in \code{solve()} do constitute indicatations of model misspecification}
