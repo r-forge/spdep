@@ -30,6 +30,8 @@ EBImoran.mc <- function (n, x, listw, nsim, zero.policy = FALSE,
         stop("Check of data and weights ID integrity failed")
     if (nsim > gamma(m + 1)) 
         stop("nsim too large for this number of observations")
+    if (!(alternative %in% c("greater", "less", "two.sided")))
+	stop("alternative must be one of: \"greater\", \"less\", or \"two.sided\"")
     S0 <- Szero(listw)
     EB <- EBest(n, x)
     p <- EB$raw
@@ -118,46 +120,59 @@ EBest <- function(n, x) {
     res
 }
 
-EBlocal <- function(n, x, nb, zero.policy = FALSE, spChk = NULL) {
+EBlocal <- function(ri, ni, nb, zero.policy = FALSE,
+    spChk = NULL, geoda = FALSE) {
     if (class(nb) != "nb") 
         stop(paste(deparse(substitute(nb)), "is not an nb object"))
-    m <- length(nb)
-    if (m != length(x)) 
+    lnb <- length(nb)
+    if (lnb != length(ri)) 
         stop("objects of different length")
-    if (m != length(n)) 
+    if (lnb != length(ni)) 
         stop("objects of different length")
     if (is.null(spChk)) 
         spChk <- get.spChkOption()
-    if (spChk && !chkIDs(x, nb)) 
+    if (spChk && !chkIDs(ni, nb)) 
         stop("Check of data and neighbour ID integrity failed")
-    if (spChk && !chkIDs(n, nb)) 
+    if (spChk && !chkIDs(ri, nb)) 
         stop("Check of data and neighbour ID integrity failed")
-    if (!is.numeric(x)) 
-        stop(paste(deparse(substitute(x)), "is not a numeric vector"))
-    if (!is.numeric(n)) 
-        stop(paste(deparse(substitute(n)), "is not a numeric vector"))
-    if (any(is.na(x))) 
+    if (!is.numeric(ni)) 
+        stop(paste(deparse(substitute(ni)), "is not a numeric vector"))
+    if (!is.numeric(ri)) 
+        stop(paste(deparse(substitute(ri)), "is not a numeric vector"))
+    if (any(is.na(ni))) 
         stop("NA in at risk population")
-    if (any(is.na(n))) 
+    if (any(is.na(ri))) 
         stop("NA in cases")
-    if (any(x < 0)) 
+    if (any(ni < 0)) 
         stop("negative risk population")
-    if (any(n < 0)) 
+    if (any(ri < 0)) 
         stop("negative number of cases")
     lw <- nb2listw(include.self(nb), style="B", zero.policy=zero.policy)
-    r <- n/x
-    localcas <- lag.listw(lw, n, zero.policy = zero.policy)
-    localpop <- lag.listw(lw, x, zero.policy = zero.policy)
-    localmeancas <- lag.listw(nb2listw(include.self(nb), style="W",
-        zero.policy=zero.policy), n, zero.policy = zero.policy)
+    xi <- ri/ni
+    r.i <- lag.listw(lw, ri, zero.policy = zero.policy)
+    n.i <- lag.listw(lw, ni, zero.policy = zero.policy)
+    nbar.i <- lag.listw(nb2listw(include.self(nb), style="W",
+        zero.policy=zero.policy), ni, zero.policy = zero.policy)
 
-    m <- localcas/localpop
-    localC <- lag.listw(lw, (x * (r - m)^2), zero.policy = zero.policy)
-    a <- (localC/localpop) - (m/localmeancas)
-    a[a < 0] <- 0
-    est <- m + (r - m) * (a / (a + (m/x)))
+    m.i <- r.i/n.i
+    if (geoda) {
+	work <- vector(mode="list", length=lnb)
+	cnb <- card(lw$neighbours)
+	for (i in 1:lnb) {
+		work[[i]] <- rep(m.i[i], cnb[i])
+		work[[i]] <- xi[lw$neighbours[[i]]] - work[[i]]
+		work[[i]] <- work[[i]]^2
+		work[[i]] <- ni[lw$neighbours[[i]]] * work[[i]]
+	}
+	C.i <- sapply(work, sum)
+    } else {
+        C.i <- lag.listw(lw, (ni * (xi - m.i)^2), zero.policy = zero.policy)
+    }
+    a.i <- (C.i/n.i) - (m.i/nbar.i)
+    a.i[a.i < 0] <- 0
+    est <- m.i + (xi - m.i) * (a.i / (a.i + (m.i/ni)))
 
-    res <- data.frame(raw=r, est=est)
-    attr(res, "parameters") <- list(a=a, m=m)
+    res <- data.frame(raw=xi, est=est)
+    attr(res, "parameters") <- list(a=a.i, m=m.i)
     res
 }
