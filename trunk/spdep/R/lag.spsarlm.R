@@ -3,13 +3,16 @@
 
 lagsarlm <- function(formula, data = list(), listw, 
 	na.action=na.fail, type="lag", method="eigen", quiet=TRUE, 
-	zero.policy=FALSE, tol.solve=1.0e-7, tol.opt=.Machine$double.eps^0.5, 
-	sparsedebug=FALSE) {
+	zero.policy=FALSE, interval=c(-1,0.999), tol.solve=1.0e-10, 
+	tol.opt=.Machine$double.eps^0.5, control, optim=FALSE) {
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, na.action=na.action, 
 		method="model.frame")
 	na.act <- attr(mf, "na.action")
 	if (!inherits(listw, "listw")) stop("No neighbourhood list")
+	can.sim <- as.logical(NA)
+	if (listw$style %in% c("W", "S")) 
+		can.sim <- can.be.simmed(listw)
 	if (!is.null(na.act)) {
 	    subset <- !(1:length(listw$neighbours) %in% na.act)
 	    listw <- subset(listw, subset, zero.policy=zero.policy)
@@ -20,7 +23,14 @@ lagsarlm <- function(formula, data = list(), listw,
 	if (!quiet) cat("Jacobian calculated using ")
 	switch(method, 
 		eigen = if (!quiet) cat("neighbourhood matrix eigenvalues\n"),
-		sparse = if (!quiet) cat("sparse matrix techniques\n"),
+	        SparseM = {
+		    if (listw$style %in% c("W", "S") && !can.sim)
+		    stop("SparseM method requires symmetric weights")
+		    if (listw$style %in% c("B", "C", "U") && 
+			!(is.symmetric.glist(listw$neighbours, listw$weights)))
+		    stop("SparseM method requires symmetric weights")
+		    if (!quiet) cat("sparse matrix techniques using SparseM\n")
+		},
 		stop("...\nUnknown method\n"))
 	y <- model.response(mf, "numeric")
 #	if (any(is.na(y))) stop("NAs in dependent variable")
@@ -70,9 +80,17 @@ lagsarlm <- function(formula, data = list(), listw,
 		m <- NCOL(x)
 		rm(wx, WX)
 	}
+	similar <- FALSE
+	if (missing(control)) {
+		control <- list(trace=0, fnscale=-1, factr=tol.opt,
+			pgtol=tol.opt)
+	}
 	if (method == "eigen") {
 		if (!quiet) cat("Computing eigenvalues ...\n")
-		eig <- eigenw(listw)
+		if (listw$style %in% c("W", "S") && can.sim) {
+			eig <- eigenw(similar.listw(listw))
+			similar <- TRUE
+		} else eig <- eigenw(listw)
 		if (!quiet) cat("\n")
 #range inverted 031031, email from Salvati Nicola (and Rein Halbersma)
 		if (is.complex(eig)) eig.range <- 1/range(Re(eig))
@@ -84,16 +102,44 @@ lagsarlm <- function(formula, data = list(), listw,
 		e.a <- t(e.null) %*% e.null
 		e.b <- t(e.w) %*% e.null
 		e.c <- t(e.w) %*% e.w
-		opt <- optimize(sar.lag.mixed.f, interval=eig.range,
-			maximum=TRUE, tol=tol.opt, eig=eig,
-			e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet)
+		if (optim) {
+		    lm.rho <- lm.fit(cbind(x, wy), y)
+		    rho <- coef(lm.rho)[length(coef(lm.rho))]
+		    if (rho < eig.range[1]+.Machine$double.eps) rho <- 0.0
+		    if (rho > eig.range[2]-.Machine$double.eps) rho <- 0.0
+		    opt <- optim(par=c(rho), sar.lag.mixed.f, 
+			method="L-BFGS-B", 
+			lower=eig.range[1]+.Machine$double.eps, 
+			upper=eig.range[2]-.Machine$double.eps, 
+			control=control, 
+			eig=eig, e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet)
+		    if (opt$convergence == 1) warning("iteration limit reached")
+		    if (opt$convergence == 51) warning(opt$message)
+		    if (opt$convergence == 52) warning(opt$message)
+		    rho <- c(opt$par[1])
+		    names(rho) <- "rho"
+		    LL <- c(opt$value)
+		} else {
+		    opt <- optimize(sar.lag.mixed.f, 
+			lower=eig.range[1]+.Machine$double.eps, 
+			upper=eig.range[2]-.Machine$double.eps, maximum=TRUE,
+			tol=tol.opt, eig=eig, e.a=e.a, e.b=e.b, e.c=e.c,
+			n=n, quiet=quiet)
+		    rho <- opt$maximum
+		    names(rho) <- "rho"
+		    LL <- opt$objective
+		    optres <- opt
+		}
 	} else {
-		opt <- dosparse(listw, y, x, wy, K, quiet, tol.opt, 
-			sparsedebug)
+		opt <- dosparse(listw=listw, y=y, x=x, wy=wy, K=K, quiet=quiet,
+			tol.opt=tol.opt, control=control, method=method, 
+			interval=interval, can.sim=can.sim, optim=optim)
+		rho <- c(opt$maximum)
+		names(rho) <- "rho"
+		LL <- c(opt$objective)
+		similar <- opt$similar
+		optres <- opt$opt
 	}
-	rho <- c(opt$maximum)
-	names(rho) <- "rho"
-	LL <- c(opt$objective)
 	lm.lag <- lm((y - rho*wy) ~ x - 1)
 	r <- residuals(lm.lag)
 	fit <- y - r
@@ -118,7 +164,7 @@ lagsarlm <- function(formula, data = list(), listw,
 		omega <- sum(O)
 		if (is.complex(omega)) omega <- Re(omega)
 		W <- listw2mat(listw)
-		A <- solve(diag(n) - rho*W, tol=tol.solve)
+		A <- solve(diag(n) - rho*W)
 		AW <- A %*% W
 		zero <- rbind(rep(0,length(coef.rho)))
 		xtawxb <- s2*(t(x) %*% AW %*% x %*% coef.rho)
@@ -146,9 +192,9 @@ lagsarlm <- function(formula, data = list(), listw,
 	ret <- structure(list(type=type, rho=rho, 
 		coefficients=coef.rho, rest.se=rest.se, 
 		LL=LL, s2=s2, SSE=SSE, parameters=(m+2), lm.model=lm.null,
-		method=method, call=call, residuals=r, 
+		method=method, call=call, residuals=r, opt=optres,
 		lm.target=lm.lag, fitted.values=fit,
-		se.fit=NULL, formula=formula,
+		se.fit=NULL, formula=formula, similar=similar,
 		ase=ase, LLs=LLs, rho.se=rho.se, LMtest=LMtest, 
 		resvar=varb, zero.policy=zero.policy), class=c("sarlm"))
 	if (zero.policy) {
@@ -170,23 +216,40 @@ sar.lag.mixed.f <- function(rho, eig, e.a, e.b, e.c, n, quiet)
 	else det <- prod(1 - rho*eig)
 	ret <- (log(det) - ((n/2)*log(2*pi)) - (n/2)*log(s2)
 		- (1/(2*s2))*SSE)
-	if (!quiet) cat("Rho:\t", rho, "\tfunction value:\t", ret, "\n")
+	if (!quiet) cat("(eigen) rho:\t", rho, "\tfunction value:\t", ret, "\n")
 	ret
 }
 
-sar.lag.mixed.f.s <- function(rho, sn, e.a, e.b, e.c, n, quiet, sparsedebug)
+
+
+sar.lag.mix.f.sM <- function(rho, W, I, e.a, e.b, e.c, n, tmpmax, quiet)
 {
 	SSE <- e.a - 2*rho*e.b + rho*rho*e.c
 	s2 <- SSE/n
-	ret <- (logSpwdet(sparseweights=sn, rho=rho, debug=sparsedebug)
+	Jacobian <- log(det(chol((I - rho * W), tmpmax=tmpmax))^2)
+	gc(FALSE)
+	ret <- (Jacobian
 		- ((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*s2))*SSE)
-	if (!quiet) cat("Rho:\t", rho, "\tfunction value:\t", ret, "\n")
+	if (!quiet) 
+	    cat("(SparseM) rho:\t", rho, "\tfunction value:\t", ret, "\n")
 	ret
 }
 
-
-dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, sparsedebug) {
-	sn <- listw2sn(listw)
+dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, 
+	control, method, interval, can.sim, optim) {
+	similar <- FALSE
+	m <- ncol(x)
+	n <- nrow(x)
+	if (method == "SparseM") {
+		if (listw$style %in% c("W", "S") && can.sim) {
+			W <- asMatrixCsrListw(similar.listw(listw))
+			similar <- TRUE
+		} else W <- asMatrixCsrListw(listw)
+		I <- asMatrixCsrI(n)
+		tmpmax <- sum(card(listw$neighbours)) + n
+		# tmpmax and gc() calls: Danlin Yu 20041213
+		gc(FALSE)
+	}
 	m <- ncol(x)
 	n <- nrow(x)
 	LLs <- vector(mode="list", length=length(K:m))
@@ -200,10 +263,30 @@ dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, sparsedebug) {
 		e.a <- t(e.null) %*% e.null
 		e.b <- t(e.w) %*% e.null
 		e.c <- t(e.w) %*% e.w
-		LLs[[j]] <- optimize(sar.lag.mixed.f.s, interval=c(-1,1),
-		maximum=TRUE, tol=tol.opt, sn=sn,
-		e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet,
-		sparsedebug=sparsedebug)$objective
+		if (optim) { 
+			lm.rho <- lm.fit(cbind(thisx, wy), y)
+			rho <- coef(lm.rho)[length(coef(lm.rho))]
+			if (rho <= interval[1]) rho <- 0.0
+			if (rho >= interval[2]) rho <- 0.0
+			opt <- optim(par=c(rho), 
+			    sar.lag.mix.f.sM, method="L-BFGS-B", 
+			    lower=interval[1],
+			    upper=interval[2],
+			    control=control, 
+			    W=W, I=I, e.a=e.a, e.b=e.b, e.c=e.c, n=n, 
+			    tmpmax=tmpmax, quiet=quiet)
+			if (opt$convergence == 1) 
+				warning("iteration limit reached")
+			if (opt$convergence == 51) warning(opt$message)
+			if (opt$convergence == 52) warning(opt$message)
+			LLs[[j]] <- c(opt$value)
+		} else {
+			LLs[[j]] <- optimize(sar.lag.mix.f.sM,
+			interval=interval, maximum=TRUE, tol=tol.opt, W=W, I=I,
+			e.a=e.a, e.b=e.b, e.c=e.c, n=n, tmpmax=tmpmax, 
+			quiet=quiet)$objective
+		}
+		gc(FALSE)
 		attr(LLs[[j]], "nall") <- n
 		attr(LLs[[j]], "nobs") <- n
 		attr(LLs[[j]], "df") <- (m+2)-1
@@ -219,12 +302,32 @@ dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, sparsedebug) {
 	e.b <- t(e.w) %*% e.null
 	e.c <- t(e.w) %*% e.w
 	sn <- listw2sn(listw)
-	opt <- optimize(sar.lag.mixed.f.s, interval=c(-1,1),
-		maximum=TRUE, tol=tol.opt, sn=sn,
-		e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet, 
-		sparsedebug=sparsedebug)
-	maximum <- opt$maximum
-	objective <- opt$objective
+	if (optim) {
+		lm.rho <- lm.fit(cbind(x, wy), y)
+		rho <- coef(lm.rho)[length(coef(lm.rho))]
+		if (rho <= interval[1]) rho <- 0.0
+		if (rho >= interval[2]) rho <- 0.0
+		opt <- optim(par=c(rho), 
+		    sar.lag.mix.f.sM, method="L-BFGS-B", 
+		    lower=interval[1],
+		    upper=interval[2],
+		    control=control, 
+		    W=W, I=I, e.a=e.a, e.b=e.b, e.c=e.c, n=n, 
+		    tmpmax=tmpmax, quiet=quiet)	
+		if (opt$convergence == 1) warning("iteration limit reached")
+		if (opt$convergence == 51) warning(opt$message)
+		if (opt$convergence == 52) warning(opt$message)
+		maximum <- c(opt$par[1])
+		objective <- c(opt$value)
+	} else {
+		opt <- optimize(sar.lag.mix.f.sM,
+		    interval=interval, maximum=TRUE, tol=tol.opt, W=W, I=I,
+		    e.a=e.a, e.b=e.b, e.c=e.c, n=n, tmpmax=tmpmax, quiet=quiet)
+		maximum <- opt$maximum
+		objective <- opt$objective
+	}
+	gc(FALSE)
 	res <- list(maximum=maximum, objective=objective, LLs=LLs,
-		lm.null=lm.null)
+		lm.null=lm.null, similar=similar, opt=opt)
 }
+

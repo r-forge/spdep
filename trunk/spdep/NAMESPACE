@@ -1,5 +1,11 @@
 useDynLib(spdep)
 
+importFrom(SparseM, as.matrix.csr)
+importMethodsFrom(SparseM, det)
+importMethodsFrom(SparseM, chol)
+importClassesFrom(SparseM, matrix.csr)
+importFrom(stats, model.matrix, model.response)
+
 export(EBImoran.mc, probmap, choynowski, EBest, EBlocal, LR.sarlm, 
 	LR1.sarlm, Wald1.sarlm, airdist, card, rookcell, 
 	queencell, mrc2vi, vi2mrc, cell2nb, n.comp.nb, diffnb,
@@ -12,7 +18,7 @@ export(EBImoran.mc, probmap, choynowski, EBest, EBlocal, LR.sarlm,
 	nb2listw, nb2mat, listw2mat, mat2listw, invIrM, invIrW, nbdists, nblag,
 	poly2nb, read.gal, write.nb.gal, read.geoda, relativeneigh,
 	soi.graph, sp.correlogram, sp.mantel.mc, set.spChkOption, chkIDs,
-	get.spChkOption, spNamedVec, spwdet, logSpwdet, tri2nb,
+	get.spChkOption, spNamedVec, tri2nb,
 	spweights.constants, lag.listw, listw2U, listw2star, is.symmetric.nb,
 	sym.attr.nb, include.self, make.sym.nb, union.nb, intersect.nb,
 	setdiff.nb, complement.nb, Szero, spdep, print.nb, summary.nb, 
@@ -24,7 +30,9 @@ export(EBImoran.mc, probmap, choynowski, EBest, EBlocal, LR.sarlm,
 	print.sarlm, summary.sarlm, residuals.sarlm, deviance.sarlm, 
 	coef.sarlm, fitted.sarlm, logLik.sarlm, anova.sarlm, 
 	predict.sarlm, print.summary.sarlm, print.sarlm.pred, bptest.sarlm,
-	write.sn2dat, read.dat2listw, nb2blocknb, p.adjustSP)
+	write.sn2dat, read.dat2listw, nb2blocknb, p.adjustSP,
+	asMatrixCsrListw, asMatrixCsrI, asMatrixCsrIrW, asListwMatrixCsr, 
+	is.symmetric.glist, similar.listw)
 
 import(maptools)
 

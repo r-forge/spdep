@@ -66,6 +66,7 @@ read.gal <- function(file, region.id=NULL, override.id=FALSE)
 write.nb.gal <- function(nb, file, oldstyle=TRUE, shpfile=NULL, ind=NULL) {
 	if(class(nb) != "nb") stop("not an nb object")
 	n <- length(nb)
+	if (n < 1) stop("non-positive number of entities")
 	rn <- attr(nb, "region.id")
 	if (is.null(shpfile)) {
 		tmp <- attr(nb, "GeoDa")$shpfile

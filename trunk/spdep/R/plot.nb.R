@@ -9,6 +9,7 @@ plot.nb <- function(x, coords, col="black", points=TRUE, add=FALSE,
 	x <- coords[,1]
 	y <- coords[,2]
 	n <- length(nb)
+	if (n < 1) stop("non-positive number of entities")
 	xlim <- range(x)
 	ylim <- range(y)
 	if (!add) {

@@ -104,7 +104,8 @@ moran.mc <- function(x, listw, nsim, zero.policy=FALSE,
 	}
 	n <- length(listw$neighbours)
 	if (n != length(x)) stop("objects of different length")
-	if(nsim > gamma(n+1)) stop("nsim too large for this n")
+	if (nsim > gamma(n+1)) stop("nsim too large for this n")
+	if (nsim < 1) stop("nsim too small")
 	
 	S0 <- Szero(listw)
 	res <- numeric(length=nsim+1)

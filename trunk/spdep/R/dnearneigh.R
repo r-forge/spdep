@@ -7,6 +7,7 @@ dnearneigh <- function(x, d1, d2, row.names=NULL, lonlat=FALSE) {
     if (any(is.na(x))) stop("Data include NAs")
     if (!is.double(x)) storage.mode(x) <- "double"
     np <- nrow(x)
+    if (np < 1) stop("non-positive number of rows in x")
     if (!is.null(row.names)) {
 	if(length(row.names) != np)
             stop("row.names wrong length")
@@ -20,7 +21,7 @@ dnearneigh <- function(x, d1, d2, row.names=NULL, lonlat=FALSE) {
     if (d1 < 0) d1 <- 0.0
     if (!lonlat) {
 	for (i in 1:dimension) md <- sum(md, (diff(range(x[,i]))^2))
-	md <- md + sqrt(.Machine$double.eps)
+	md <- md + (.Machine$double.eps)^(1/4)
     	if (d2 > sqrt(md)) d2 <- sqrt(md)
     }
     z <- .Call("dnearneigh", as.double(d1), as.double(d2), as.integer(np),
