@@ -19,7 +19,7 @@ errorsarlm <- function(formula, data = list(), listw, method="eigen",
 	cat("\nSpatial autoregressive error model\nJacobian calculated using ")
 	switch(method,
 		eigen = cat("neighbourhood matrix eigenvalues\n"),
-#		sparse = cat("sparse matrix techniques\n"),
+		sparse = cat("sparse matrix techniques\n"),
 		stop("...\n\nUnknown method\n"))
 	y <- model.response(mf, "numeric")
 	if (any(is.na(y))) stop("NAs in dependent variable")
@@ -56,12 +56,12 @@ errorsarlm <- function(formula, data = list(), listw, method="eigen",
 		opt <- optimize(sar.error.f, interval=eig.range, maximum=TRUE,
 			tol=tol.opt, eig=eig,
 			y=y, wy=wy, x=x, WX=WX, n=n, quiet=quiet)
-	} #else {
-	#	sn <- listw2sn(listw)
-	#	opt <- optimize(sar.error.f.s, interval=c(-1,1), maximum=TRUE,
-	#		tol=tol.opt, sn=sn,
-	#		y=y, wy=wy, x=x, WX=WX, n=n, quiet=quiet)
-	#}
+	} else {
+		sn <- listw2sn(listw)
+		opt <- optimize(sar.error.f.s, interval=c(-1,1), maximum=TRUE,
+			tol=tol.opt, sn=sn,
+			y=y, wy=wy, x=x, WX=WX, n=n, quiet=quiet)
+	}
 	lambda <- opt$maximum
 	LL <- opt$objective
 	lm.target <- lm(I(y - lambda*wy) ~ I(x - lambda*WX) - 1)
@@ -121,17 +121,17 @@ sar.error.f <- function(lambda, eig, y, wy, x, WX, n, quiet)
 	ret
 }
 
-#sar.error.f.s <- function(lambda, sn, y, wy, x, WX, n, quiet)
-#{
-#	yl <- y - lambda*wy
-#	xl <- x - lambda*WX
-#	xl.q <- qr.Q(qr(xl))
-#	xl.q.yl <- t(xl.q) %*% yl
-#	SSE <- t(yl) %*% yl - t(xl.q.yl) %*% xl.q.yl
-#	s2 <- SSE/n
-#	ret <- (log.spwdet(sparseweights=sn, rho=lambda) - 
-#		((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
-#	if (!quiet) cat("Lambda:\t", lambda, "\tfunction value:\t", ret, "\n")
-#	ret
-#}
+sar.error.f.s <- function(lambda, sn, y, wy, x, WX, n, quiet)
+{
+	yl <- y - lambda*wy
+	xl <- x - lambda*WX
+	xl.q <- qr.Q(qr(xl))
+	xl.q.yl <- t(xl.q) %*% yl
+	SSE <- t(yl) %*% yl - t(xl.q.yl) %*% xl.q.yl
+	s2 <- SSE/n
+	ret <- (log.spwdet(sparseweights=sn, rho=lambda) - 
+		((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
+	if (!quiet) cat("Lambda:\t", lambda, "\tfunction value:\t", ret, "\n")
+	ret
+}
 

@@ -2,7 +2,7 @@
 \name{errorsarlm}
 \alias{errorsarlm}
 \alias{sar.error.f}
-%\alias{sar.error.f.s}
+\alias{sar.error.f.s}
 \title{Spatial simultaneous autoregressive error model estimation}
 \description{
   Maximum likelihood estimation of spatial simultaneous autoregressive
@@ -17,7 +17,7 @@ parameters by generalized least squares subsequently.
 errorsarlm(formula, data=list(), listw, method="eigen", quiet=TRUE,
   zero.policy=FALSE, tol.solve=1.0e-7, tol.opt=.Machine$double.eps^0.5)
 sar.error.f(lambda, eig, y, wy, x, WX, n, quiet)
-%sar.error.f.s(lambda, sn, y, wy, x, WX, n, quiet)
+sar.error.f.s(lambda, sn, y, wy, x, WX, n, quiet)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -29,8 +29,8 @@ is called.}
   \item{listw}{a \code{listw} object created for example by \code{nb2listw}}
   \item{method}{"eigen" (default) - the Jacobian is computed as the product 
 of (1 - rho*eigenvalue) using \code{eigenw}
-%, and "sparse" - computes the 
-%determinant of the sparse matrix (I - rho*W) directly using \code{log.spwdet}.
+, and "sparse" - computes the 
+determinant of the sparse matrix (I - rho*W) directly using \code{log.spwdet}.
 }
   \item{quiet}{default=TRUE; if FALSE, reports function values during optimization.}
   \item{zero.policy}{if TRUE assign zero to the lagged value of zones without 
@@ -44,13 +44,13 @@ neighbours, if FALSE (default) assign NA - causing \code{errorsarlm()} to termin
   \item{x}{independent variables}
   \item{WX}{spatially lagged independent variables}
   \item{n}{length of y (and eig)}
-%  \item{sn}{sparse spatial neighbour object from \code{listw2sn}}
+  \item{sn}{sparse spatial neighbour object from \code{listw2sn}}
 }
-%\details{
-%  The asymptotic standard error of $\lambda$ is only computed when 
-%method=eigen, because the full matrix operations involved would be costly
-%for large n typically associated with the choice of method=sparse. 
-%}
+\details{
+  The asymptotic standard error of $\lambda$ is only computed when 
+method=eigen, because the full matrix operations involved would be costly
+for large n typically associated with the choice of method=sparse. 
+}
 \value{
   A list object of class \code{sarlm}
   \item{type}{"error"}
@@ -92,16 +92,16 @@ pp. 237-289.}
 \author{Roger Bivand \email{Roger.Bivand@nhh.no}}
 
 \seealso{\code{\link{lm}}, \code{\link{lagsarlm}}, 
-\code{\link{eigenw}}, %\code{\link{log.spwdet}}
+\code{\link{eigenw}}, \code{\link{log.spwdet}}
 }
 
 \examples{
 data(oldcol)
 COL.err.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="eigen", quiet=FALSE)
-%COL.err.sp <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
-% nb2listw(COL.nb), method="sparse", quiet=FALSE)
+COL.err.sp <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ nb2listw(COL.nb), method="sparse", quiet=FALSE)
 summary(COL.err.eig)
-%summary(COL.err.sp)
+summary(COL.err.sp)
 }
 \keyword{spatial}

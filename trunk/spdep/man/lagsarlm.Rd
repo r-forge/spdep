@@ -2,8 +2,8 @@
 \name{lagsarlm}
 \alias{lagsarlm}
 \alias{sar.lag.mixed.f}
-%\alias{sar.lag.mixed.f.s}
-%\alias{dosparse}
+\alias{sar.lag.mixed.f.s}
+\alias{dosparse}
 \title{Spatial simultaneous autoregressive lag model estimation}
 \description{
   Maximum likelihood estimation of spatial simultaneous autoregressive
@@ -18,9 +18,9 @@ the spatially lagged independent variables are added to X.
 \usage{
 lagsarlm(formula, data=list(), listw, type="lag", method="eigen", quiet=TRUE,
   zero.policy=FALSE, tol.solve=1.0e-7, tol.opt=.Machine$double.eps^0.5)
-%sar.lag.mixed.f.s(rho, sn, e.a, e.b, e.c, n, quiet)
+sar.lag.mixed.f.s(rho, sn, e.a, e.b, e.c, n, quiet)
 sar.lag.mixed.f(rho, eig, e.a, e.b, e.c, n, quiet)
-%dosparse(listw, y, x, wy, K, quiet)
+dosparse(listw, y, x, wy, K, quiet, tol.opt)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -32,8 +32,8 @@ is called.}
   \item{listw}{a \code{listw} object created for example by \code{nb2listw}}
   \item{type}{default "lag", may be set to "mixed"}
   \item{method}{"eigen" (default) - the Jacobian is computed as the product 
-of (1 - rho*eigenvalue) using \code{eigenw} %, and "sparse" - computes the 
-%determinant of the sparse matrix (I - rho*W) directly using \code{log.spwdet}.
+of (1 - rho*eigenvalue) using \code{eigenw} , and "sparse" - computes the 
+determinant of the sparse matrix (I - rho*W) directly using \code{log.spwdet}.
 }
   \item{quiet}{default=TRUE; if FALSE, reports function values during optimization.}
   \item{zero.policy}{if TRUE assign zero to the lagged value of zones without 
@@ -50,7 +50,7 @@ neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminat
   \item{e.b}{term used in computing likelihood}
   \item{e.c}{term used in computing likelihood}
   \item{K}{1 if no intercept, 2 if intercept present in x}
-%  \item{sn}{sparse spatial neighbour object from \code{listw2sn}}
+  \item{sn}{sparse spatial neighbour object from \code{listw2sn}}
 }
 \details{
   
@@ -102,16 +102,16 @@ pp. 237-289.}
 Bernat for contributions to the asymptotic standard error code.}
 
 \seealso{\code{\link{lm}}, \code{\link{errorsarlm}}, 
-\code{\link{eigenw}}, %\code{\link{log.spwdet}}
+\code{\link{eigenw}}, \code{\link{log.spwdet}}
 }
 
 \examples{
 data(oldcol)
 COL.lag.eig <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="eigen", quiet=FALSE)
-%COL.lag.sp <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
-% nb2listw(COL.nb), method="sparse", quiet=FALSE)
+COL.lag.sp <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ nb2listw(COL.nb), method="sparse", quiet=FALSE)
 summary(COL.lag.eig)
-%summary(COL.lag.sp)
+summary(COL.lag.sp)
 }
 \keyword{spatial}
