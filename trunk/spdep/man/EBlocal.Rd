@@ -32,7 +32,7 @@ and a \code{parameters} attribute list with components:
   \item{m}{a numerical vector of local gamma values}
 }
 \references{Marshall R M (1991) Mapping disease and mortality rates using Empirical Bayes Estimators, Applied Statistics, 40, 283--294; Bailey T, Gatrell A (1995) Interactive Spatial Data Analysis, Harlow: Longman, pp. 303--306.}
-\author{Roger Bivand \email{Roger.Bivand@nhh.no}, based on contributions by Marilio Carvalho}
+\author{Roger Bivand \email{Roger.Bivand@nhh.no}, based on contributions by Marilia Carvalho}
 
 \seealso{\code{\link{EBest}}, \code{\link{probmap}}}
 
@@ -43,7 +43,7 @@ res <- EBlocal(spNamedVec("Deaths.1977.85", auckland),
 brks <- c(-Inf,2,2.5,3,3.5,Inf)
 cols <- grey(6:2/7)
 library(maptools)
-plotpolys(auckpolys, auckbbs, col=cols[findInterval2(res$est*1000, brks)])
+plot(auckpolys, col=cols[findInterval2(res$est*1000, brks)])
 legend(c(70,90), c(70,95), fill=cols, legend=leglabs(brks), bty="n")
 title(main="Local moment estimator of infant mortality per 1000 per year")
 }

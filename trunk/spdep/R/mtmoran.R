@@ -3,7 +3,7 @@
 
 lm.morantest.sad <- function (model, listw, zero.policy = FALSE, 
     alternative = "greater", spChk=NULL, tol = .Machine$double.eps^0.5,
-    maxiter = 1000) 
+    maxiter = 1000, tol.bounds=0.0001) 
 {
     if (!inherits(listw, "listw")) 
         stop(paste(deparse(substitute(listw)), "is not a listw object"))
@@ -38,8 +38,8 @@ lm.morantest.sad <- function (model, listw, zero.policy = FALSE,
     tau <- evalue[1:idxpos]
     tau <- c(tau, evalue[(idxpos+1+p):N])
     taumi <- tau - I
-    low <- (1 / (2*taumi[length(taumi)])) + 0.01
-    high <- (1 / (2*taumi[1])) - 0.01
+    low <- (1 / (2*taumi[length(taumi)])) + tol.bounds
+    high <- (1 / (2*taumi[1])) - tol.bounds
     f <- function(omega, taumi) {sum(taumi/(1 - (2*omega*taumi)))}
     root <- uniroot(f, lower=low, upper=high, tol=tol, maxiter=maxiter,
         taumi=taumi)
@@ -53,6 +53,8 @@ lm.morantest.sad <- function (model, listw, zero.policy = FALSE,
     else if (alternative == "greater")
         p.sad <- pnorm(sad.p, lower.tail=FALSE)
     else p.sad <- pnorm(sad.p)
+    if (p.sad < 0 || p.sad > 1) 
+	warning("Out-of-range p-value: reconsider test arguments")
     statistic <- sad.p
     attr(statistic, "names") <- "Saddlepoint approximation"
     p.value <- p.sad
@@ -77,7 +79,8 @@ lm.morantest.sad <- function (model, listw, zero.policy = FALSE,
 }
 
 print.moransad <- function(x, ...) {
-    print.htest(x, ...)
+    class(x) <- c("htest", "moransad")
+    print(x, ...)
     invisible(x)
 }
 
@@ -103,7 +106,8 @@ summary.moransad <- function(object, ...) {
 }
 
 print.summary.moransad <- function(x, ...) {
-    print.htest(x, ...)
+    class(x) <- c("htest", "summary.moransad", "moransad")
+    print(x, ...)
     print(c(x$xtra, x$internal1), ...)
     if (!is.null(x$internal2)) print(x$internal2, ...)
     invisible(x)

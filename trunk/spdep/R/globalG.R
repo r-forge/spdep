@@ -5,6 +5,7 @@
 #
 globalG.test <- function(x, listw, zero.policy=FALSE,
 	alternative="greater", spChk=NULL) {
+	alternative <- match.arg(alternative, c("greater", "less", "two.sided"))
 	if (!inherits(listw, "listw"))
 	stop(paste(deparse(substitute(listw)), "is not a listw object"))
 	if (listw$style != "B") stop("Only binary weights allowed")
@@ -18,8 +19,6 @@ globalG.test <- function(x, listw, zero.policy=FALSE,
 	if (is.null(spChk)) spChk <- get.spChkOption()
 	if (spChk && !chkIDs(x, listw))
 		stop("Check of data and weights ID integrity failed")
-	if (!(alternative %in% c("greater", "less", "two.sided")))
-		stop("alternative must be one of: \"greater\", \"less\", or \"two.sided\"")
 
 	wc <- spweights.constants(listw, zero.policy=zero.policy)
 	n1 <- n - 1
@@ -54,7 +53,9 @@ globalG.test <- function(x, listw, zero.policy=FALSE,
 		lower.tail=FALSE)
         else if (alternative == "greater")
             PrG <- pnorm(statistic, lower.tail=FALSE)
-        else PrI <- pnorm(statistic)
+        else PrG <- pnorm(statistic)
+	if (PrG < 0 || PrG > 1) 
+		warning("Out-of-range p-value: reconsider test arguments")
 	vec <- c(G, E.G, var.G)
 	names(vec) <- c("Global G statistic", "Expectation", "Variance")
 	data.name <- paste(deparse(substitute(x)), "\nweights:",

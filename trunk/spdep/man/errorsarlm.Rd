@@ -1,4 +1,4 @@
-% Copyright 2002 by Roger S. Bivand
+% Copyright 2002-4 by Roger S. Bivand
 \name{errorsarlm}
 \alias{errorsarlm}
 %\alias{sar.error.f}
@@ -14,9 +14,9 @@ where $\lambda$ is found by \code{optimize()} first and $\beta$ and other
 parameters by generalized least squares subsequently.
 }
 \usage{
-errorsarlm(formula, data=list(), listw, method="eigen", quiet=TRUE,
-  zero.policy=FALSE, tol.solve=1.0e-7, tol.opt=.Machine$double.eps^0.5,
-  sparsedebug=FALSE)
+errorsarlm(formula, data=list(), listw, na.action=na.fail, method="eigen",
+  quiet=TRUE, zero.policy=FALSE, tol.solve=1.0e-10, 
+  tol.opt=.Machine$double.eps^0.5, sparsedebug=FALSE)
 %sar.error.f(lambda, eig, y, wy, x, WX, n, quiet)
 %sar.error.f.s(lambda, sn, y, wy, x, WX, n, quiet, sparsedebug)
 }
@@ -28,15 +28,16 @@ of model specification are given for \code{lm()}}
 By default the variables are taken from the environment which the function 
 is called.}
   \item{listw}{a \code{listw} object created for example by \code{nb2listw}}
+  \item{na.action}{a function (default \code{na.fail}), can also be \code{na.omit} or \code{na.exclude} with consequences for residuals and fitted values - in these cases the weights list will be subsetted to remove NAs in the data. It may be necessary to set zero.policy to TRUE because this subsetting may create no-neighbour observations. Note that only weights lists created without using the glist argument to \code{nb2listw} may be subsetted.}
   \item{method}{"eigen" (default) - the Jacobian is computed as the product 
 of (1 - rho*eigenvalue) using \code{eigenw}
 , and "sparse" - computes the 
-determinant of the sparse matrix (I - rho*W) directly using \code{log.spwdet}.
+determinant of the sparse matrix (I - rho*W) directly using \code{logSpwdet}.
 }
   \item{quiet}{default=TRUE; if FALSE, reports function values during optimization.}
   \item{zero.policy}{if TRUE assign zero to the lagged value of zones without 
 neighbours, if FALSE (default) assign NA - causing \code{errorsarlm()} to terminate with an error}
-  \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=1.0e-7)}
+  \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=1.0e-10). This may be used if necessary to extract coefficient standard errors (for instance lowering to 1e-12), but errors in \code{solve()} may constitute indications of poorly scaled variables}
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()} (default=square root of double precision machine tolerance)}
   \item{sparsedebug}{if TRUE, writes a log file on sparse matrix operations
 (name sparsestats) in the current directory. To be used if sparse estimation
@@ -51,9 +52,15 @@ fails!}
 %  \item{sn}{sparse spatial neighbour object from \code{listw2sn}}
 }
 \details{
-  The asymptotic standard error of $\lambda$ is only computed when 
+  The asymptotic standard error of $\lambda$ is only computed when
 method=eigen, because the full matrix operations involved would be costly
-for large n typically associated with the choice of method=sparse. 
+for large n typically associated with the choice of method=sparse. The
+same applies to the coefficient covariance matrix. Taken as the
+asymptotic matrix from the literature, it is typically badly scaled, being
+block-diagonal, and with the elements involving lambda being very small,
+while other parts of the matrix can be very large (often many orders
+of magnitude in difference). It often happens that the \code{tol.solve}
+argument needs to be set to a smaller value than the default.
 
 When using the sparse method, the user takes (unfortunately) full
 responsibility for possible failures, including R terminating with
@@ -65,7 +72,7 @@ number of allocated blocks. At present, \code{spwdet} will fail when
 this increases over the number initially allocated, but will not release
 memory allocated by the sparse functions. In the event of problems,
 save your workspace and quit R. Problems seem to be related to larger
-n, and to an unknown trigger precipitating incontrolled fillin, in the
+n, and to an unknown trigger precipitating uncontrolled fillin, in the
 course of which the sparse routines lose track of their memory pointers,
 and then provoke a segmentation fault trying to free unallocated memory.
 }
@@ -92,6 +99,7 @@ standard errors)}
   \item{lambda.se}{if ase=TRUE, the asymptotic standard error of $\lambda$}
   \item{LMtest}{NULL for this model}
   \item{zero.policy}{zero.policy for this model}
+  \item{na.action}{(possibly) named vector of excluded or omitted observations if non-default na.action argument used}
 
 The internal sar.error.* functions return the value of the log likelihood function at $\lambda$.
 }
@@ -109,17 +117,27 @@ pp. 237-289.}
 \author{Roger Bivand \email{Roger.Bivand@nhh.no}}
 
 \seealso{\code{\link{lm}}, \code{\link{lagsarlm}}, 
-\code{\link{eigenw}}, \code{\link{log.spwdet}}, \code{\link{predict.sarlm}},
+\code{\link{eigenw}}, \code{\link{logSpwdet}}, \code{\link{predict.sarlm}},
 \code{\link{residuals.sarlm}}
 }
 
 \examples{
 data(oldcol)
-COL.err.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
- nb2listw(COL.nb), method="eigen", quiet=FALSE)
-COL.err.sp <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
- nb2listw(COL.nb), method="sparse", quiet=FALSE)
-summary(COL.err.eig)
-summary(COL.err.sp)
+COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ nb2listw(COL.nb, style="W"), method="eigen", quiet=FALSE)
+COL.errB.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ nb2listw(COL.nb, style="B"), method="eigen", quiet=FALSE)
+COL.errW.sp <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ nb2listw(COL.nb, style="W"), method="sparse", quiet=FALSE)
+summary(COL.errW.eig, correlation=TRUE)
+summary(COL.errB.eig, correlation=TRUE)
+summary(COL.errW.sp, correlation=TRUE)
+NA.COL.OLD <- COL.OLD
+NA.COL.OLD$CRIME[20:25] <- NA
+COL.err.NA <- errorsarlm(CRIME ~ INC + HOVAL, data=NA.COL.OLD,
+ nb2listw(COL.nb), na.action=na.exclude)
+COL.err.NA$na.action
+COL.err.NA
+resid(COL.err.NA)
 }
 \keyword{spatial}

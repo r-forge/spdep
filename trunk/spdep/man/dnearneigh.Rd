@@ -30,14 +30,18 @@ all.linked <- max(unlist(nbdists(k1, coords)))
 col.nb.0.all <- dnearneigh(coords, 0, all.linked, row.names=rownames(columbus))
 summary(col.nb.0.all, coords)
 library(maptools)
-plotpolys(polys, bbs, border="grey")
+plot(polys, border="grey")
 plot(col.nb.0.all, coords, add=TRUE)
 title(main=paste("Distance based neighbours 0-",  format(all.linked),
  " distance units", sep=""))
 data(state)
 us48.fipsno <- read.geoda(system.file("etc/weights/us48.txt",
  package="spdep")[1])
-m50.48 <- match(us48.fipsno$State.name, state.name)
+if (as.numeric(paste(version$major, version$minor, sep="")) < 19) {
+ m50.48 <- match(us48.fipsno$"State.name", state.name)
+} else {
+ m50.48 <- match(us48.fipsno$"State_name", state.name)
+}
 xy <- as.matrix(as.data.frame(state.center))[m50.48,]
 llk1 <- knn2nb(knearneigh(xy, k=1, lonlat=FALSE))
 all.linked <- max(unlist(nbdists(llk1, xy, lonlat=FALSE)))

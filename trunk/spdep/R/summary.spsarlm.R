@@ -1,4 +1,5 @@
-# Copyright 1998-2003 by Roger Bivand
+# Copyright 1998-2004 by Roger Bivand (Wald test suggested by Rein Halbersma,
+# output of correlations suggested by Michael Tiefelsdorf)
 #
 
 print.sarlm <- function(x, ...)
@@ -12,7 +13,7 @@ print.sarlm <- function(x, ...)
 	invisible(x)
 }
 
-summary.sarlm <- function(object, ...)
+summary.sarlm <- function(object, correlation = FALSE, ...)
 {
 	if (object$type == "error" || ((object$type == "lag" || 
 		object$type == "mixed") && object$ase)) {
@@ -48,10 +49,73 @@ summary.sarlm <- function(object, ...)
 		colnames(object$Coef) <- c("Estimate", "Log likelihood",
 			"LR statistic", "Pr(>|z|)")
 	}
+	if (object$ase) {
+		object$Wald1 <- Wald1.sarlm(object)
+		if (correlation) {
+			object$correlation <- diag((diag(object$resvar))
+				^(-1/2)) %*% object$resvar %*% 
+				diag((diag(object$resvar))^(-1/2))
+			dimnames(object$correlation) <- dimnames(object$resvar)
+		}
+	}
+	object$LR1 <- LR1.sarlm(object)
 	rownames(object$Coef) <- names(object$coefficients)
 
 	structure(object, class=c("summary.sarlm", class(object)))
 }
+
+LR1.sarlm <- function(object)
+{
+	if (!inherits(object, "sarlm")) stop("Not a sarlm object")
+	LLx <- logLik(object)
+	LLy <- logLik(object$lm.model)
+	statistic <- 2*(LLx - LLy)
+	attr(statistic, "names") <- "Likelihood ratio"
+	parameter <- abs(attr(LLx, "df") - attr(LLy, "df"))
+	if (parameter < 1) 
+		stop("non-positive degrees of freedom: no test possible")
+	attr(parameter, "names") <- "df"
+	p.value <- 1 - pchisq(abs(statistic), parameter)
+	estimate <- c(LLx, LLy)
+	if (object$type == "error") alt <- "spatial error model"
+	else alt <- "spatial lag model"
+	attr(estimate, "names") <- c(paste("Log likelihood of",
+		alt), paste("Log likelihood of OLS fit",
+		deparse(substitute(y))))
+	method <- "Likelihood Ratio diagnostics for spatial dependence"
+	res <- list(statistic=statistic, parameter=parameter,
+		p.value=p.value, estimate=estimate, method=method)
+	class(res) <- "htest"
+	res
+}
+
+Wald1.sarlm <- function(object) {
+	if (!inherits(object, "sarlm")) stop("Not a sarlm object")
+	if (!object$ase) 
+		stop("Cannot compute Wald statistic: parameter a.s.e. missing")
+	LLx <- logLik(object)
+	LLy <- logLik(object$lm.model)
+	if (object$type == "lag" || object$type == "mixed") {
+		estimate <- object$rho
+		statistic <- (object$rho / object$rho.se)^2
+	} else {
+		estimate <- object$lambda
+		statistic <- (object$lambda / object$lambda.se)^2
+	}
+	attr(statistic, "names") <- "Wald statistic"
+	parameter <- abs(attr(LLx, "df") - attr(LLy, "df"))
+	if (parameter < 1) 
+		stop("non-positive degrees of freedom: no test possible")
+	attr(parameter, "names") <- "df"
+	p.value <- 1 - pchisq(abs(statistic), parameter)
+	method <- "Wald diagnostics for spatial dependence"
+	res <- list(statistic=statistic, parameter=parameter,
+		p.value=p.value, estimate=estimate, method=method)
+	class(res) <- "htest"
+	res
+
+}
+
 
 print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 	signif.stars = FALSE, ...)
@@ -76,26 +140,38 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 	cat("Coefficients:", x$coeftitle, "\n")
 	printCoefmat(x$Coef, signif.stars=signif.stars, digits=digits,
 		na.print="")
-	res <- LR.sarlm(x, x$lm.model)
+#	res <- LR.sarlm(x, x$lm.model)
+	res <- x$LR1
 	if (x$type == "error") {
 		cat("\nLambda:", format(signif(x$lambda, digits)),
 			"LR test value:", format(signif(res$statistic, digits)),
 			"p-value:", format.pval(res$p.value, digits), "\n")
-		if (x$ase) cat("Asymptotic standard error:", 
+		if (x$ase) {
+			cat("Asymptotic standard error:", 
 			format(signif(x$lambda.se, digits)),
 			"z-value:",format(signif((x$lambda/
 				x$lambda.se), digits)),
 			"p-value:", format.pval(2*(1-pnorm(abs(x$lambda/
 				x$lambda.se))), digits), "\n")
+			cat("Wald statistic:", format(signif(x$Wald1$statistic, 
+			digits)), "p-value:", format.pval(x$Wald1$p.value, 
+			digits), "\n")
+		}
 	} else {
 		cat("\nRho:", format(signif(x$rho, digits)),
 			"LR test value:", format(signif(res$statistic, digits)),
 			"p-value:", format.pval(res$p.value, digits), "\n")
-		if (x$ase) cat("Asymptotic standard error:", 
+		if (x$ase) {
+			cat("Asymptotic standard error:", 
 			format(signif(x$rho.se, digits)),
 			"z-value:",format(signif((x$rho/x$rho.se), digits)),
 			"p-value:", format.pval(2 * (1 - pnorm(abs(x$rho/
 				x$rho.se))), digits), "\n")
+			cat("Wald statistic:", format(signif(x$Wald1$statistic, 
+			digits)), "p-value:", format.pval(x$Wald1$p.value, 
+			digits), "\n")
+		}
+
 	}
 	cat("\nLog likelihood:", logLik(x), "for", x$type, "model\n")
 	cat("ML residual variance (sigma squared): ", 
@@ -111,6 +187,17 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 			"p-value:", format.pval((1 - pchisq(x$LMtest, 1)), 
 			digits), "\n")
 	}
-	cat("\n")
-	invisible(x)
+    	correl <- x$correlation
+    	if (!is.null(correl)) {
+        	p <- NCOL(correl)
+        	if (p > 1) {
+            		cat("\nCorrelation of Coefficients:\n")
+                	correl <- format(round(correl, 2), nsmall = 2, 
+                  	digits = digits)
+                	correl[!lower.tri(correl)] <- ""
+                	print(correl[-1, -p, drop = FALSE], quote = FALSE)
+            	}
+    	}
+    	cat("\n")
+        invisible(x)
 }

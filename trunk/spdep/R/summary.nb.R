@@ -49,7 +49,7 @@ print.nb <- function(x, ...) {
     cat("Neighbour list object:\n")
     cat("Number of regions:", n.nb, "\n")
     cat("Number of nonzero links:", sum(c.nb), "\n")
-    cat("Percentage nonzero weights:", (100*sum(c.nb))/(n.nb*n.nb), "\n")
+    cat("Percentage nonzero weights:", (100*sum(c.nb))/(n.nb^2), "\n")
     cat("Average number of links:", mean(c.nb), "\n")
     if(any(c.nb == 0)) cat(length(c.nb[c.nb == 0]), " region", 
         ifelse(length(c.nb[c.nb == 0]) < 2, "", "s"), " with no links:\n",
@@ -68,7 +68,7 @@ summary.listw <- function(object, coords=NULL, lonlat=FALSE,
 	cat(paste("\nWeights style:", style, "\n"))
 	cat("Weights constants summary:\n")
 	print(data.frame(rbind(unlist(spweights.constants(object,
-		zero.policy=zero.policy))), row.names=style))
+		zero.policy=zero.policy))[c(1, 5:8)]), row.names=style))
 
 }
 
@@ -79,7 +79,7 @@ print.listw <- function(x, zero.policy=FALSE, ...) {
 	cat(paste("\nWeights style:", style, "\n"))
 	cat("Weights constants summary:\n")
 	print(data.frame(rbind(unlist(spweights.constants(x,
-		zero.policy=zero.policy))), row.names=style))
+		zero.policy=zero.policy))[c(1, 5:8)]), row.names=style))
 	invisible(x)
 
 }

@@ -21,7 +21,7 @@ print.jclist(x, ...)
   \item{fx}{a factor of the same length as the neighbours and weights objects in listw}
   \item{listw}{a \code{listw} object created for example by \code{nb2listw}}
   \item{zero.policy}{if TRUE assign zero to the lagged value of zones without neighbours, if FALSE assign NA}
-  \item{alternative}{a character string specifying the alternative hypothesis, must be one of greater (default), less or two.sided.}
+  \item{alternative}{a character string specifying the alternative hypothesis, must be one of "greater" (default), "less" or "two.sided".}
   \item{spChk}{should the data vector names be checked against the spatial objects for identity integrity, TRUE, or FALSE, default NULL to use \code{get.spChkOption()}}
   \item{x}{object to be printed}
   \item{...}{arguments to be passed through for printing}
@@ -42,7 +42,7 @@ A list with class \code{jclist} of lists with class \code{htest} for each of the
 \note{The derivation of the test (Cliff and Ord, 1981, p. 18) assumes that the weights matrix is symmetric. For inherently non-symmetric matrices, such as k-nearest neighbour matrices, \code{listw2U()} can be used to make the matrix symmetric. In non-symmetric weights matrix cases, the variance of the test statistic may be negative.
 }
 
-\seealso{\code{\link{joincount.mc}}, \code{\link{listw2U}}}
+\seealso{\code{\link{joincount.mc}}, \code{\link{joincount.multi}}, \code{\link{listw2U}}}
 
 \examples{
 data(oldcol)

@@ -1,22 +1,9 @@
 # Copyright 2001-2003 by Roger Bivand with contributions by Stéphane Dray
 #
 	
-#plotpolys <- function(pl, bb, col=NA, border=par("fg"), add=FALSE, 
-#	xlim=NULL, ylim=NULL, ...) {
-#	if (!inherits(pl, "polylist")) stop("Not a polygon list")
-#	if (!add) {
-#		if (is.null(xlim)) xlim <- c(min(bb[,1]), max(bb[,3]))
-#		if (is.null(ylim)) ylim <- c(min(bb[,2]), max(bb[,4]))
-#		plot(x=bb[,1], y=bb[,4], xlim=xlim, ylim=ylim, type="n",
-#		asp=1, xlab="", ylab="")
-#	}
-#	if (length(col) != length(pl)) {
-#		col <- rep(col, length(pl), length(pl))
-#	}
-#	for (j in 1:length(pl)) polygon(pl[[j]], col=col[j], border=border, ...)
-#}
 
-poly2nb <- function(pl, bb, row.names=NULL, snap=sqrt(.Machine$double.eps),
+
+poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
 	queen=TRUE) {
 	if (!inherits(pl, "polylist")) stop("Not a polygon list")
 	if (inherits(pl, "multiparts")) stop("Convert to newer polylist format")
@@ -38,9 +25,8 @@ poly2nb <- function(pl, bb, row.names=NULL, snap=sqrt(.Machine$double.eps),
 		for (i in 1:n) res[i,] <- attr(pl[[i]], "bbox")
 		res
 	}
-	if (missing(bb)) bb <- poly2bbs(pl)
-	if (nrow(bb) != n)
-		stop("Number of polygons not equal to number of bounding boxes")
+	bb <- poly2bbs(pl)
+	
 
 	between <- function(x, low, up) {return(x >= low && x <= up)}
 
