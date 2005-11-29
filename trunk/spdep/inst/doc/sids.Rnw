@@ -36,8 +36,8 @@ options("warn"=-1)
 @
 
 <<label=afig,echo=FALSE,eval=FALSE>>= 
-.PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-", .PngNo, ".png", sep="")
-png(file=file, width = 700, height = 400, pointsize = 12, bg = "white")
+.PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-", .PngNo, ".pdf", sep="")
+pdf(file=file, width = 4.5, height = 5, pointsize = 12, bg = "white")
 opar <- par(mar=c(3,3,1,1)+0.1)
 @
 
@@ -325,7 +325,7 @@ legend(c(-84,-81), c(33.9,34.5), fill=cols, legend=leglabs(brks),
 <<zfig>>
 @ 
 \end{center}
-\caption{Probability map of North Carolina counties, SIDS cases 1974--78, reproducing \citet{kaluznyetal:1996}, p. 67, Figure 3.28.}
+\caption{Probability map of North Carolina counties, SIDS cases 1974--78, reproducing \citet{kaluznyetal:1996}, p. 57, Figure 3.28.}
 \label{poismap}
 \end{figure}
 

@@ -26,8 +26,11 @@ lm.morantest <- function(model, listw, zero.policy=FALSE,
 	I <- (N/S0) * ((t(u) %*% lu) / (t(u) %*% u))
 	p <- model$rank
 	p1 <- 1:p
+	nacoefs <- which(is.na(coefficients(model)))
 	XtXinv <- chol2inv(model$qr$qr[p1, p1, drop = FALSE])
 	X <- model.matrix(terms(model), model.frame(model))
+# fixed after looking at TOWN dummy in Boston data
+	if (length(nacoefs > 0)) X <- X[,-nacoefs]
 	if (!is.null(wts <- weights(model))) {
 		X <- sqrt(diag(wts)) %*% X
 	}
@@ -59,7 +62,7 @@ lm.morantest <- function(model, listw, zero.policy=FALSE,
 	    "Variance")
     	method <- "Global Moran's I for regression residuals"
     	data.name <- paste("\n", paste(strwrap(paste("model: ",
-	    gsub(" *", " ", 
+	    gsub("[ ]+", " ", 
 	    paste(deparse(model$call), sep="", collapse="")))), collapse="\n"),
     	    "\nweights: ", deparse(substitute(listw)), "\n", sep="")
     	res <- list(statistic = statistic, p.value = p.value,

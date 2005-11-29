@@ -1,4 +1,4 @@
-# Copyright 1998-2004 by Roger Bivand (non-W styles Rein Halbersma)
+# Copyright 1998-2005 by Roger Bivand (non-W styles Rein Halbersma)
 #
 
 errorsarlm <- function(formula, data = list(), listw, na.action=na.fail, 
@@ -35,11 +35,21 @@ errorsarlm <- function(formula, data = list(), listw, na.action=na.fail,
 	if (any(is.na(x))) stop("NAs in independent variable")
 	if (NROW(x) != length(listw$neighbours))
 	    stop("Input data and neighbourhood list have different dimensions")
+	wy <- lag.listw(listw, y, zero.policy=zero.policy)
 	n <- NROW(x)
+	m <- NCOL(x)
+# added aliased after trying boston with TOWN dummy
+	lm.base <- lm(y ~ x - 1)
+	aliased <- is.na(coefficients(lm.base))
+	cn <- names(aliased)
+	names(aliased) <- substr(cn, 2, nchar(cn))
+	if (any(aliased)) {
+		nacoef <- which(aliased)
+		x <- x[,-nacoef]
+	}
 	m <- NCOL(x)
 	xcolnames <- colnames(x)
 	K <- ifelse(xcolnames[1] == "(Intercept)", 2, 1)
-	wy <- lag.listw(listw, y, zero.policy=zero.policy)
 	if (any(is.na(wy)))
 	    stop("NAs in lagged dependent variable")
 	if (m > 1) {
@@ -103,9 +113,12 @@ errorsarlm <- function(formula, data = list(), listw, na.action=na.fail,
 		}
 	} else if (method == "SparseM") {
 		if (listw$style %in% c("W", "S") & can.sim) {
-			csrw <- asMatrixCsrListw(similar.listw(listw))
+#			csrw <- asMatrixCsrListw(similar.listw(listw))
+			csrw <- asMatrixCsrListw(similar.listw(listw),
+        			zero.policy=zero.policy)
 			similar <- TRUE
-		} else csrw <- asMatrixCsrListw(listw)
+		} else csrw <- asMatrixCsrListw(listw, zero.policy=zero.policy)
+#		} else csrw <- asMatrixCsrListw(listw)
 		gc(FALSE)
 		I <- asMatrixCsrI(n)
 		tmpmax <- sum(card(listw$neighbours)) + n
@@ -178,8 +191,8 @@ errorsarlm <- function(formula, data = list(), listw, na.action=na.fail,
 		method=method, call=call, residuals=r, lm.target=lm.target,
 		opt=opt, fitted.values=fit, ase=ase, formula=formula,
 		se.fit=NULL, resvar=asyvar1, similar=similar,
-		lambda.se=lambda.se, LMtest=LMtest, zero.policy=zero.policy), 
-		class=c("sarlm"))
+		lambda.se=lambda.se, LMtest=LMtest, zero.policy=zero.policy, 
+		aliased=aliased), class=c("sarlm"))
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]
@@ -202,7 +215,8 @@ sar.error.f <- function(lambda, eig, y, wy, x, WX, n, quiet)
 	if (is.complex(eig)) det <- Re(prod(1 - lambda*eig)) 
 	else det <- prod(1 - lambda*eig)
 	ret <- (log(det) - ((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
-	if (!quiet) cat("(eigen) lambda:\t", lambda, "\tfunction value:\t", ret, "\n")
+	if (!quiet) cat("lambda\t", lambda, " function\t", ret, " Jacobian\t", log(det), " SSE\t", SSE, "\n")
+#	cat("(eigen) lambda:\t", lambda, "\tfunction value:\t", ret, "\n")
 	ret
 }
 
@@ -218,7 +232,8 @@ sar.error.f.sM <- function(lambda, csrw, I, y, wy, x, WX, n, tmpmax, quiet) {
 	gc(FALSE)
 	ret <- (Jacobian -
 		((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
-	if (!quiet) cat("(SparseM) lambda:\t", lambda, "\tfunction value:\t", ret, "\n")
+	if (!quiet) cat("lambda\t", lambda, " function\t", ret, " Jacobian\t", Jacobian, " SSE\t", SSE, "\n")
+#	cat("(SparseM) lambda:\t", lambda, "\tfunction value:\t", ret, "\n")
 	ret
 }
 

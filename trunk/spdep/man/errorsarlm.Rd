@@ -76,6 +76,7 @@ standard errors)}
   \item{LMtest}{NULL for this model}
   \item{zero.policy}{zero.policy for this model}
   \item{na.action}{(possibly) named vector of excluded or omitted observations if non-default na.action argument used}
+  \item{aliased}{if not NULL, details of aliased variables}
 
 The internal sar.error.* functions return the value of the log likelihood function at $\lambda$.
 }
@@ -102,8 +103,7 @@ data(oldcol)
 COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="W"), method="eigen", quiet=FALSE)
 COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
- nb2listw(COL.nb, style="W"), method="eigen", control=list(trace=3, fnscale=-1,
- factr=.Machine$double.eps^0.5, pgtol=.Machine$double.eps^0.5))
+ nb2listw(COL.nb, style="W"), method="eigen", quiet=FALSE)
 COL.errB.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="B"), method="eigen", quiet=FALSE)
 COL.errW.SM <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,

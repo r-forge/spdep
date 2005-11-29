@@ -27,6 +27,9 @@ lm.LMtests <- function(model, listw, zero.policy=FALSE, test="LMerr",
 	yhat <- as.vector(fitted(model))
 	p <- model$rank
 	p1 <- 1:p
+	nacoefs <- which(is.na(coefficients(model)))
+# fixed after looking at TOWN dummy in Boston data
+	if (length(nacoefs > 0)) X <- X[,-nacoefs]
 	XtXinv <- chol2inv(model$qr$qr[p1, p1, drop = FALSE])
 	sigma2 <- (t(u) %*% u) / N
 	TrW <- tracew(listw)
@@ -66,9 +69,8 @@ lm.LMtests <- function(model, listw, zero.policy=FALSE, test="LMerr",
 		names(p.value) <- ""
 		method <- "Lagrange multiplier diagnostics for spatial dependence"
 		data.name <- paste("\n", paste(strwrap(paste("model: ",
-		    gsub(" *", " ", 
-	            paste(deparse(model$call), sep="", collapse="")))),
-		    collapse="\n"),
+		    gsub("[ ]+", " ", paste(deparse(model$call), 
+		    sep="", collapse="")))), collapse="\n"),
     	            "\nweights: ", deparse(substitute(listw)), "\n", sep="")
 		tres[[i]] <- list(statistic=statistic, parameter=parameter,
 			p.value=p.value, method=method, data.name=data.name)

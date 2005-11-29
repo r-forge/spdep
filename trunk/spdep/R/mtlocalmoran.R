@@ -41,9 +41,12 @@ localmoran.sad <- function (model, select, nb, glist = NULL, style = "W",
     utu <- c(t(u) %*% u)
     p <- model$rank
     p1 <- 1:p
+    nacoefs <- which(is.na(coefficients(model)))
     m <- n - p - 2
     XtXinv <- chol2inv(model$qr$qr[p1, p1, drop = FALSE])
     X <- model.matrix(terms(model), model.frame(model))
+# fixed after looking at TOWN dummy in Boston data
+    if (length(nacoefs > 0)) X <- X[,-nacoefs]
     if (!is.null(wts <- weights(model))) {
 	X <- sqrt(diag(wts)) %*% X
     }
@@ -73,7 +76,7 @@ localmoran.sad <- function (model, select, nb, glist = NULL, style = "W",
 #	    is.na(evalue) <- abs(evalue) < 1.0e-7
 #	    evalue <- na.omit(evalue)
 #	    saveNaAction <- attr(evalue, "na.action")
-	    saveNaAction <- NA
+#	    saveNaAction <- NA
 	    tau <- c(evalue)
 	    e1 <- tau[1]
 	    en <- tau[length(tau)]
@@ -146,7 +149,7 @@ localmoran.sad <- function (model, select, nb, glist = NULL, style = "W",
             "(Barndorff-Nielsen formula)")
         data.name <- paste("region:", select[i],
 	    attr(nb, "region.id")[select[i]],
-	    "\n", paste(strwrap(paste("model: ", gsub(" *", " ", 
+	    "\n", paste(strwrap(paste("model: ", gsub("[ ]+", " ", 
 	    paste(deparse(model$call), sep="", collapse="")))),
 	    collapse="\n"),
             "\nneighbours:", deparse(substitute(nb)),

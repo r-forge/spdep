@@ -105,8 +105,7 @@ data(oldcol)
 COL.lag.eig <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="eigen", quiet=FALSE)
 COL.lag.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
- nb2listw(COL.nb, style="W"), method="eigen", control=list(trace=3, fnscale=-1,
- factr=.Machine$double.eps^0.5, pgtol=.Machine$double.eps^0.5))
+ nb2listw(COL.nb, style="W"), method="eigen", quiet=FALSE)
 COL.lag.SM <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="SparseM", quiet=FALSE)
 summary(COL.lag.eig, correlation=TRUE)

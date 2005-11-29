@@ -32,6 +32,7 @@ subset.nb <- function(x, subset, ...) {
 	if (xattrs[i] != "region.id")
 	    attr(z, xattrs[i]) <- attr(x, xattrs[i])
     }
+    z <- sym.attr.nb(z)
     invisible(z)
 }
 

@@ -1,8 +1,9 @@
-# Copyright 2001-4 by Roger Bivand 
+# Copyright 2001-5 by Roger Bivand 
 #
 
 moran <- function(x, listw, n, S0, zero.policy=FALSE, NAOK=FALSE) {
 	n1 <- length(listw$neighbours)
+	x <- c(x)
 	if (n1 != length(x)) stop("objects of different length")
 	xx <- mean(x, na.rm=NAOK)
 	z <- x - xx
@@ -91,6 +92,9 @@ moran.mc <- function(x, listw, nsim, zero.policy=FALSE,
 	if (is.null(spChk)) spChk <- get.spChkOption()
 	if (spChk && !chkIDs(x, listw))
 		stop("Check of data and weights ID integrity failed")
+	cards <- card(listw$neighbours)
+	if (!zero.policy && any(cards == 0))
+		stop("regions with no neighbours found")
 #	if (any(is.na(x))) stop("NA in X")
 	xname <- deparse(substitute(x))
 	wname <- deparse(substitute(listw))

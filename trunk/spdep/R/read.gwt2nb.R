@@ -67,6 +67,7 @@ read.gwt2nb <- function(file, region.id=NULL) {
 	attr(res, "GeoDa") <- list(dist=vlist, shpfile=shpfile, ind=ind)
 	attr(res, "call") <- match.call()
 	attr(res, "n") <- n
+	res <- sym.attr.nb(res)
 	invisible(res)
 }
 

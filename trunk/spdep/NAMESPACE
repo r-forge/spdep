@@ -32,7 +32,8 @@ export(EBImoran.mc, probmap, choynowski, EBest, EBlocal, LR.sarlm,
 	predict.sarlm, print.summary.sarlm, print.sarlm.pred, bptest.sarlm,
 	write.sn2dat, read.dat2listw, nb2blocknb, p.adjustSP,
 	asMatrixCsrListw, asMatrixCsrI, asMatrixCsrIrW, asListwMatrixCsr, 
-	is.symmetric.glist, similar.listw)
+	is.symmetric.glist, similar.listw, nb2lines, listw2lines, df2sn, 
+	plot.listw)
 
 import(maptools)
 
@@ -44,6 +45,7 @@ S3method(subset, nb)
 
 S3method(summary, listw)
 S3method(print, listw)
+S3method(plot, listw)
 S3method(subset, listw)
 
 S3method(plot, Gabriel)
