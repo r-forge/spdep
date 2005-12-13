@@ -1,10 +1,11 @@
 Package: spdep
-Version: 0.3-16
-Date: 2005-11-25
+Version: 0.3-17
+Date: 2005-12-12
 Title: Spatial dependence: weighting schemes, statistics and models
 Author: Roger Bivand <Roger.Bivand@nhh.no>, with contributions by Luc Anselin,
-  Andrew Bernat, Marilia Carvalho, Stéphane Dray, Rein Halbersma, 
-  Nicholas Lewin-Koh, Hisaji Ono, Michael Tiefelsdorf, and Danlin Yu.
+  Andrew Bernat, Marilia Carvalho, Carsten Dormann, Stéphane Dray,
+  Rein Halbersma, Nicholas Lewin-Koh, Hisaji Ono, Michael Tiefelsdorf,
+  and Danlin Yu.
 Maintainer: Roger Bivand <Roger.Bivand@nhh.no>
 Depends: R (>= 2.0.0), tripack, maptools (>= 0.4-11), SparseM (>= 0.54)
 Description: A collection of functions to create spatial weights matrix
