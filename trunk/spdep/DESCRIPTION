@@ -17,6 +17,7 @@ Description: A collection of functions to create spatial weights matrix
   Index, Getis/Ord G and multicoloured join count statistics, 
   local Moran's I and Getis/Ord G, saddlepoint approximations for global
   and local Moran's I; and functions for estimating spatial simultaneous
-  autoregressive (SAR) models.
+  autoregressive (SAR) lag and error models, weighted and unweighted
+  SAR and CAR spatial regression models, and GM SAR error models.
 License: GPL version 2 or newer
 
