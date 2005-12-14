@@ -55,6 +55,10 @@ and is subject to the licence at the foot of this file.
 File: R/kpgm_new.R is copyright (c) 2005 by Luc Anselin and Roger Bivand, 
 and is subject to the licence at the foot of this file.
 
+File: R/SpatialFiltering.R is copyright (c) 2005 by Yongwan Chun, Michael 
+Tiefelsdorf and Roger Bivand, and is subject to the licence at the foot 
+of this file.
+
 Files: data/afcon.rda, data/columbus.rda, data/oldcon.rda,
 data/nc.sids.rda are derived by permission from SpaceStat data files
 prepared by Luc Anselin; they were downloaded from:

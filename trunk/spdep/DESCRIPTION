@@ -1,9 +1,9 @@
 Package: spdep
 Version: 0.3-17
-Date: 2005-12-12
+Date: 2005-12-14
 Title: Spatial dependence: weighting schemes, statistics and models
 Author: Roger Bivand <Roger.Bivand@nhh.no>, with contributions by Luc Anselin,
-  Andrew Bernat, Marilia Carvalho, Carsten Dormann, Stéphane Dray,
+  Andrew Bernat, Marilia Carvalho, Yongwan Chun, Carsten Dormann, Stéphane Dray,
   Rein Halbersma, Nicholas Lewin-Koh, Hisaji Ono, Michael Tiefelsdorf,
   and Danlin Yu.
 Maintainer: Roger Bivand <Roger.Bivand@nhh.no>
@@ -18,6 +18,7 @@ Description: A collection of functions to create spatial weights matrix
   local Moran's I and Getis/Ord G, saddlepoint approximations for global
   and local Moran's I; and functions for estimating spatial simultaneous
   autoregressive (SAR) lag and error models, weighted and unweighted
-  SAR and CAR spatial regression models, and GM SAR error models.
+  SAR and CAR spatial regression models, semi-parametric spatial filtering,
+  and GM SAR error models.
 License: GPL version 2 or newer
 
