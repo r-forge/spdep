@@ -36,7 +36,7 @@ SpatialFiltering(formula, lagformula, data, nb, glist = NULL, style = "C", zero.
       \item{Eval}{its associated eigenvalue}
       \item{MinMi}{value Moran's I for residual autocorrelation}
       \item{ZMinMi}{standardized value of Moran's I assuming a normal approximation}
-      \item{R2}{R^2 of the model including exogenous variables and eigenvectors}
+      \item{R2}{R\^2 of the model including exogenous variables and eigenvectors}
       \item{gamma}{regression coefficient of selected eigenvector in fit}
     }
     The first row is the value at the start of the search
