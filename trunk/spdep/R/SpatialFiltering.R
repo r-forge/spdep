@@ -65,7 +65,8 @@ SpatialFiltering <- function (formula, lagformula, data, nb, glist=NULL, style="
     if (any(is.na(coefficients(coll_test)))) stop("Collinear RHS variable detected")
 
     y <- as.matrix(y)
-    Xorg <- X                                 # X will be augmented by the selected eigenvectors
+#    Xorg <- X                                 
+# X will be augmented by the selected eigenvectors
     
     #Total sum of squares for R2
     TSS <- sum((y - mean(y))^2)

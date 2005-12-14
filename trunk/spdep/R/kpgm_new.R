@@ -113,7 +113,7 @@ GMerrorsar <- function(#W, y, X,
 			if (listw$style %in% c("W", "S") & can.sim) {
 				csrw <- asMatrixCsrListw(similar.listw(listw), 
 					zero.policy=zero.policy)
-				similar <- TRUE
+#				similar <- TRUE
 			} else csrw <- asMatrixCsrListw(listw, 
 				zero.policy=zero.policy)
 			gc(FALSE)
@@ -348,6 +348,6 @@ print.summary.gmsar <- function(x, digits = max(5, .Options$digits - 3),
     	bigG[,2] <- - c(uwpuw,wwupwwu,wwupwu) / n
     	bigG[,3] <- c(1,trwpw/n,0)
     	litg <- c(uu,uwpuw,uwu) / n
-    	v <- list(bigG=bigG,litg=litg)
+    	list(bigG=bigG,litg=litg)
 }
 

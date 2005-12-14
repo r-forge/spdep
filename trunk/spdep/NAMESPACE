@@ -4,6 +4,8 @@ importFrom(SparseM, as.matrix.csr)
 importMethodsFrom(SparseM, det)
 importMethodsFrom(SparseM, chol)
 importMethodsFrom(SparseM, as.matrix)
+importMethodsFrom(SparseM, "%*%")
+importMethodsFrom(SparseM, t)
 importClassesFrom(SparseM, matrix.csr)
 importFrom(stats, model.matrix, model.response)
 

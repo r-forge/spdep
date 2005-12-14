@@ -79,7 +79,7 @@ spautolm <- function(formula, data = list(), listw, weights=NULL,
         if (listw$style %in% c("W", "S") & can.sim) {
 	    W_J <- asMatrixCsrListw(similar.listw(listw),
                 zero.policy=zero.policy)
-	    similar <- TRUE
+#	    similar <- TRUE
 	} else W_J <- W
 	gc(FALSE)
         weights <- new("matrix.csr", ra=weights, ja=1:n, ia=1:(n+1), 
@@ -146,6 +146,7 @@ spautolm <- function(formula, data = list(), listw, weights=NULL,
         I=I, family=family, out=FALSE)
     s2 <- SSE/n
     Jacobian <- log(det(chol((I - lambda * W_J), tmpmax=tmpmax))^2)
+    gc(FALSE)
     ret <- ((1/ifelse((length(grep("CAR", family)) != 0), 2, 1))*Jacobian +
 	(1/2)*sum_lw - ((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
     if (verbose)  cat("lambda:", lambda, "function", ret, "Jacobian", Jacobian, "SSE", SSE, "\n")
@@ -160,8 +161,7 @@ spautolm <- function(formula, data = list(), listw, weights=NULL,
     coef <- crossprod(imat, t(X) %*% as.matrix(IlW %*% Y))
     fitted <- X %*% coef
     residuals <- Y - fitted
-    A <- as.matrix(IlW %*% (residuals))
-    SSE <- c(t(residuals) %*% A)
+    SSE <- c(t(residuals) %*% as.matrix(IlW %*% residuals))
     if (!out) return(SSE)
 
     s2 <- SSE/n
@@ -180,7 +180,7 @@ SAR <- function(IlW, weights) {
 
 # Conditional  autoregressive
 CAR <- function(IlW, weights) {
-    res <- IlW %*% weights
+    IlW %*% weights
 }
 
 
