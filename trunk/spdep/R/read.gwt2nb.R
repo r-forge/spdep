@@ -1,4 +1,4 @@
-# Copyright 2003-4 by Luc Anselin and Roger Bivand
+# Copyright 2003-6 by Luc Anselin and Roger Bivand
 #
 
 # LA 6/28/03 read.gwt
@@ -51,7 +51,8 @@ read.gwt2nb <- function(file, region.id=NULL) {
 	cs0.sn <- c(1, cs1.sn[1:(n-1)]+1)
 	ii <- 1
 	for (i in 1:n) {
-		if (rle.sn$value[ii] == i) {
+# Bug hit by Thomas Halvorsen 10/2006, was already fixed in sn2listw()
+		if (!is.na(rle.sn$value[ii]) && rle.sn$value[ii] == i) {
 			res[[i]] <- as.integer(odij[cs0.sn[ii]:cs1.sn[ii],2])
 			vlist[[i]] <- as.double(odij[cs0.sn[ii]:cs1.sn[ii],3])
 			ii <- ii+1
@@ -68,7 +69,7 @@ read.gwt2nb <- function(file, region.id=NULL) {
 	attr(res, "call") <- match.call()
 	attr(res, "n") <- n
 	res <- sym.attr.nb(res)
-	invisible(res)
+	res
 }
 
 write.sn2gwt <- function(sn, file, shpfile=NULL, ind=NULL) {
@@ -108,6 +109,23 @@ read.dat2listw <- function(file) {
 	attr(sn, "n") <- length(IDS)
 	attr(sn, "region.id") <- as.character(IDS)
 	listw <- sn2listw(sn)
-	invisible(listw)
+	listw
+}
+
+
+write.sn2Arc <- function(sn, file, field=NULL) {
+	if(!inherits(sn, "spatial.neighbour")) 
+	    stop("not a spatial.neighbour object")
+	if (is.null(field)) stop("field must be given")
+	n <- attr(sn, "n")
+	if (n < 1) stop("non-positive number of entities")
+	nms <- as.character(attr(sn, "region.id"))
+	sn[,1] <- nms[sn[,1]]
+	sn[,2] <- nms[sn[,2]]
+	con <- file(file, open="w")
+	writeLines(field, con)
+	write.table(as.data.frame(sn), file=con, append=TRUE,
+		row.names=FALSE, col.names=FALSE, quote=FALSE)
+	close(con)
 }
 

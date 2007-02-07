@@ -165,7 +165,7 @@ localmoran.sad <- function (model, select, nb, glist = NULL, style = "W",
 	res[[i]] <- obj
     }
     class(res) <- "localmoransad"
-    invisible(res)
+    res
 }
 
 print.localmoransad <- function(x, ...) {
@@ -180,7 +180,8 @@ print.localmoransad <- function(x, ...) {
     print(res, ...)
     invisible(res)
 }
-as.data.frame.localmoransad <- function(x, row.names=NULL, optional=FALSE) {
+
+as.data.frame.localmoransad <- function(x, row.names=NULL, optional=FALSE, ...) {
     n <- length(x)
     if (n < 1) stop("x too short")
     res <- matrix(0, nrow=n, ncol=14)
@@ -218,7 +219,6 @@ as.data.frame.localmoransad <- function(x, row.names=NULL, optional=FALSE) {
     res <- as.data.frame(res)
     res
 }
-
 
 summary.localmoransad <- function(object, ...) {
     res <- as.data.frame(object)
