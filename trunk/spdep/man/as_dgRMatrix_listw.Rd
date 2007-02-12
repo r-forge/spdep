@@ -33,7 +33,7 @@ Jacobian_W(W, rho)
 \author{Roger Bivand}
 
 \examples{
-data(NY_data)
+example(NY_data)
 W <- as(as_dsTMatrix_listw(listw_NY), "dsCMatrix")
 I <- as(as_dgCMatrix_I(dim(W)[1]), "dtCMatrix")
 IrW <- (I - 0.1 * W)

@@ -24,7 +24,7 @@ listw2WB(listw)
 
 \seealso{\code{\link[base]{dput}}}
 \examples{
-data(columbus)
+example(columbus)
 x <- nb2WB(col.gal.nb)
 dput(x, control=NULL)
 x <- listw2WB(nb2listw(col.gal.nb))

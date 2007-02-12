@@ -99,7 +99,7 @@ summary(ecarIVaw)
 nc_LL$fitIV <- append(fitted.values(ecarIVaw), NA, outl-1)
 spplot(nc_LL, c("fitIV"), cuts=12) # Cressie 1993, p. 565
 }
-data(NY_data)
+example(NY_data)
 lm0 <- lm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata)
 summary(lm0)
 lm0w <- lm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata, weights=POP8)

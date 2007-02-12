@@ -238,9 +238,6 @@ sar.error.f.M <- function(lambda, csrw, I, y, wy, x, WX, n, quiet) {
     	} else {
         	Jacobian <- sum(2*log(diag(CHOL)))
     	}
-#	Jacobian <- log(det(chol((I - lambda * csrw), 
-#		nsubmax=cholAlloc$nsubmax, nnzlmax=cholAlloc$nnzlmax, 
-#		tmpmax=cholAlloc$tmpmax))^2)
 	gc(FALSE)
 	ret <- (Jacobian -
 		((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)

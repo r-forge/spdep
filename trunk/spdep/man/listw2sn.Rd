@@ -33,7 +33,7 @@ A data frame with three columns, and with class \code{spatial.neighbour}:
  \code{\link{lagsarlm}}}
 
 \examples{
-data(columbus)
+example(columbus)
 col.listw <- nb2listw(col.gal.nb)
 col.listw$neighbours[[1]]
 col.listw$weights[[1]]
