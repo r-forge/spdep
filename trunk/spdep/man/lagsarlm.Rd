@@ -110,7 +110,8 @@ data(oldcol)
 COL.lag.eig <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="W"), method="eigen", quiet=FALSE)
 summary(COL.lag.eig, correlation=TRUE)
-\dontrun{COL.lag.SM <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+\dontrun{require(SparseM)
+COL.lag.SM <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="SparseM", quiet=FALSE)
 summary(COL.lag.SM, correlation=TRUE)}
 COL.lag.M <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,

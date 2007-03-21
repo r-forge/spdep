@@ -198,7 +198,8 @@ spautolm <- function(formula, data = list(), listw, weights=NULL,
     SSE <- .SPAR.fit(lambda=lambda, Y=Y, X=X, n=n, W=W, weights=weights,
         I=I, family=family, out=FALSE, tol.solve=tol.solve)
     s2 <- SSE/n
-    Jacobian <- log(det(chol((I - lambda * W_J), nsubmax=cholAlloc$nsubmax, 
+    Det <- get("det", "package:SparseM")
+    Jacobian <- log(Det(chol((I - lambda * W_J), nsubmax=cholAlloc$nsubmax, 
 	nnzlmax=cholAlloc$nnzlmax, tmpmax=cholAlloc$tmpmax))^2)
     gc(FALSE)
     ret <- ((1/ifelse((length(grep("CAR", family)) != 0), 2, 1))*Jacobian +

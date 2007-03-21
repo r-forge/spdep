@@ -108,7 +108,8 @@ summary(COL.errW.eig, correlation=TRUE)
 COL.errB.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="B"), method="eigen", quiet=FALSE)
 summary(COL.errB.eig, correlation=TRUE)
-\dontrun{COL.errW.SM <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+\dontrun{require(SparseM)
+COL.errW.SM <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="W"), method="SparseM", quiet=FALSE)
 summary(COL.errW.SM)}
 COL.errW.M <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,

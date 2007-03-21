@@ -215,7 +215,8 @@ sar.error.f.sM <- function(lambda, csrw, I, y, wy, x, WX, n, cholAlloc, quiet) {
 	xl.q.yl <- t(xl.q) %*% yl
 	SSE <- t(yl) %*% yl - t(xl.q.yl) %*% xl.q.yl
 	s2 <- SSE/n
-	Jacobian <- log(det(chol((I - lambda * csrw), 
+        Det <- get("det", "package:SparseM")
+	Jacobian <- log(Det(chol((I - lambda * csrw), 
 		nsubmax=cholAlloc$nsubmax, nnzlmax=cholAlloc$nnzlmax, 
 		tmpmax=cholAlloc$tmpmax))^2)
 	gc(FALSE)

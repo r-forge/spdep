@@ -224,7 +224,8 @@ sar.lag.mix.f.sM <- function(rho, W, I, e.a, e.b, e.c, n, cholAlloc, quiet)
 {
 	SSE <- e.a - 2*rho*e.b + rho*rho*e.c
 	s2 <- SSE/n
-	Jacobian <- log(det(chol((I - rho * W), nsubmax=cholAlloc$nsubmax, 
+	Det <- get("det", "package:SparseM")
+	Jacobian <- log(Det(chol((I - rho * W), nsubmax=cholAlloc$nsubmax, 
 	    nnzlmax=cholAlloc$nnzlmax, tmpmax=cholAlloc$tmpmax))^2)
 	gc(FALSE)
 	ret <- (Jacobian
