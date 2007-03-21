@@ -125,8 +125,8 @@ errorsarlm <- function(formula, data = list(), listw, na.action=na.fail,
 		gc(FALSE)
 	} else if (method == "Matrix") {
         	if (listw$style %in% c("W", "S") & can.sim) {
-	    		csrw <- as_dsTMatrix_listw(similar.listw(listw))
-	    		similar <- TRUE
+	    	    csrw <- as_dsTMatrix_listw(listw2U(similar.listw(listw)))
+	    	    similar <- TRUE
 		} else csrw <- as_dsTMatrix_listw(listw)
 		gc(FALSE)
         	I <- as_dgCMatrix_I(n)

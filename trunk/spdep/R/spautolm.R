@@ -133,7 +133,7 @@ spautolm <- function(formula, data = list(), listw, weights=NULL,
 	    warning("Non-symmetric spatial weights in CAR model")
 # Jacobian only from symmetric W_J, W can be asymmetric though
         if (listw$style %in% c("W", "S") & can.sim) {
-	    W_J <- as_dsTMatrix_listw(similar.listw(listw))
+	    W_J <- as_dsTMatrix_listw(listw2U(similar.listw(listw)))
 #	    similar <- TRUE
 	} else W_J <- as_dsTMatrix_listw(listw)
 	gc(FALSE)

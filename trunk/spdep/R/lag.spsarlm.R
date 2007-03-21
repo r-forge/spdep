@@ -279,7 +279,7 @@ dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, method, interval,
 		gc(FALSE)
 	} else if (method == "Matrix") {
         	if (listw$style %in% c("W", "S") & can.sim) {
-	    		W <- as_dsTMatrix_listw(similar.listw(listw))
+	    		W <- as_dsTMatrix_listw(listw2U(similar.listw(listw)))
 	    		similar <- TRUE
 		} else W <- as_dsTMatrix_listw(listw)
 		gc(FALSE)

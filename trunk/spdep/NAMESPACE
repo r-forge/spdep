@@ -3,9 +3,9 @@ useDynLib(spdep)
 importFrom(stats, model.matrix, model.response)
 #import(SparseM)
 
-importFrom(SparseM, as.matrix.csr)
-importMethodsFrom(SparseM, det, chol, as.matrix, "%*%", t)
-importClassesFrom(SparseM, matrix.csr)
+#importFrom(SparseM, as.matrix.csr)
+#importMethodsFrom(SparseM, det, chol, as.matrix, "%*%", t)
+#importClassesFrom(SparseM, matrix.csr)
 
 #importFrom(Matrix, Diagonal)
 #importMethodsFrom(Matrix, coerce, chol, diag, Arith, t)
