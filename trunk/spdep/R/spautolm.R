@@ -127,6 +127,7 @@ spautolm <- function(formula, data = list(), listw, weights=NULL,
  	    !(is.symmetric.glist(listw$neighbours, listw$weights)))
 	    stop("Matrix method requires symmetric weights")
         I <- as_dgCMatrix_I(n)
+	I <- as(I, "CsparseMatrix")
 	W <- as_dgRMatrix_listw(listw)
 	W <- as(W, "CsparseMatrix")
         if (family == "CAR") if (!isTRUE(all.equal(W, t(W))))

@@ -130,6 +130,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action=na.fail,
 		} else csrw <- as_dsTMatrix_listw(listw)
 		gc(FALSE)
         	I <- as_dgCMatrix_I(n)
+		I <- as(I, "CsparseMatrix")
 		opt <- optimize(sar.error.f.M, interval=interval, 
 			maximum=TRUE, tol=tol.opt, csrw=csrw, I=I, y=y, wy=wy, 
 			x=x, WX=WX, n=n, quiet=quiet)

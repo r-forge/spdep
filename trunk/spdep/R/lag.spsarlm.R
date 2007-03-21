@@ -285,6 +285,7 @@ dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, method, interval,
 		} else W <- as_dsTMatrix_listw(listw)
 		gc(FALSE)
         	I <- as_dgCMatrix_I(n)
+		I <- as(I, "CsparseMatrix")
 	}
 	m <- ncol(x)
 	n <- nrow(x)
