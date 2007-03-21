@@ -116,7 +116,8 @@ GMerrorsar <- function(#W, y, X,
 			} else csrw <- as_dsTMatrix_listw(listw)
 			gc(FALSE)
 			I <- as_dgCMatrix_I(n)
-			tmpmax <- sum(card(listw$neighbours)) + n
+			I <- as(I, "CsparseMatrix")
+#			tmpmax <- sum(card(listw$neighbours)) + n
 			yl <- y - lambda*wy
 			xl <- x - lambda*WX
 			xl.q <- qr.Q(qr(xl))
