@@ -128,7 +128,7 @@ spautolm <- function(formula, data = list(), listw, weights=NULL,
 	    stop("Matrix method requires symmetric weights")
         I <- as_dgCMatrix_I(n)
 	W <- as_dgRMatrix_listw(listw)
-	W <- as(W, "dgCMatrix")
+	W <- as(W, "CsparseMatrix")
         if (family == "CAR") if (!isTRUE(all.equal(W, t(W))))
 	    warning("Non-symmetric spatial weights in CAR model")
 # Jacobian only from symmetric W_J, W can be asymmetric though

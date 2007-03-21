@@ -33,9 +33,11 @@ neighbours, if FALSE (default) assume no cases of no neighbours - if they are in
 
 \seealso{\code{\link[SparseM]{as.matrix.csr}}}
 \examples{
+\dontrun{
 data(oldcol)
 COL.W <- nb2listw(COL.nb, style="W")
 COL.W
 image(asMatrixCsrListw(COL.W))
+}
 }
 \keyword{spatial}

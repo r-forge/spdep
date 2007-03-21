@@ -104,17 +104,15 @@ pp. 237-289; Cressie, N. A. C. 1993 \emph{Statistics for spatial data}, Wiley, N
 data(oldcol)
 COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="W"), method="eigen", quiet=FALSE)
-COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
- nb2listw(COL.nb, style="W"), method="eigen", quiet=FALSE)
+summary(COL.errW.eig, correlation=TRUE)
 COL.errB.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="B"), method="eigen", quiet=FALSE)
-COL.errW.SM <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+summary(COL.errB.eig, correlation=TRUE)
+\dontrun{COL.errW.SM <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="W"), method="SparseM", quiet=FALSE)
+summary(COL.errW.SM)}
 COL.errW.M <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="W"), method="Matrix", quiet=FALSE)
-summary(COL.errW.eig, correlation=TRUE)
-summary(COL.errB.eig, correlation=TRUE)
-summary(COL.errW.SM)
 summary(COL.errW.M)
 NA.COL.OLD <- COL.OLD
 NA.COL.OLD$CRIME[20:25] <- NA

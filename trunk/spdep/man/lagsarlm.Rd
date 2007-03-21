@@ -109,12 +109,12 @@ Bernat for contributions to the asymptotic standard error code.}
 data(oldcol)
 COL.lag.eig <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="W"), method="eigen", quiet=FALSE)
-COL.lag.SM <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+summary(COL.lag.eig, correlation=TRUE)
+\dontrun{COL.lag.SM <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="SparseM", quiet=FALSE)
+summary(COL.lag.SM, correlation=TRUE)}
 COL.lag.M <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="Matrix", quiet=FALSE)
-summary(COL.lag.eig, correlation=TRUE)
-summary(COL.lag.SM, correlation=TRUE)
 summary(COL.lag.M, correlation=TRUE)
 COL.lag.B <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="B"))
