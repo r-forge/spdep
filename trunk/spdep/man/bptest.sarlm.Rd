@@ -1,4 +1,4 @@
-% Copyright 2004 by Roger S. Bivand
+% Copyright 2004-7 by Roger S. Bivand
 \encoding{latin1}
 \name{bptest.sarlm}
 \alias{bptest.sarlm}
@@ -53,9 +53,11 @@ error.col <- errorsarlm(CRIME ~ HOVAL + INC, data=columbus,
  nb2listw(col.gal.nb))
 bptest.sarlm(error.col)
 bptest.sarlm(error.col, studentize=FALSE)
+\dontrun{
 if (require(lmtest) && require(sandwich)) {
   coeftest(error.col$lm.target, vcov=vcovHC(error.col$lm.target,
     type="HC0"), df=Inf)
+}
 }
 }
 \keyword{spatial}
