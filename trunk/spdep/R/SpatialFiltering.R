@@ -246,7 +246,7 @@ SpatialFiltering <- function (formula, lagformula, data=list(), nb, glist=NULL, 
     colnames(out) <- c("Step","SelEvec","Eval","MinMi","ZMinMi","Pr(ZI)","R2","gamma")
     rownames(out) <- out[,1]
     
-    selVec <- vec[,out[,2]]
+    selVec <- vec[,out[,2], drop=FALSE]
     colnames(selVec) <- c(paste("vec",out[2:nrow(out),2],sep=""))
     
     #Generating a result object 
