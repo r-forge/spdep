@@ -34,7 +34,7 @@ is called.}
   \item{weights}{an optional vector of weights to be used in the fitting process}
   \item{verbose}{default=FALSE; if TRUE, reports function values during optimization.}
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()}}
-  \item{family}{character string: either \code{"SAR"} or \code{"CAR"} for simultaneous or conditional autoregressions}
+  \item{family}{character string: either \code{"SAR"} or \code{"CAR"} for simultaneous or conditional autoregressions; \code{"SMA"} for spatial moving average added thanks to Jielai Ma}
   \item{method}{character string: default "full" for use of full matrices, "SparseM" or "Matrix" for sparse matrices (restricted to spatial weights symmetric or similar to symmetric) using methods in either the SparseM or Matrix packages}
   \item{interval}{search interval for autoregressive parameter when not using method="eigen"; default is c(-1,0.999), \code{optimize} will reset NA/NaN to a bound and gives a warning when the interval is poorly set}
   \item{zero.policy}{Include list of no-neighbour observations in output if TRUE --- otherwise zero.policy is handled within the listw argument}
@@ -167,6 +167,12 @@ summary(COL.errW.eig)
 COL.errW.sar <- spautolm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="W"))
 summary(COL.errW.sar)
+data(boston)
+gp1 <- spautolm(log(CMEDV) ~ CRIM + ZN + INDUS + CHAS + I(NOX^2)
+ + I(RM^2) + AGE + log(DIS) + log(RAD) + TAX + PTRATIO + B + log(LSTAT), 
+ data=boston.c, nb2listw(boston.soi), family="SMA")
+summary(gp1)
+
 }
 \keyword{spatial}
 
