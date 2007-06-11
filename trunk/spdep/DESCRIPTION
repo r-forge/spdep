@@ -2,6 +2,7 @@ Package: spdep
 Version: 0.4-4
 Date: 2007-06-09
 Title: Spatial dependence: weighting schemes, statistics and models
+Encoding: latin1
 Author: Roger Bivand <Roger.Bivand@nhh.no>, with contributions by Luc Anselin,
   Olaf Berke, Andrew Bernat, Marilia Carvalho, Yongwan Chun, Carsten Dormann,
   Stéphane Dray, Rein Halbersma, Nicholas Lewin-Koh, Jielai Ma, Giovanni Millo, 
