@@ -17,7 +17,7 @@
  Function taking family and weights arguments for spatial autoregression model estimation by Maximum Likelihood, using full matrix methods, not suited to large data sets with thousands of observations. With one of the sparse matrix methods, larger numbers of observations can be handled, but the \code{interval=} argument should be set. The implementation is GLS using the single spatial coefficient value, here termed lambda, found by line search using \code{optimize} to maximise the log likelihood.
 }
 \usage{
-spautolm(formula, data = list(), listw, weights = NULL,
+spautolm(formula, data = list(), listw, weights,
  na.action=na.fail, verbose = FALSE, tol.opt = .Machine$double.eps^(2/3),
  family = "SAR", method="full", interval=c(-1,0.999),
  zero.policy = FALSE, cholAlloc=NULL, tol.solve=.Machine$double.eps)
@@ -92,22 +92,22 @@ esarIVa <- spautolm(ft.SID74 ~ ft.NWBIR74, data=mdata, listw=sids.nhbr.listw,
  family="SAR")
 summary(esarIVa)
 esarIaw <- spautolm(ft.SID74 ~ 1, data=mdata, listw=sids.nhbr.listw,
- weights=mdata$BIR74, family="SAR")
+ weights=BIR74, family="SAR")
 summary(esarIaw)
 esarIIaw <- spautolm(ft.SID74 ~ both - 1, data=mdata, listw=sids.nhbr.listw,
- weights=mdata$BIR74, family="SAR")
+ weights=BIR74, family="SAR")
 summary(esarIIaw)
 esarIVaw <- spautolm(ft.SID74 ~ ft.NWBIR74, data=mdata,
- listw=sids.nhbr.listw, weights=mdata$BIR74, family="SAR")
+ listw=sids.nhbr.listw, weights=BIR74, family="SAR")
 summary(esarIVaw)
 ecarIaw <- spautolm(ft.SID74 ~ 1, data=mdata.4, listw=sids.nhbr.listw.4,
- weights=mdata.4$BIR74, family="CAR")
+ weights=BIR74, family="CAR")
 summary(ecarIaw)
 ecarIIaw <- spautolm(ft.SID74 ~ both - 1, data=mdata.4,
- listw=sids.nhbr.listw.4, weights=mdata.4$BIR74, family="CAR")
+ listw=sids.nhbr.listw.4, weights=BIR74, family="CAR")
 summary(ecarIIaw)
 ecarIVaw <- spautolm(ft.SID74 ~ ft.NWBIR74, data=mdata.4,
- listw=sids.nhbr.listw.4, weights=mdata.4$BIR74, family="CAR")
+ listw=sids.nhbr.listw.4, weights=BIR74, family="CAR")
 summary(ecarIVaw)
 nc_LL$fitIV <- append(fitted.values(ecarIVaw), NA, outl-1)
 spplot(nc_LL, c("fitIV"), cuts=12) # Cressie 1993, p. 565
@@ -131,14 +131,14 @@ esar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY, family="SAR", method="Matrix")
 summary(esar1M)
 esar1wf <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
- listw=listw_NY, weights=nydata$POP8, family="SAR", method="full")
+ listw=listw_NY, weights=POP8, family="SAR", method="full")
 summary(esar1wf)
 \dontrun{require(SparseM)
 esar1ws <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
- listw=listw_NY, weights=nydata$POP8, family="SAR", method="SparseM")
+ listw=listw_NY, weights=POP8, family="SAR", method="SparseM")
 summary(esar1ws)}
 esar1wM <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
- listw=listw_NY, weights=nydata$POP8, family="SAR", method="Matrix")
+ listw=listw_NY, weights=POP8, family="SAR", method="Matrix")
 summary(esar1wM)
 ecar1f <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY, family="CAR", method="full")
@@ -155,10 +155,10 @@ ecar1wf <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
 summary(ecar1wf)
 \dontrun{require(SparseM)
 ecar1ws <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
- listw=listw_NY, weights=nydata$POP8, family="CAR", method="SparseM")
+ listw=listw_NY, weights=POP8, family="CAR", method="SparseM")
 summary(ecar1ws)}
 ecar1wM <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
- listw=listw_NY, weights=nydata$POP8, family="CAR", method="Matrix")
+ listw=listw_NY, weights=POP8, family="CAR", method="Matrix")
 summary(ecar1wM)
 data(oldcol)
 COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
