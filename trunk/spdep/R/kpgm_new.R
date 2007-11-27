@@ -13,8 +13,8 @@
 #    control: list of control arguments to optim (such as list(trace=1))
 # Details:
 #    initializes with ols, calls helper function kpwuwu to build
-#    the G and g matrices, calls optim optimizer with
-#    kpgm as function and 0,1 as starting values to get estimate
+#    the G and g matrices, calls optim unconstrained optimizer with
+#    kpgm as function and plausible starting values to get estimate
 #    for lambda, then finds results with spatially weighted least squares
 #    and finds LL using SparseM functions
 # Value:
