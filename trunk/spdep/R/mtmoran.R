@@ -48,7 +48,7 @@ lm.morantest.sad <- function (model, listw, zero.policy = FALSE,
     if (idxpos < 1) stop("invalid first zero eigenvalue index")
     tau <- evalue[1:idxpos]
     tau <- c(tau, evalue[(idxpos+1+p):N])
-    mres <- moranSad(tau, I, tol.bounds, tol, maxiter, alternative=alternative)
+    mres <- moranSad(tau, I, tol, maxiter, tol.bounds, alternative=alternative)
     statistic <- mres$sad.p
     attr(statistic, "names") <- "Saddlepoint approximation"
     p.value <- mres$p.sad
