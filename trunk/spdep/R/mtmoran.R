@@ -44,6 +44,31 @@ lm.morantest.sad <- function (model, listw, zero.policy = FALSE,
     if (idxpos < 1) stop("invalid first zero eigenvalue index")
     tau <- evalue[1:idxpos]
     tau <- c(tau, evalue[(idxpos+1+p):N])
+    mres <- moranSad(tau, I, tol.bounds, tol, maxiter, alternative=alternative)
+    statistic <- mres$sad.p
+    attr(statistic, "names") <- "Saddlepoint approximation"
+    p.value <- mres$p.sad
+    estimate <- c(I)
+    attr(estimate, "names") <- "Observed Moran's I"
+    internal1 <- c(mres$omega, mres$sad.r, mres$sad.u)
+    attr(internal1, "names") <- c("omega", "sad.r", "sad.u")
+    internal2 <- unlist(mres$root)[2:4]
+    attr(internal2, "names") <- c("f.root", "iter", "estim.prec")
+    method <- paste("Saddlepoint approximation for global Moran's I",
+        "(Barndorff-Nielsen formula)")
+    data.name <- paste("\nmodel:", paste(strwrap(gsub("[[:space:]]+", " ", 
+	    paste(deparse(model$call), sep="", collapse=""))), collapse="\n"),
+    	    "\nweights: ", deparse(substitute(listw)), "\n", sep="")
+    res <- list(statistic = statistic, p.value = p.value,
+        estimate = estimate, method = method,
+	alternative = alternative, data.name = data.name,
+	internal1 = internal1, internal2 = internal2,
+	df = (N-p), tau = tau)
+    class(res) <- "moransad"
+    return(res)
+}
+
+moranSad <- function(tau, I, tol.bounds, tol, maxiter, alternative) {
     taumi <- tau - I
     low <- (1 / (2*taumi[length(taumi)])) + tol.bounds
     high <- (1 / (2*taumi[1])) - tol.bounds
@@ -62,27 +87,7 @@ lm.morantest.sad <- function (model, listw, zero.policy = FALSE,
     else p.sad <- pnorm(sad.p)
     if (p.sad < 0 || p.sad > 1) 
 	warning("Out-of-range p-value: reconsider test arguments")
-    statistic <- sad.p
-    attr(statistic, "names") <- "Saddlepoint approximation"
-    p.value <- p.sad
-    estimate <- c(I)
-    attr(estimate, "names") <- "Observed Moran's I"
-    internal1 <- c(omega, sad.r, sad.u)
-    attr(internal1, "names") <- c("omega", "sad.r", "sad.u")
-    internal2 <- unlist(root)[2:4]
-    attr(internal2, "names") <- c("f.root", "iter", "estim.prec")
-    method <- paste("Saddlepoint approximation for global Moran's I",
-        "(Barndorff-Nielsen formula)")
-    data.name <- paste("\nmodel:", paste(strwrap(gsub("[[:space:]]+", " ", 
-	    paste(deparse(model$call), sep="", collapse=""))), collapse="\n"),
-    	    "\nweights: ", deparse(substitute(listw)), "\n", sep="")
-    res <- list(statistic = statistic, p.value = p.value,
-        estimate = estimate, method = method,
-	alternative = alternative, data.name = data.name,
-	internal1 = internal1, internal2 = internal2,
-	df = (N-p), tau = tau)
-    class(res) <- "moransad"
-    return(res)
+    return(list(p.sad=p.sad, sad.p=sad.p, sad.r=sad.r, sad.u=sad.u, omega=omega, root=root))
 }
 
 print.moransad <- function(x, ...) {

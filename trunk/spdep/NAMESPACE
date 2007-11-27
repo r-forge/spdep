@@ -62,6 +62,8 @@ export(spautolm, residuals.spautolm, deviance.spautolm, coef.spautolm,
 export(nb2WB, listw2WB, as_dgRMatrix_listw, as_dsTMatrix_listw, as_dgCMatrix_I,
 	as_dgCMatrix_IrW, Jacobian_W)
 
+export(moran.exact, print.moranex, localmoran.exact, localmoran.exact.alt, print.localmoranex, as.data.frame.localmoranex)
+
 import(maptools)
 
 S3method(print, nb)
@@ -91,6 +93,10 @@ S3method(print, summary.localmoransad)
 S3method(print, moransad)
 S3method(summary, moransad)
 S3method(print, summary.moransad)
+
+S3method(print, moranex)
+S3method(print, localmoranex)
+S3method(as.data.frame, localmoranex)
 
 S3method(print, spcor)
 S3method(plot, spcor)

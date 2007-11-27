@@ -54,6 +54,7 @@ therefore only be used with care when n is large.
   \item{df}{degrees of freedom}
   \item{tau}{eigenvalues (excluding zero values)}
 }
+
 \references{Tiefelsdorf, M. 2002 The Saddlepoint approximation of Moran's I 
 and local Moran's Ii reference distributions and their numerical evaluation. 
 Geographical Analysis, forthcoming; see also Tiefelsdorf's SPSS code:

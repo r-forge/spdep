@@ -1,3 +1,13 @@
+2007-11-01 10:45  rsbivand
+
+	* ChangeLog, DESCRIPTION, R/SpatialFiltering.R, R/geary.R,
+	  R/moran.R, R/mtlocalmoran.R, R/mtmoran.R, R/sp.mantel.R,
+	  inst/ChangeLog, man/SpatialFiltering.Rd, man/bptest.sarlm.Rd,
+	  man/diffnb.Rd, man/geary.Rd, man/geary.mc.Rd, man/geary.test.Rd,
+	  man/globalG.test.Rd, man/joincount.test.Rd, man/lag.listw.Rd,
+	  man/moran.Rd, man/moran.mc.Rd, man/moran.test.Rd, man/plot.nb.Rd,
+	  man/sp.mantel.mc.Rd, man/spweights.constants.Rd: OSX issue
+
 2007-10-09 10:32  rsbivand
 
 	* DESCRIPTION, R/lm.LMtests.R, R/lm.morantest.R, R/spautolm.R,
