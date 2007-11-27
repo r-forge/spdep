@@ -95,13 +95,14 @@ localmoran.exact.alt <- function(model, select, nb, glist = NULL, style = "W",
     res
 }
 
-exactLocalMoranAlt <- function(Ii, Vi, M1, M2, n, alternative) {
+exactLocalMoranAlt <- function(Ii, Vi, M1, M2, n, alternative,
+    type="Alternative local") {
     ViI <- listw2mat(Vi) - Ii * diag(n)
     innerTerm <- M1 %*% ViI %*% M2
     evalue <- eigen(innerTerm, only.values=TRUE)$values
     gamma <- c(evalue)
     obj <- exactMoran(Ii, gamma, alternative=alternative,
-        type="Alternative local")
+        type=type)
     obj
 }
 

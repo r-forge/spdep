@@ -128,8 +128,8 @@ localmoran.sad <- function (model, select, nb, glist = NULL, style = "W",
     res
 }
 
-sadLocalMoranAlt <- function(Ii, Vi, M1, M2, n, tol.bounds, tol, maxiter, ii,
-        alternative="greater") {
+sadLocalMoranAlt <- function(Ii, Vi, M1, M2, n, tol.bounds=0.0001,
+    tol = .Machine$double.eps^0.5, maxiter = 1000, ii, alternative="greater") {
     ViI <- listw2mat(Vi) - Ii * diag(n)
     innerTerm <- M1 %*% ViI %*% M2
     evalue <- eigen(innerTerm, only.values=TRUE)$values
@@ -205,6 +205,7 @@ sadLocalMoran <- function(Ii, Vi, X, XtXinv, m, ii, alternative="greater") {
             omega=omega, gamma=c(c(e1), c(en)))
         obj
 }
+
 print.localmoransad <- function(x, ...) {
     extract <- function(x, i) {x[[i]]}
     regnames <- sapply(x, extract, 10)
