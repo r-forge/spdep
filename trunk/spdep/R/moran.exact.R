@@ -2,7 +2,7 @@
 
 moran.exact <- function(model, listw, zero.policy = FALSE, 
     alternative = "greater", spChk=NULL, resfun=weighted.residuals, 
-    zero.tol=1.0e-7) 
+    zero.tol=1.0e-7, Omega=NULL, save.M=NULL, save.U=NULL) 
 {
     if (!inherits(listw, "listw")) 
         stop(paste(deparse(substitute(listw)), "is not a listw object"))
@@ -36,22 +36,32 @@ moran.exact <- function(model, listw, zero.policy = FALSE,
     }
     M <- diag(N) - X %*% tcrossprod(XtXinv, X)
     U <- listw2mat(listw.U)
-    MVM <- M %*% U %*% M
-    MVM <- 0.5 * (t(MVM) + MVM)
-    evalue <- eigen(MVM, only.values=TRUE)$values
-    idxpos <- which(abs(evalue) < zero.tol)
-    if (length(idxpos) != p)
-        stop("number of zero eigenvalues and number of variables disagree")
-    idxpos <- idxpos[1] - 1
-    if (idxpos < 1) stop("invalid first zero eigenvalue index")
-    gamma <- evalue[1:idxpos]
-    gamma <- c(gamma, evalue[(idxpos+1+p):N])
-    res <- exactMoran(I, gamma, alternative=alternative, type="Global")
+    if (is.null(Omega)) {
+        MVM <- M %*% U %*% M
+        MVM <- 0.5 * (t(MVM) + MVM)
+        evalue <- eigen(MVM, only.values=TRUE)$values
+        idxpos <- which(abs(evalue) < zero.tol)
+        if (length(idxpos) != p)
+            warning("number of zero eigenvalues greater than number of variables")
+        idxpos <- idxpos[1] - 1
+        if (idxpos < 1) stop("invalid first zero eigenvalue index")
+        gamma <- evalue[1:idxpos]
+        gamma <- c(gamma, evalue[(idxpos+1+p):N])
+        res <- exactMoran(I, gamma, alternative=alternative, type="Global")
+    } else {
+        if (dim(Omega)[1] != N) stop("Omega of different size than data")
+        Omega <- chol(Omega)
+        res <- exactMoranAlt(I, M, U, Omega, N, alternative=alternative,
+            type="Alternative")
+    }
+
     data.name <- paste("\nmodel:", paste(strwrap(gsub("[[:space:]]+", " ", 
 	    paste(deparse(model$call), sep="", collapse=""))), collapse="\n"),
     	    "\nweights: ", deparse(substitute(listw)), "\n", sep="")
     res$data.name <- data.name
     res$df <- (N-p)
+    if (!is.null(save.M)) res$M <- M
+    if (!is.null(save.U)) res$U <- U
     return(res)
 }
 
@@ -63,7 +73,7 @@ exactMoran <- function(I, gamma, alternative="greater", type="Global", np2=NULL)
     if (type == "Global") integrand <- function(x) {
         sin(0.5 * colSums(atan((gamma-I) %*% t(x)))) /
         (x * apply((1 + (gamma-I)^2 %*% t(x^2))^(1/4), 2, prod))}
-    else if (type == "Alternative local") integrand <- function(x) {
+    else if (type == "Alternative") integrand <- function(x) {
         sin(0.5 * colSums(atan((gamma) %*% t(x)))) /
         (x * apply((1+(gamma)^2 %*% t(x^2))^(1/4), 2, prod))}
     else if (type == "Local") {
@@ -82,7 +92,7 @@ exactMoran <- function(I, gamma, alternative="greater", type="Global", np2=NULL)
     else if (alternative == "greater")
         p.v <- pnorm(sd.ex, lower.tail=FALSE)
     else p.v <- pnorm(sd.ex)
-    if (p.v < 0 || p.v > 1) 
+    if (is.nan(p.v) || p.v < 0 || p.v > 1) 
 	warning("Out-of-range p-value: reconsider test arguments")
     statistic <- sd.ex
     attr(statistic, "names") <- "Exact standard deviate"
@@ -97,6 +107,16 @@ exactMoran <- function(I, gamma, alternative="greater", type="Global", np2=NULL)
     class(res) <- "moranex"
     return(res)
 }
+
+exactMoranAlt <- function(I, M, U, Omega, n, alternative="greater",
+    type="Alternative") {
+    A <- Omega %*% M %*% (U- diag(I, n)) %*% M %*% t(Omega)
+    gamma <- sort(eigen(A)$values)
+    obj <- exactMoran(I, gamma, alternative=alternative,
+        type=type)
+    obj
+}
+
 
 print.moranex <- function(x, ...) {
     class(x) <- c("htest", "moranex")

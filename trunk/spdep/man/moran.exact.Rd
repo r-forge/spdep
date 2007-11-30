@@ -7,7 +7,7 @@
   The function implements Tiefelsdorf's exact global Moran's I test.
 }
 \usage{
-moran.exact(model, listw, zero.policy = FALSE, alternative = "greater", spChk = NULL, resfun = weighted.residuals, zero.tol = 1e-07)
+moran.exact(model, listw, zero.policy = FALSE, alternative = "greater", spChk = NULL, resfun = weighted.residuals, zero.tol = 1e-07, Omega=NULL, save.M=NULL, save.U=NULL)
 \method{print}{moranex}(x, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -22,6 +22,9 @@ must be one of greater (default), less or two.sided.}
   \item{spChk}{should the data vector names be checked against the spatial objects for identity integrity, TRUE, or FALSE, default NULL to use \code{get.spChkOption()}}
   \item{resfun}{default: weighted.residuals; the function to be used to extract residuals from the \code{lm} object, may be \code{residuals}, \code{weighted.residuals}, \code{rstandard}, or \code{rstudent}}
   \item{zero.tol}{tolerance used to find eigenvalues close to absolute zero}
+  \item{Omega}{A SAR process matrix may be passed in to test an alternative hupothesis}
+  \item{save.M}{return the full M matrix for use in \code{spdep:::exactMoranAlt}}
+  \item{save.U}{return the full U matrix for use in \code{spdep:::exactMoranAlt}}
   \item{x}{a moranex object}
   \item{\dots}{arguments to be passed through}
 }
