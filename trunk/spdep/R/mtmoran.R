@@ -43,7 +43,7 @@ lm.morantest.sad <- function (model, listw, zero.policy = FALSE,
     evalue <- eigen(MVM, only.values=TRUE)$values
     idxpos <- which(abs(evalue) < zero.tol)
     if (length(idxpos) != p)
-        stop("number of zero eigenvalues and number of variables disagree")
+        warning("number of zero eigenvalues greater than number of variables")
     idxpos <- idxpos[1] - 1
     if (idxpos < 1) stop("invalid first zero eigenvalue index")
     tau <- evalue[1:idxpos]

@@ -1,6 +1,6 @@
 # Copyright (c) 2007 Markus Reder and Roger Bivand
 
-moran.exact <- function(model, listw, zero.policy = FALSE, 
+lm.morantest.exact <- function(model, listw, zero.policy = FALSE, 
     alternative = "greater", spChk=NULL, resfun=weighted.residuals, 
     zero.tol=1.0e-7, Omega=NULL, save.M=NULL, save.U=NULL) 
 {

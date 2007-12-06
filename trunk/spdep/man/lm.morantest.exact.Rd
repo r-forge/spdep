@@ -1,5 +1,5 @@
-\name{moran.exact}
-\alias{moran.exact}
+\name{lm.morantest.exact}
+\alias{lm.morantest.exact}
 \alias{print.moranex}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Exact global Moran's I test}
@@ -7,7 +7,7 @@
   The function implements Tiefelsdorf's exact global Moran's I test.
 }
 \usage{
-moran.exact(model, listw, zero.policy = FALSE, alternative = "greater", spChk = NULL, resfun = weighted.residuals, zero.tol = 1e-07, Omega=NULL, save.M=NULL, save.U=NULL)
+lm.morantest.exact(model, listw, zero.policy = FALSE, alternative = "greater", spChk = NULL, resfun = weighted.residuals, zero.tol = 1e-07, Omega=NULL, save.M=NULL, save.U=NULL)
 \method{print}{moranex}(x, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -51,7 +51,7 @@ eire.nb <- poly2nb(eire)
 e.lm <- lm(OWNCONS ~ ROADACC, data=eire)
 lm.morantest(e.lm, nb2listw(eire.nb))
 lm.morantest.sad(e.lm, nb2listw(eire.nb))
-moran.exact(e.lm, nb2listw(eire.nb))
+lm.morantest.exact(e.lm, nb2listw(eire.nb))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
