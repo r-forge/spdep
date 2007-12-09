@@ -26,6 +26,8 @@ lm.morantest.sad <- function (model, listw, zero.policy = FALSE,
     Nnn <- N
     if (zero.policy) Nnn <- length(which(card(listw$neighbours) > 0))
     I <- (Nnn/S0) * ((t(u) %*% lu)/(t(u) %*% u))
+    I_save <- I
+    if (!isTRUE(all.equal((Nnn/S0), 1))) I <- I * (S0/Nnn)
     p <- model$rank
     p1 <- 1:p
     nacoefs <- which(is.na(coefficients(model)))
@@ -52,7 +54,7 @@ lm.morantest.sad <- function (model, listw, zero.policy = FALSE,
     statistic <- mres$sad.p
     attr(statistic, "names") <- "Saddlepoint approximation"
     p.value <- mres$p.sad
-    estimate <- c(I)
+    estimate <- c(I_save)
     attr(estimate, "names") <- "Observed Moran's I"
     internal1 <- c(mres$omega, mres$sad.r, mres$sad.u)
     attr(internal1, "names") <- c("omega", "sad.r", "sad.u")

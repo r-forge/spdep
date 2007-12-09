@@ -24,6 +24,8 @@ lm.morantest.exact <- function(model, listw, zero.policy = FALSE,
     Nnn <- N
     if (zero.policy) Nnn <- length(which(card(listw$neighbours) > 0))
     I <- (Nnn/S0) * (crossprod(u, lu) / crossprod(u))
+    I_save <- I
+    if (!isTRUE(all.equal((Nnn/S0), 1))) I <- I * (S0/Nnn)
     p <- model$rank
     p1 <- 1:p
     nacoefs <- which(is.na(coefficients(model)))
@@ -58,6 +60,7 @@ lm.morantest.exact <- function(model, listw, zero.policy = FALSE,
     data.name <- paste("\nmodel:", paste(strwrap(gsub("[[:space:]]+", " ", 
 	    paste(deparse(model$call), sep="", collapse=""))), collapse="\n"),
     	    "\nweights: ", deparse(substitute(listw)), "\n", sep="")
+    res$estimate <- c(I_save)
     res$data.name <- data.name
     res$df <- (N-p)
     if (!is.null(save.M)) res$M <- M

@@ -58,7 +58,7 @@ When the alternative is being tested, a list of left and right M products in att
 }
 \author{Markus Reder and Roger Bivand}
 
-\seealso{\code{\link{moran.exact}}, \code{\link{localmoran.sad}}}
+\seealso{\code{\link{lm.morantest.exact}}, \code{\link{localmoran.sad}}}
 \examples{
 eire <- readShapePoly(system.file("etc/shapes/eire.shp", package="spdep")[1],
   ID="names", proj4string=CRS("+proj=utm +zone=30 +units=km"))
