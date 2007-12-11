@@ -20,7 +20,8 @@
 spautolm(formula, data = list(), listw, weights,
  na.action=na.fail, verbose = FALSE, tol.opt = .Machine$double.eps^(2/3),
  family = "SAR", method="full", interval=c(-1,0.999),
- zero.policy = FALSE, cholAlloc=NULL, tol.solve=.Machine$double.eps)
+ zero.policy = FALSE, cholAlloc=NULL, tol.solve=.Machine$double.eps,
+ llprof=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -39,7 +40,9 @@ is called.}
   \item{interval}{search interval for autoregressive parameter when not using method="eigen"; default is c(-1,0.999), \code{optimize} will reset NA/NaN to a bound and gives a warning when the interval is poorly set}
   \item{zero.policy}{Include list of no-neighbour observations in output if TRUE --- otherwise zero.policy is handled within the listw argument}
   \item{cholAlloc}{control arguments for memory allocation in \code{chol} for sparse matrices in method="SparseM": if NULL, default values are used (larger than SparseM defaults), otherwise a list with elements: nsubmax, nnzlmax, and tmpmax, for example cholAlloc=list(nsubmax=25000, nnzlmax=100000, tmpmax=25000)}
-  \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=double precision machine tolerance). Errors in \code{solve()} may constitute indications of poorly scaled variables: if the variables have scales differing much from the autoregressive coefficient, the values in this matrix may be very different in scale, and inverting such a matrix is analytically possible by definition, but numerically unstable; rescaling the RHS variables alleviates this better than setting tol.solve to a very small value}}
+  \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=double precision machine tolerance). Errors in \code{solve()} may constitute indications of poorly scaled variables: if the variables have scales differing much from the autoregressive coefficient, the values in this matrix may be very different in scale, and inverting such a matrix is analytically possible by definition, but numerically unstable; rescaling the RHS variables alleviates this better than setting tol.solve to a very small value}
+  \item{llprof}{default NULL, can either be an integer for method="full" only, to divide the feasible range into llprof points, or a sequence of values, at which to evaluate the likelihood function}
+}
 \details{
   This implementation is based on \code{\link[MASS]{lm.gls}} and \code{\link{errorsarlm}}. In particular, the function does not (yet) prevent asymmetric spatial weights being used with "CAR" family models. It appears that both numerical issues (convergence in particular) and uncertainties about the exact spatial weights matrix used make it difficult to reproduce Cressie and Chan's 1989 results, also given in Cressie 1993.
 
@@ -69,6 +72,7 @@ variable in making predictions for the fitting data.
   \item{parameters}{number of parameters estimated}
   \item{aliased}{if not NULL, details of aliased variables}
   \item{na.action}{(possibly) named vector of excluded or omitted observations if non-default na.action argument used}
+  \item{llprof}{if not NULL, a list with components lambda and ll of equal length}
 }
 \references{Cliff, A. D., Ord, J. K. 1981 \emph{Spatial processes}, Pion;
 Ord, J. K. 1975 Estimation methods for models of spatial interaction,

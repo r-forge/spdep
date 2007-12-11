@@ -2,7 +2,7 @@
 spautolm <- function(formula, data = list(), listw, weights,
     na.action=na.fail, verbose=FALSE, tol.opt=.Machine$double.eps^(2/3),
     family="SAR", method="full", interval=c(-1,0.999), zero.policy=FALSE,
-    cholAlloc=NULL, tol.solve=.Machine$double.eps) 
+    cholAlloc=NULL, tol.solve=.Machine$double.eps, llprof=NULL) 
 {
     if (!inherits(listw, "listw")) 
         stop("No neighbourhood list")
@@ -49,6 +49,8 @@ spautolm <- function(formula, data = list(), listw, weights,
 	can.sim <- can.be.simmed(listw)
 
     sum_lw <- sum(log(weights))
+    if (!is.null(llprof) && method != "full" && length(llprof) == 1)
+        stop("sequence of values required for llprof")
     if (method == "full") {
 # spatial weights matrix
         W <- listw2mat(listw)
@@ -62,10 +64,21 @@ spautolm <- function(formula, data = list(), listw, weights,
         else eig.range <- 1/range(eig)
         I <- diag(n)
 # do line search
+        dweights <- diag(weights)
+        if (!is.null(llprof)) {
+            if (length(llprof) == 1)
+                llprof <- seq(eig.range[1]+.Machine$double.eps,
+                    eig.range[2]-.Machine$double.eps, length.out=llprof)
+            ll_prof <- numeric(length(llprof))
+            for (i in seq(along=llprof)) ll_prof[i] <- .opt.fit.full(
+                llprof[i], Y=Y, X=X, n=n, W=W, eig=eig, I=I,
+                weights=dweights, sum_lw=sum_lw, family=family,
+                verbose=verbose, tol.solve=tol.solve)
+        }
         opt <- optimize(.opt.fit.full, lower=eig.range[1]+.Machine$double.eps,
             upper=eig.range[2]-.Machine$double.eps, maximum=TRUE,
             tol = tol.opt, Y=Y, X=X, n=n, W=W, eig=eig, I=I,
-            weights=diag(weights), sum_lw=sum_lw, family=family,
+            weights=dweights, sum_lw=sum_lw, family=family,
             verbose=verbose, tol.solve=tol.solve)
         lambda <- opt$maximum
         names(lambda) <- "lambda"
@@ -114,6 +127,13 @@ spautolm <- function(formula, data = list(), listw, weights,
 			tmpmax=tmpmax)
 	}
 # do line search
+        if (!is.null(llprof)) {
+            ll_prof <- numeric(length(llprof))
+            for (i in seq(along=llprof)) ll_prof[i] <- .opt.fit.SparseM(
+                llprof[i], Y=Y, X=X, n=n, W=W, W_J=W_J, I=I,
+                weights=Sweights, sum_lw=sum_lw, family=family,
+                verbose=verbose, cholAlloc=cholAlloc, tol.solve=tol.solve)
+        }
         opt <- optimize(.opt.fit.SparseM, lower=interval[1],
             upper=interval[2], maximum=TRUE,
             tol = tol.opt, Y=Y, X=X, n=n, W=W, W_J=W_J, I=I,
@@ -156,6 +176,13 @@ spautolm <- function(formula, data = list(), listw, weights,
 	gc(FALSE)
         Sweights <- as(Diagonal(x=weights), "sparseMatrix")
 # do line search
+        if (!is.null(llprof)) {
+            ll_prof <- numeric(length(llprof))
+            for (i in seq(along=llprof)) ll_prof[i] <- .opt.fit.Matrix(
+                llprof[i], Y=Y, X=X, n=n, W=W, W_J=W_J, I=I,
+                weights=Sweights, sum_lw=sum_lw, family=family,
+                verbose=verbose, tol.solve=tol.solve)
+        }
         opt <- optimize(.opt.fit.Matrix, lower=interval[1],
             upper=interval[2], maximum=TRUE,
             tol = tol.opt, Y=Y, X=X, n=n, W=W, W_J=W_J, I=I,
@@ -183,6 +210,10 @@ spautolm <- function(formula, data = list(), listw, weights,
         zero.policy=zero.policy, weights=weights)
     if (!is.null(na.act))
 	res$na.action <- na.act
+    if (is.null(llprof)) res$llprof <- llprof
+    else {
+        res$llprof <- list(lambda=llprof, ll=ll_prof)
+    }
     if (zero.policy) {
         zero.regs <- attr(listw$neighbours, 
 	    "region.id")[which(card(listw$neighbours) == 0)]
@@ -234,7 +265,7 @@ spautolm <- function(formula, data = list(), listw, weights,
 }
 
 .opt.fit.Matrix <- function(lambda, Y, X, n, W, W_J, I, weights, sum_lw,
-    family="SAR_x", verbose=TRUE, tol.solve=.Machine$double.eps) {
+    family="SAR", verbose=TRUE, tol.solve=.Machine$double.eps) {
 # fitting function called from optimize()
     SSE <- .SPAR.fit(lambda=lambda, Y=Y, X=X, n=n, W=W, weights=weights,
         I=I, family=family, out=FALSE, tol.solve=tol.solve)
