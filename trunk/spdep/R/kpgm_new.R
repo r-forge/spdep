@@ -138,7 +138,7 @@ GMerrorsar <- function(#W, y, X,
 		s2=s2, SSE=SSE, parameters=(m+2), lm.model=ols, 
 		call=call, residuals=r, lm.target=lm.target,
 		fitted.values=fit, formula=formula, aliased=aliased,
-		zero.policy=zero.policy, LL=LL), class=c("gmsar"))
+		zero.policy=zero.policy, LL=LL, vv=vv), class=c("gmsar"))
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]
