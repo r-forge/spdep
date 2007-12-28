@@ -20,8 +20,8 @@
 spautolm(formula, data = list(), listw, weights,
  na.action=na.fail, verbose = FALSE, tol.opt = .Machine$double.eps^(2/3),
  family = "SAR", method="full", interval=c(-1,0.999),
- zero.policy = FALSE, cholAlloc=NULL, tol.solve=.Machine$double.eps,
- llprof=NULL)
+ zero.policy = FALSE, %cholAlloc=NULL, 
+ tol.solve=.Machine$double.eps, llprof=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -36,10 +36,14 @@ is called.}
   \item{verbose}{default=FALSE; if TRUE, reports function values during optimization.}
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()}}
   \item{family}{character string: either \code{"SAR"} or \code{"CAR"} for simultaneous or conditional autoregressions; \code{"SMA"} for spatial moving average added thanks to Jielai Ma - \code{"SMA"} is only implemented for method=\code{"full"} because it necessarily involves dense matrices}
-  \item{method}{character string: default \code{"full"} for use of full matrices, \code{"SparseM"} or \code{"Matrix"} for sparse matrices (restricted to spatial weights symmetric or similar to symmetric) using methods in either the SparseM or Matrix packages. Note that users should change from SparseM to Matrix}
+  \item{method}{character string: default \code{"full"} for use of full matrices, \code{"Matrix"} or \code{"spam"} for sparse matrices (restricted to spatial weights symmetric or similar to symmetric) using methods in either the Matrix or spam packages. Note that users should change from Matrix or spam}
   \item{interval}{search interval for autoregressive parameter when not using method="eigen"; default is c(-1,0.999), \code{optimize} will reset NA/NaN to a bound and gives a warning when the interval is poorly set}
   \item{zero.policy}{Include list of no-neighbour observations in output if TRUE --- otherwise zero.policy is handled within the listw argument}
-  \item{cholAlloc}{control arguments for memory allocation in \code{chol} for sparse matrices in method="SparseM": if NULL, default values are used (larger than SparseM defaults), otherwise a list with elements: nsubmax, nnzlmax, and tmpmax, for example cholAlloc=list(nsubmax=25000, nnzlmax=100000, tmpmax=25000)}
+%  \item{cholAlloc}{control arguments for memory allocation in \code{chol} for
+% sparse matrices in method="SparseM": if NULL, default values are used
+% (larger than SparseM defaults), otherwise a list with elements: nsubmax,
+% nnzlmax, and tmpmax, for example cholAlloc=list(nsubmax=25000,
+% nnzlmax=100000, tmpmax=25000)}
   \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=double precision machine tolerance). Errors in \code{solve()} may constitute indications of poorly scaled variables: if the variables have scales differing much from the autoregressive coefficient, the values in this matrix may be very different in scale, and inverting such a matrix is analytically possible by definition, but numerically unstable; rescaling the RHS variables alleviates this better than setting tol.solve to a very small value}
   \item{llprof}{default NULL, can either be an integer for method="full" only, to divide the feasible range into llprof points, or a sequence of values, at which to evaluate the likelihood function}
 }
@@ -124,46 +128,42 @@ summary(lm0w)
 esar0 <- errorsarlm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY)
 summary(esar0)
-esar1f <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
- listw=listw_NY, family="SAR", method="full")
+system.time(esar1f <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NY, family="SAR", method="full"))
 summary(esar1f)
-\dontrun{require(SparseM)
-esar1s <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
- listw=listw_NY, family="SAR", method="SparseM")
-summary(esar1s)}
-esar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
- listw=listw_NY, family="SAR", method="Matrix")
+system.time(esar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NY, family="SAR", method="Matrix"))
 summary(esar1M)
+system.time(esar1s <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NY, family="SAR", method="spam"))
+summary(esar1s)
 esar1wf <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY, weights=POP8, family="SAR", method="full")
 summary(esar1wf)
-\dontrun{require(SparseM)
-esar1ws <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
- listw=listw_NY, weights=POP8, family="SAR", method="SparseM")
-summary(esar1ws)}
 esar1wM <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY, weights=POP8, family="SAR", method="Matrix")
 summary(esar1wM)
+esar1ws <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
+ listw=listw_NY, weights=POP8, family="SAR", method="spam")
+summary(esar1ws)
 ecar1f <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY, family="CAR", method="full")
 summary(ecar1f)
-\dontrun{require(SparseM)
-ecar1s <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
- listw=listw_NY, family="CAR", method="SparseM")
-summary(ecar1s)}
 ecar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY, family="CAR", method="Matrix")
 summary(ecar1M)
+ecar1s <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
+ listw=listw_NY, family="CAR", method="spam")
+summary(ecar1s)
 ecar1wf <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY, weights=nydata$POP8, family="CAR", method="full")
 summary(ecar1wf)
-\dontrun{require(SparseM)
-ecar1ws <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
- listw=listw_NY, weights=POP8, family="CAR", method="SparseM")
-summary(ecar1ws)}
 ecar1wM <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY, weights=POP8, family="CAR", method="Matrix")
 summary(ecar1wM)
+ecar1ws <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
+ listw=listw_NY, weights=POP8, family="CAR", method="spam")
+summary(ecar1ws)
 data(oldcol)
 COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="W"))

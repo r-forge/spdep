@@ -111,12 +111,15 @@ GMerrorsar <- function(#W, y, X,
 			warning("No log likelihood value available")
 		} else {
 			if (listw$style %in% c("W", "S") & can.sim) {
-			    csrw <- as_dsTMatrix_listw(similar.listw(listw))
+			    csrw <- as.spam.listw(similar.listw(listw))
+#			    csrw <- as_dsTMatrix_listw(similar.listw(listw))
 #			    similar <- TRUE
-			} else csrw <- as_dsTMatrix_listw(listw)
+#			} else csrw <- as_dsTMatrix_listw(listw)
+			} else csrw <- as.spam.listw(listw)
 			gc(FALSE)
-			I <- as_dgCMatrix_I(n)
-			I <- as(I, "CsparseMatrix")
+			I <- diag.spam(1, n, n)
+#			I <- as_dgCMatrix_I(n)
+#			I <- as(I, "CsparseMatrix")
 #			tmpmax <- sum(card(listw$neighbours)) + n
 			yl <- y - lambda*wy
 			xl <- x - lambda*WX
@@ -124,8 +127,10 @@ GMerrorsar <- function(#W, y, X,
 			xl.q.yl <- t(xl.q) %*% yl
 			SSE <- t(yl) %*% yl - t(xl.q.yl) %*% xl.q.yl
 			s2 <- SSE/n
-			CHOL <- chol(as((I - lambda * csrw), "dsCMatrix"))
-			Jacobian <- sum(2*log(diag(CHOL)))
+#			CHOL <- chol(as((I - lambda * csrw), "dsCMatrix"))
+#			Jacobian <- sum(2*log(diag(CHOL)))
+			Jacobian <- determinant((I - lambda * csrw), 
+			    logarithm=TRUE)$modulus
 			gc(FALSE)
 			LL <- (Jacobian -
 				((n/2)*log(2*pi)) - (n/2)*log(s2) - 
