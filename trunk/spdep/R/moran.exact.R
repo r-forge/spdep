@@ -127,3 +127,61 @@ print.moranex <- function(x, ...) {
     invisible(x)
 }
 
+H1_moments <- function(M, U, Omega, n) {
+    B <- Omega %*% M %*%  t(Omega)
+    eigen <- eigen(B)
+    lambda <- eigen$values
+    P <- eigen$vectors
+    A <- Omega %*% M %*% U %*% M %*% t(Omega)
+    H <- t(P) %*% A %*% P
+    hh <- diag(H)
+    integrand <- function(x) apply((1+2*lambda %*% t(x))^(-0.5),2,prod) *
+        colSums(hh/(1+2*lambda %*% t(x)))
+    mu <- integrate(integrand,lower=0, upper=Inf)$value
+    integrand2 <- function(x) {
+	res=0
+	for (i in 1:n){
+	    for(j in 1:n){
+		res=res+(H[i,i]*H[j,j]+2*H[i,j]^2) /
+                    ((1+2*lambda[i]*x)*(1+2*lambda[j]*x))*x
+	    }
+	}
+	apply((1+2*lambda %*% t(x))^(-0.5),2,prod)*res
+    }
+    mu2 <- integrate(integrand2,lower=0, upper=Inf)$value
+    res<-list(Ew=mu,Var=mu2-mu^2)
+    res
+}
+
+moranExpect_H1 <- function(listw, rho, select=FALSE){
+	if (!(select[1]))
+		select=1:length(listw$neighbours)
+	n <- length(select)
+	V <- listw2mat(listw)[select,select]
+	M <- diag(n)-matrix(rep(1/n,n*n),nrow=n)
+	WOm=invIrW(listw, rho=rho)[select,select]
+	B <- WOm %*% M %*%  t(WOm)
+	eigen <- eigen(B)
+	lambda <- eigen$values
+	P <- eigen$vectors
+	A <- WOm %*% M %*% (0.5*(V + t(V))) %*% M %*% t(WOm)
+	H <- t(P) %*% A %*% P
+	hh <- diag(H)
+	integrand <- function(x) apply((1+2*lambda %*% t(x))^(-0.5), 2, prod) *
+		colSums(hh/(1+2*lambda %*% t(x)))
+	mu <- integrate(integrand, lower=0, upper=Inf)$value
+	mu
+}
+
+moranExpect_rho_H1 <- function(listw, I0, select=FALSE){
+	if (!(select[1]))
+		select=1:length(listw$neighbours)
+	V <- listw2mat(listw)[select,select]
+	eigenvalues<-as.real(eigen(V)$values)
+	min=min(eigenvalues)
+	max=max(eigenvalues)
+	f <- function(x) abs(I0-moranExpect_H1(listw, x, select=select))
+	rop <- optimise(f, c(1/min,1/max))$minimum
+	rop
+}
+
