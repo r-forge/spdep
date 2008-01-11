@@ -1,4 +1,4 @@
-# Copyright (c) 2007 Markus Reder and Roger Bivand
+# Copyright (c) 2007-2008 Markus Reder and Roger Bivand
 
 localmoran.exact.alt <- function(model, select, nb, glist = NULL, style = "W",
     zero.policy = FALSE, alternative = "greater", spChk=NULL, 
@@ -17,7 +17,7 @@ localmoran.exact.alt <- function(model, select, nb, glist = NULL, style = "W",
 	    if (is.null(errorsarLambda)) stop(paste(deparse(substitute(model)), 
 	        "not an error sarlm object"))
 	    IrW <- invIrM(nb, glist=glist, style=style, rho=errorsarLambda)
-            Omega <- model$s2*(IrW %*% t(IrW))
+            Omega <- (IrW %*% t(IrW))
         }
 	model <- model$lm.target
     } else if (clobj != "lm")

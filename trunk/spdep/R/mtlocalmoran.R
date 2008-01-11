@@ -1,4 +1,4 @@
-# Copyright 2002-7 by Roger Bivand and Michael Tiefelsdorf,
+# Copyright 2002-2008 by Roger Bivand and Michael Tiefelsdorf,
 # with contributions by Danlin Yu
 #
 
@@ -20,7 +20,7 @@ localmoran.sad <- function (model, select, nb, glist = NULL, style = "W",
 	    "not an error sarlm object"))
 # changed Omega to match exact
 	IrW <- invIrM(nb, glist=glist, style=style, rho=errorsarLambda)
-        Omega <- model$s2*(IrW %*% t(IrW))
+        Omega <- (IrW %*% t(IrW))
         Omega <- chol(Omega)
 # changed to lm.target to extract correct residuals and X 071123
 	model <- model$lm.target
@@ -53,8 +53,8 @@ localmoran.sad <- function (model, select, nb, glist = NULL, style = "W",
     if (!is.null(wts <- weights(model))) {
 	X <- sqrt(diag(wts)) %*% X
     }
-    M <- diag(n) - X %*% tcrossprod(XtXinv, X)
     if (cond.sad) {
+        M <- diag(n) - X %*% tcrossprod(XtXinv, X)
         M1 <- Omega %*% M
         M2 <- M %*% t(Omega)
     }

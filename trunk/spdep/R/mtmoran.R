@@ -1,4 +1,4 @@
-# Copyright 2002 by Roger Bivand and Michael Tiefelsdorf
+# Copyright 2002-2008 by Roger Bivand and Michael Tiefelsdorf
 #
 
 lm.morantest.sad <- function (model, listw, zero.policy = FALSE, 
@@ -79,22 +79,28 @@ moranSad <- function(tau, I, tol=.Machine$double.eps^0.5, maxiter=1000,
     taumi <- tau - I
     low <- (1 / (2*taumi[length(taumi)])) + tol.bounds
     high <- (1 / (2*taumi[1])) - tol.bounds
-    f <- function(omega, taumi) {sum(taumi/(1 - (2*omega*taumi)))}
-    root <- uniroot(f, lower=low, upper=high, tol=tol, maxiter=maxiter,
-        taumi=taumi)
-    omega <- root$root
-    if (omega < 0 ) sad.r <- -sqrt(sum(log(1 - 2*omega*taumi)))
-    else sad.r <- sqrt(sum(log(1 - 2*omega*taumi)))
-    sad.u <- omega * sqrt(2*sum(taumi^2 / (1 - (2*omega*taumi))^2))
-    sad.p <- sad.r - ((1/sad.r)*log(sad.r/sad.u))
-    if (alternative == "two.sided") p.sad <- 2 * pnorm(abs(sad.p), 
-	lower.tail=FALSE)
-    else if (alternative == "greater")
-        p.sad <- pnorm(sad.p, lower.tail=FALSE)
-    else p.sad <- pnorm(sad.p)
-    if (p.sad < 0 || p.sad > 1) 
-	warning("Out-of-range p-value: reconsider test arguments")
-    return(list(p.sad=p.sad, sad.p=sad.p, sad.r=sad.r, sad.u=sad.u, omega=omega, root=root))
+    if (!(low < high)) {
+        omega <- root <- p.sad <- sad.p <- sad.r <- sad.u <- NA
+        warning("low not less than high for uniroot in moranSad")
+    } else {
+        f <- function(omega, taumi) {sum(taumi/(1 - (2*omega*taumi)))}
+        root <- uniroot(f, lower=low, upper=high, tol=tol, maxiter=maxiter,
+            taumi=taumi)
+        omega <- root$root
+        if (omega < 0 ) sad.r <- -sqrt(sum(log(1 - 2*omega*taumi)))
+        else sad.r <- sqrt(sum(log(1 - 2*omega*taumi)))
+        sad.u <- omega * sqrt(2*sum(taumi^2 / (1 - (2*omega*taumi))^2))
+        sad.p <- sad.r - ((1/sad.r)*log(sad.r/sad.u))
+        if (alternative == "two.sided") p.sad <- 2 * pnorm(abs(sad.p), 
+	    lower.tail=FALSE)
+        else if (alternative == "greater")
+            p.sad <- pnorm(sad.p, lower.tail=FALSE)
+        else p.sad <- pnorm(sad.p)
+        if (p.sad < 0 || p.sad > 1) 
+	    warning("Out-of-range p-value: reconsider test arguments")
+    }
+    return(list(p.sad=p.sad, sad.p=sad.p, sad.r=sad.r, sad.u=sad.u,
+        omega=omega, root=root))
 }
 
 print.moransad <- function(x, ...) {

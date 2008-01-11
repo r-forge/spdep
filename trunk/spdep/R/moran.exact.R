@@ -1,4 +1,4 @@
-# Copyright (c) 2007 Markus Reder and Roger Bivand
+# Copyright (c) 2007-2008 Markus Reder and Roger Bivand
 
 lm.morantest.exact <- function(model, listw, zero.policy = FALSE, 
     alternative = "greater", spChk=NULL, resfun=weighted.residuals, 
