@@ -6,7 +6,7 @@ lm.morantest.exact <- function(model, listw, zero.policy = FALSE,
 {
     if (!inherits(listw, "listw")) 
         stop(paste(deparse(substitute(listw)), "is not a listw object"))
-    if (class(model) != "lm") 
+    if (!inherits(model, "lm")) 
         stop(paste(deparse(substitute(model)), "not an lm object"))
     N <- length(listw$neighbours)
     u <- resfun(model)
@@ -52,7 +52,6 @@ lm.morantest.exact <- function(model, listw, zero.policy = FALSE,
         res <- exactMoran(I, gamma, alternative=alternative, type="Global")
     } else {
         if (dim(Omega)[1] != N) stop("Omega of different size than data")
-        Omega <- chol(Omega)
         res <- exactMoranAlt(I, M, U, Omega, N, alternative=alternative,
             type="Alternative")
     }
@@ -113,7 +112,8 @@ exactMoran <- function(I, gamma, alternative="greater", type="Global", np2=NULL)
 
 exactMoranAlt <- function(I, M, U, Omega, n, alternative="greater",
     type="Alternative") {
-    A <- Omega %*% M %*% (U- diag(I, n)) %*% M %*% t(Omega)
+    Omega <- chol(Omega)
+    A <- Omega %*% M %*% (U - diag(I, n)) %*% M %*% t(Omega)
     gamma <- sort(eigen(A)$values)
     obj <- exactMoran(I, gamma, alternative=alternative,
         type=type)

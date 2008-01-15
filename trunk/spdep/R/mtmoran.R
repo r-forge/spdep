@@ -4,11 +4,11 @@
 lm.morantest.sad <- function (model, listw, zero.policy = FALSE, 
     alternative = "greater", spChk=NULL, resfun=weighted.residuals, 
     tol = .Machine$double.eps^0.5, maxiter = 1000, tol.bounds=0.0001,
-    zero.tol=1.0e-7) 
+    zero.tol=1.0e-7, Omega=NULL, save.M=NULL, save.U=NULL) 
 {
     if (!inherits(listw, "listw")) 
         stop(paste(deparse(substitute(listw)), "is not a listw object"))
-    if (class(model) != "lm") 
+    if (!inherits(model, "lm")) 
         stop(paste(deparse(substitute(model)), "not an lm object"))
     N <- length(listw$neighbours)
     u <- resfun(model)
@@ -40,17 +40,24 @@ lm.morantest.sad <- function (model, listw, zero.policy = FALSE,
     }
     M <- diag(N) - X %*% XtXinv %*% t(X)
     U <- listw2mat(listw.U)
-    MVM <- M %*% U %*% M
-    MVM <- 0.5 * (t(MVM) + MVM)
-    evalue <- eigen(MVM, only.values=TRUE)$values
-    idxpos <- which(abs(evalue) < zero.tol)
-    if (length(idxpos) != p)
-        warning("number of zero eigenvalues greater than number of variables")
-    idxpos <- idxpos[1] - 1
-    if (idxpos < 1) stop("invalid first zero eigenvalue index")
-    tau <- evalue[1:idxpos]
-    tau <- c(tau, evalue[(idxpos+1+p):N])
-    mres <- moranSad(tau, I, tol, maxiter, tol.bounds, alternative=alternative)
+    if (is.null(Omega)) {
+        MVM <- M %*% U %*% M
+        MVM <- 0.5 * (t(MVM) + MVM)
+        evalue <- eigen(MVM, only.values=TRUE)$values
+        idxpos <- which(abs(evalue) < zero.tol)
+        if (length(idxpos) != p)
+            warning("number of zero eigenvalues greater than number of variables")
+        idxpos <- idxpos[1] - 1
+        if (idxpos < 1) stop("invalid first zero eigenvalue index")
+        tau <- evalue[1:idxpos]
+        tau <- c(tau, evalue[(idxpos+1+p):N])
+        mres <- moranSad(tau, I, tol, maxiter, tol.bounds,
+            alternative=alternative, type="Global")
+    } else {
+        if (dim(Omega)[1] != N) stop("Omega of different size than data")
+        mres <- exactSadAlt(I, M, U, Omega, N, tol=tol, maxiter=maxiter,
+            tol.bounds=tol.bounds, alternative=alternative)
+    }
     statistic <- mres$sad.p
     attr(statistic, "names") <- "Saddlepoint approximation"
     p.value <- mres$p.sad
@@ -71,12 +78,25 @@ lm.morantest.sad <- function (model, listw, zero.policy = FALSE,
 	internal1 = internal1, internal2 = internal2,
 	df = (N-p), tau = tau)
     class(res) <- "moransad"
+    if (!is.null(save.M)) res$M <- M
+    if (!is.null(save.U)) res$U <- U
     return(res)
 }
 
+moranSadAlt <- function(I, M, U, Omega, n, tol=.Machine$double.eps^0.5,
+    maxiter=1000, tol.bounds=0.0001, alternative="greater") {
+    Omega <- chol(Omega)
+    A <- Omega %*% M %*% (U- diag(I, n)) %*% M %*% t(Omega)
+    tau <- sort(eigen(A)$values, decreasing=TRUE)
+    obj <- moranSad(tau, I, tol=tol, maxiter=maxiter,
+            tol.bounds=tol.bounds, alternative=alternative, type="Alternative")
+    obj
+}
+
 moranSad <- function(tau, I, tol=.Machine$double.eps^0.5, maxiter=1000,
-    tol.bounds=0.0001, alternative="greater") {
-    taumi <- tau - I
+    tol.bounds=0.0001, alternative="greater", type="Global") {
+    if (type == "Global") taumi <- tau - I
+    else if (type == "Alternative") taumi <- tau
     low <- (1 / (2*taumi[length(taumi)])) + tol.bounds
     high <- (1 / (2*taumi[1])) - tol.bounds
     if (!(low < high)) {
