@@ -55,7 +55,7 @@ lm.morantest.sad <- function (model, listw, zero.policy = FALSE,
             alternative=alternative, type="Global")
     } else {
         if (dim(Omega)[1] != N) stop("Omega of different size than data")
-        mres <- exactSadAlt(I, M, U, Omega, N, tol=tol, maxiter=maxiter,
+        mres <- moranSadAlt(I, M, U, Omega, N, tol=tol, maxiter=maxiter,
             tol.bounds=tol.bounds, alternative=alternative)
     }
     statistic <- mres$sad.p
