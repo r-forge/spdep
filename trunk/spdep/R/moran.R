@@ -64,7 +64,7 @@ moran.test <- function(x, listw, randomisation=TRUE, zero.policy=FALSE,
         else if (alternative == "greater")
             PrI <- pnorm(ZI, lower.tail=FALSE)
         else PrI <- pnorm(ZI)
-	if (PrI < 0 || PrI > 1) 
+	if (!is.finite(PrI) || PrI < 0 || PrI > 1) 
 		warning("Out-of-range p-value: reconsider test arguments")
 	vec <- c(I, EI, VI)
 	names(vec) <- c("Moran I statistic", "Expectation", "Variance")
@@ -125,7 +125,7 @@ moran.mc <- function(x, listw, nsim, zero.policy=FALSE,
         	pval <- punif((diff + 1)/(nsim + 1), lower.tail=FALSE)
     	else if (alternative == "greater") 
         	pval <- punif((diff + 1)/(nsim + 1))
-	if (pval < 0 || pval > 1) 
+	if (!is.finite(pval) || pval < 0 || pval > 1) 
 		warning("Out-of-range p-value: reconsider test arguments")
 	statistic <- res[nsim+1]
 	names(statistic) <- "statistic"

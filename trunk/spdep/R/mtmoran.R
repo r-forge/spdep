@@ -116,7 +116,7 @@ moranSad <- function(tau, I, tol=.Machine$double.eps^0.5, maxiter=1000,
         else if (alternative == "greater")
             p.sad <- pnorm(sad.p, lower.tail=FALSE)
         else p.sad <- pnorm(sad.p)
-        if (p.sad < 0 || p.sad > 1) 
+        if (!is.finite(p.sad) || p.sad < 0 || p.sad > 1) 
 	    warning("Out-of-range p-value: reconsider test arguments")
     }
     return(list(p.sad=p.sad, sad.p=sad.p, sad.r=sad.r, sad.u=sad.u,

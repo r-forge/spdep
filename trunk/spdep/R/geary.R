@@ -64,7 +64,7 @@ geary.test <- function(x, listw, randomisation=TRUE, zero.policy=FALSE,
         	else if (alternative == "greater")
             	PrC <- pnorm(ZC, lower.tail=FALSE)
         	else PrC <- pnorm(ZC)
-		if (PrC < 0 || PrC > 1) 
+		if (!is.finite(PrC) || PrC < 0 || PrC > 1) 
 		    warning("Out-of-range p-value: reconsider test arguments")
 	}
 	vec <- c(C, EC, VC)
@@ -109,7 +109,7 @@ geary.mc <- function(x, listw, nsim, zero.policy=FALSE,
         	pval <- punif((diff + 1)/(nsim + 1), lower.tail=FALSE)
     	else if (alternative == "greater") 
         	pval <- punif((diff + 1)/(nsim + 1))
-	if (pval < 0 || pval > 1) 
+	if (!is.finite(pval) || pval < 0 || pval > 1) 
 		warning("Out-of-range p-value: reconsider test arguments")
 	statistic <- res[nsim+1]
 	names(statistic) <- "statistic"

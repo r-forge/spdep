@@ -55,7 +55,7 @@ globalG.test <- function(x, listw, zero.policy=FALSE,
         else if (alternative == "greater")
             PrG <- pnorm(statistic, lower.tail=FALSE)
         else PrG <- pnorm(statistic)
-	if (PrG < 0 || PrG > 1) 
+	if (!is.finite(PrG) || PrG < 0 || PrG > 1) 
 		warning("Out-of-range p-value: reconsider test arguments")
 	vec <- c(G, E.G, var.G)
 	names(vec) <- c("Global G statistic", "Expectation", "Variance")

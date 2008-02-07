@@ -72,7 +72,7 @@ joincount.test <- function(fx, listw, zero.policy=FALSE,
 		    else if (alternative == "greater")
 			p.value <- pnorm(statistic, lower.tail=FALSE)
 		    else p.value <- pnorm(statistic)
-		    if (p.value < 0 || p.value > 1) 
+		    if (!is.finite(p.value) || p.value < 0 || p.value > 1) 
 		      warning("Out-of-range p-value: reconsider test arguments")
 		}
 		method <- "Join count test under nonfree sampling"
@@ -141,7 +141,7 @@ joincount.mc <- function(fx, listw, nsim, zero.policy=FALSE,
         		pval <- punif((diff + 1)/(nsim + 1), lower.tail=FALSE)
     		else if (alternative == "greater") 
         		pval <- punif((diff + 1)/(nsim + 1))
-		if (pval < 0 || pval > 1) 
+		if (!is.finite(pval) || pval < 0 || pval > 1) 
 		    warning("Out-of-range p-value: reconsider test arguments")
 
 		method <- "Monte-Carlo simulation of join-count statistic"

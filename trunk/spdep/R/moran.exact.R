@@ -94,7 +94,7 @@ exactMoran <- function(I, gamma, alternative="greater", type="Global", np2=NULL)
     else if (alternative == "greater")
         p.v <- pnorm(sd.ex, lower.tail=FALSE)
     else p.v <- pnorm(sd.ex)
-    if (is.nan(p.v) || p.v < 0 || p.v > 1) 
+    if (!is.finite(p.v) || p.v < 0 || p.v > 1) 
 	warning("Out-of-range p-value: reconsider test arguments")
     statistic <- sd.ex
     attr(statistic, "names") <- "Exact standard deviate"
