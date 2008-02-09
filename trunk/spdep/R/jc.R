@@ -15,7 +15,8 @@ joincount <- function(dums, listw) {
 }
 
 joincount.test <- function(fx, listw, zero.policy=FALSE,
-	alternative="greater", adjust.n=TRUE, spChk=NULL, adjust.n=TRUE) {
+	alternative="greater", #adjust.n=TRUE, 
+	spChk=NULL, adjust.n=TRUE) {
 	alternative <- match.arg(alternative, c("greater", "less", "two.sided"))
 	if (!inherits(listw, "listw")) stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
@@ -45,14 +46,14 @@ joincount.test <- function(fx, listw, zero.policy=FALSE,
 	BB5 <- 0.5 * BB
 	ntab <- as.numeric(as.vector(tab))
 # comment and bug report by Tomoki NAKAYA about no-neighbour observations
-	if (adjust.n) {
+#	if (adjust.n) {
 		N <- wc$n
-	} else {
-		N <- n
-		wc$n1 <- N-1
-		wc$n2 <- N-2
-		wc$n3 <- N-3
-	}
+#	} else {
+#		N <- n
+#		wc$n1 <- N-1
+#		wc$n2 <- N-2
+#		wc$n3 <- N-3
+#	}
 	Ejc <- (wc$S0*(ntab*(ntab-1))) / (2*N*wc$n1)
 	Vjc <- (wc$S1*(ntab*(ntab-1))) / (N*wc$n1)
 	Vjc <- Vjc + (((wc$S2 - 2*wc$S1)*ntab*(ntab-1)*(ntab-2)) /
@@ -165,7 +166,7 @@ joincount.mc <- function(fx, listw, nsim, zero.policy=FALSE,
 
 
 
-joincount.multi <- function(fx, listw, zero.policy=FALSE, adjust.n=TRUE,
+joincount.multi <- function(fx, listw, zero.policy=FALSE, #adjust.n=TRUE,
 	spChk=NULL, adjust.n=TRUE) {
 	if(!inherits(listw, "listw")) stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
@@ -198,14 +199,14 @@ joincount.multi <- function(fx, listw, zero.policy=FALSE, adjust.n=TRUE,
 	wc <- spweights.constants(listw, zero.policy=zero.policy, 
 		adjust.n=adjust.n)
 # comment and bug report by Tomoki NAKAYA about no-neighbour observations
-	if (adjust.n) {
+#	if (adjust.n) {
 		N <- wc$n
-	} else {
-		N <- n
-		wc$n1 <- N-1
-		wc$n2 <- N-2
-		wc$n3 <- N-3
-	}
+#	} else {
+#		N <- n
+#		wc$n1 <- N-1
+#		wc$n2 <- N-2
+#		wc$n3 <- N-3
+#	}
 	S02 <- wc$S0*wc$S0
 
 	Ejc <- (wc$S0*(ntab*(ntab-1))) / (2*N*wc$n1)
