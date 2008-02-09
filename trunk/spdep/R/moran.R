@@ -17,7 +17,8 @@ moran <- function(x, listw, n, S0, zero.policy=FALSE, NAOK=FALSE) {
 }
 
 moran.test <- function(x, listw, randomisation=TRUE, zero.policy=FALSE,
-	alternative="greater", rank = FALSE, na.action=na.fail, spChk=NULL) {
+	alternative="greater", rank = FALSE, na.action=na.fail, spChk=NULL, 
+	adjust.n=TRUE) {
 	alternative <- match.arg(alternative, c("greater", "less", "two.sided"))
 	if (!inherits(listw, "listw")) stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
@@ -39,7 +40,8 @@ moran.test <- function(x, listw, randomisation=TRUE, zero.policy=FALSE,
 	n <- length(listw$neighbours)
 	if (n != length(x)) stop("objects of different length")
 	
-	wc <- spweights.constants(listw, zero.policy=zero.policy)
+	wc <- spweights.constants(listw, zero.policy=zero.policy, 
+		adjust.n=adjust.n)
 	S02 <- wc$S0*wc$S0
 	res <- moran(x, listw, wc$n, wc$S0, zero.policy=zero.policy, 
 		NAOK=NAOK)

@@ -25,7 +25,7 @@ geary.intern <- function(x, listw, n, zero.policy, type="geary") {
 }
 
 geary.test <- function(x, listw, randomisation=TRUE, zero.policy=FALSE,
-    alternative="less", spChk=NULL) {
+    alternative="less", spChk=NULL, adjust.n=TRUE) {
 	alternative <- match.arg(alternative, c("less", "greater", "two.sided"))
 	if(!inherits(listw, "listw")) stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
@@ -38,7 +38,7 @@ geary.test <- function(x, listw, randomisation=TRUE, zero.policy=FALSE,
 	if (spChk && !chkIDs(x, listw))
 		stop("Check of data and weights ID integrity failed")
 	
-	wc <- spweights.constants(listw, zero.policy)
+	wc <- spweights.constants(listw, zero.policy, adjust.n=adjust.n)
 	S02 <- wc$S0*wc$S0
 	res <- geary(x, listw, wc$n, wc$n1, wc$S0, zero.policy)
 	C <- res$C
@@ -80,7 +80,7 @@ geary.test <- function(x, listw, randomisation=TRUE, zero.policy=FALSE,
 }
 
 geary.mc <- function(x, listw, nsim, zero.policy=FALSE,
-	alternative="less", spChk=NULL) {
+	alternative="less", spChk=NULL, adjust.n=TRUE) {
 	alternative <- match.arg(alternative, c("less", "greater"))
 	if(!inherits(listw, "listw")) stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
@@ -96,7 +96,7 @@ geary.mc <- function(x, listw, nsim, zero.policy=FALSE,
         gamres <- suppressWarnings(nsim > gamma(n + 1))
         if (gamres) stop("nsim too large for this number of observations")
 	if (nsim < 1) stop("non-positive nsim")
-	wc <- spweights.constants(listw, zero.policy)
+	wc <- spweights.constants(listw, zero.policy, adjust.n=adjust.n)
 	res <- numeric(length=nsim+1)
 	for (i in 1:nsim) res[i] <- geary(sample(x), listw, n, wc$n1, wc$S0,
 	    zero.policy)$C

@@ -15,7 +15,7 @@ joincount <- function(dums, listw) {
 }
 
 joincount.test <- function(fx, listw, zero.policy=FALSE,
-	alternative="greater", adjust.n=TRUE, spChk=NULL) {
+	alternative="greater", adjust.n=TRUE, spChk=NULL, adjust.n=TRUE) {
 	alternative <- match.arg(alternative, c("greater", "less", "two.sided"))
 	if (!inherits(listw, "listw")) stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
@@ -31,7 +31,8 @@ joincount.test <- function(fx, listw, zero.policy=FALSE,
 	if (spChk && !chkIDs(fx, listw))
 		stop("Check of data and weights ID integrity failed")
 
-	wc <- spweights.constants(listw, zero.policy=zero.policy)
+	wc <- spweights.constants(listw, zero.policy=zero.policy, 
+		adjust.n=adjust.n)
 	S02 <- wc$S0*wc$S0
 
 	ff <- ~ fx - 1
@@ -165,7 +166,7 @@ joincount.mc <- function(fx, listw, nsim, zero.policy=FALSE,
 
 
 joincount.multi <- function(fx, listw, zero.policy=FALSE, adjust.n=TRUE,
-	spChk=NULL) {
+	spChk=NULL, adjust.n=TRUE) {
 	if(!inherits(listw, "listw")) stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
 	if(!is.factor(fx)) stop(paste(deparse(substitute(fx)),
@@ -194,7 +195,8 @@ joincount.multi <- function(fx, listw, zero.policy=FALSE, adjust.n=TRUE,
 
 	tab <- table(fx)
 	ntab <- as.numeric(as.vector(tab))
-	wc <- spweights.constants(listw, zero.policy=zero.policy)
+	wc <- spweights.constants(listw, zero.policy=zero.policy, 
+		adjust.n=adjust.n)
 # comment and bug report by Tomoki NAKAYA about no-neighbour observations
 	if (adjust.n) {
 		N <- wc$n
