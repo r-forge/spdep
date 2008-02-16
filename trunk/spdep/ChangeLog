@@ -1,3 +1,40 @@
+2008-02-09 13:41  rsbivand
+
+	* DESCRIPTION, man/geary.mc.Rd, man/geary.test.Rd,
+	  man/globalG.test.Rd, man/joincount.multi.Rd,
+	  man/joincount.test.Rd, man/moran.test.Rd,
+	  man/spweights.constants.Rd: adjust n
+
+2008-02-09 10:58  rsbivand
+
+	* R/jc.R: n adjust
+
+2008-02-09 10:51  rsbivand
+
+	* R/: geary.R, globalG.R, jc.R, moran.R, utils.R: test warnings fix
+
+2008-02-08 00:42  rsbivand
+
+	* R/: EBI.R, geary.R, globalG.R, jc.R, lm.LMtests.R,
+	  lm.morantest.R, moran.R, moran.exact.R, mtmoran.R, sp.mantel.R:
+	  test warnings fix
+
+2008-01-15 19:12  rsbivand
+
+	* DESCRIPTION, R/mtmoran.R, man/lm.morantest.sad.Rd,
+	  man/localmoran.exact.Rd, man/localmoran.sad.Rd: power
+
+2008-01-15 13:18  rsbivand
+
+	* R/moran.exact.R, R/moran.exact.alt.R, R/mtlocalmoran.R,
+	  R/mtmoran.R, man/lm.morantest.exact.Rd: power
+
+2008-01-11 21:37  rsbivand
+
+	* ChangeLog, R/localmoran.exact.R, R/moran.exact.R,
+	  R/moran.exact.alt.R, R/mtlocalmoran.R, R/mtmoran.R,
+	  inst/ChangeLog: exact
+
 2008-01-09 08:43  rsbivand
 
 	* DESCRIPTION, R/moran.exact.R, R/poly2nb.R: more exact
