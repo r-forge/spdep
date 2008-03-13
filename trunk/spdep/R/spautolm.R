@@ -164,7 +164,6 @@ spautolm <- function(formula, data = list(), listw, weights,
  	    !(is.symmetric.glist(listw$neighbours, listw$weights)))
 	    stop("Matrix method requires symmetric weights")
         I <- as_dgCMatrix_I(n)
-	I <- as(I, "CsparseMatrix")
 	W <- as_dgRMatrix_listw(listw)
 	W <- as(W, "CsparseMatrix")
         if (family == "CAR") if (!isTRUE(all.equal(W, t(W))))
@@ -319,7 +318,7 @@ spautolm <- function(formula, data = list(), listw, weights,
     SSE <- .SPAR.fit(lambda=lambda, Y=Y, X=X, n=n, W=W, weights=weights,
         I=I, family=family, out=FALSE, tol.solve=tol.solve)
     s2 <- SSE/n
-    CHOL <- try(chol(as((I - lambda * W_J), "dsCMatrix")), silent=TRUE)
+    CHOL <- try(chol(I - lambda * W_J), silent=TRUE)
     if (class(CHOL) == "try-error") {
         Jacobian <- NA
     } else {

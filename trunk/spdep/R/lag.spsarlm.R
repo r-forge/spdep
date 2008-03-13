@@ -256,7 +256,7 @@ sar.lag.mix.f.M <- function(rho, W, I, e.a, e.b, e.c, n, quiet)
 {
 	SSE <- e.a - 2*rho*e.b + rho*rho*e.c
 	s2 <- SSE/n
-    	CHOL <- try(chol(as((I - rho * W), "dsCMatrix")), silent=TRUE)
+    	CHOL <- try(chol(I - rho * W), silent=TRUE)
     	if (class(CHOL) == "try-error") {
         	Jacobian <- NA
     	} else {
@@ -310,7 +310,6 @@ dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, method, interval,
 		} else W <- as_dsTMatrix_listw(listw)
 #		gc(FALSE)
         	I <- as_dgCMatrix_I(n)
-		I <- as(I, "CsparseMatrix")
 	}
 	LLs <- NULL
 	# intercept-only bug fix Larry Layne 20060404

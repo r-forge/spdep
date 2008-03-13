@@ -1,3 +1,13 @@
+2008-02-18 16:57  rsbivand
+
+	* DESCRIPTION: release
+
+2008-02-16 17:32  rsbivand
+
+	* ChangeLog, R/kpgm_new.R, R/nb2listw.R, R/weights-utils.R,
+	  inst/ChangeLog, man/GMerrorsar.Rd, man/testnb.Rd, src/gsymtest.c:
+	  big symmetric fuzz
+
 2008-02-09 13:41  rsbivand
 
 	* DESCRIPTION, man/geary.mc.Rd, man/geary.test.Rd,

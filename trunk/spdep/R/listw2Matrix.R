@@ -33,6 +33,8 @@ as_dsTMatrix_listw <- function(listw) {
 as_dgCMatrix_I <- function(n) {
 	if (n < 1) stop("matrix must have positive dimensions")
 	I <- as(Diagonal(n), "sparseMatrix")
+	I <- as(I, "CsparseMatrix")
+	I <- as(I, "dsCMatrix")
 	I
 }
 

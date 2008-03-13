@@ -121,7 +121,6 @@ GMerrorsar <- function(#W, y, X,
 			    similar <- TRUE
 			  } else csrw <- as_dsTMatrix_listw(listw)
 			  I <- as_dgCMatrix_I(n)
-			  I <- as(I, "CsparseMatrix")
 			  tmpmax <- sum(card(listw$neighbours)) + n
 			} else stop("unknown sparse_method")
 			gc(FALSE)
@@ -135,7 +134,7 @@ GMerrorsar <- function(#W, y, X,
 			  Jacobian <- determinant((I - lambda * csrw), 
 			    logarithm=TRUE)$modulus
 			} else if (sparse_method == "Matrix") {
-			  CHOL <- chol(as((I - lambda * csrw), "dsCMatrix"))
+			  CHOL <- chol(I - lambda * csrw)
 			  Jacobian <- sum(2*log(diag(CHOL)))
 			}
 			gc(FALSE)

@@ -153,7 +153,6 @@ errorsarlm <- function(formula, data = list(), listw, na.action=na.fail,
 		} else csrw <- as_dsTMatrix_listw(listw)
 #		gc(FALSE)
         	I <- as_dgCMatrix_I(n)
-		I <- as(I, "CsparseMatrix")
 		opt <- optimize(sar.error.f.M, interval=interval, 
 			maximum=TRUE, tol=tol.opt, csrw=csrw, I=I, y=y, wy=wy, 
 			x=x, WX=WX, n=n, quiet=quiet)
@@ -277,7 +276,7 @@ sar.error.f.M <- function(lambda, csrw, I, y, wy, x, WX, n, quiet) {
 	xl.q.yl <- t(xl.q) %*% yl
 	SSE <- t(yl) %*% yl - t(xl.q.yl) %*% xl.q.yl
 	s2 <- SSE/n
-    	CHOL <- try(chol(as((I - lambda * csrw), "dsCMatrix")), silent=TRUE)
+    	CHOL <- try(chol(I - lambda * csrw), silent=TRUE)
     	if (class(CHOL) == "try-error") {
         	Jacobian <- NA
     	} else {
