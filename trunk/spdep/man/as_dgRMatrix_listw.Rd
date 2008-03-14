@@ -34,14 +34,12 @@ Jacobian_W(W, rho)
 
 \examples{
 example(NY_data)
-\dontrun{
 W <- as_dsTMatrix_listw(listw_NY)
 I <- as_dgCMatrix_I(dim(W)[1])
 IrW <- (I - 0.1 * W)
 CHOL <- chol(IrW)
 sum(2*log(diag(CHOL)))
 sum(log(1 - 0.1 * eigenw(listw_NY)))
-}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

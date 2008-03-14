@@ -1,3 +1,9 @@
+2008-03-13 14:11  rsbivand
+
+	* ChangeLog, DESCRIPTION, R/error.spsarlm.R, R/kpgm_new.R,
+	  R/lag.spsarlm.R, R/listw2Matrix.R, R/spautolm.R, inst/ChangeLog,
+	  man/as_dgRMatrix_listw.Rd: Matrix coercion
+
 2008-02-18 16:57  rsbivand
 
 	* DESCRIPTION: release
