@@ -309,7 +309,7 @@ dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, method, interval,
 	    		similar <- TRUE
 		} else W <- as_dsTMatrix_listw(listw)
 #		gc(FALSE)
-        	I <- as_dgCMatrix_I(n)
+        	I <- as_dsCMatrix_I(n)
 	}
 	LLs <- NULL
 	# intercept-only bug fix Larry Layne 20060404

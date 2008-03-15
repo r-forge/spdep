@@ -120,7 +120,7 @@ GMerrorsar <- function(#W, y, X,
 			    csrw <- as_dsTMatrix_listw(similar.listw(listw))
 			    similar <- TRUE
 			  } else csrw <- as_dsTMatrix_listw(listw)
-			  I <- as_dgCMatrix_I(n)
+			  I <- as_dsCMatrix_I(n)
 			  tmpmax <- sum(card(listw$neighbours)) + n
 			} else stop("unknown sparse_method")
 			gc(FALSE)

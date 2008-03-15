@@ -2,8 +2,8 @@
 \alias{as_dgRMatrix_listw}
 \alias{as_dgRMatrix_listw}
 \alias{as_dsTMatrix_listw}
-\alias{as_dgCMatrix_I}
-\alias{as_dgCMatrix_IrW}
+\alias{as_dsCMatrix_I}
+\alias{as_dsCMatrix_IrW}
 \alias{Jacobian_W}
 
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -14,8 +14,8 @@
 \usage{
 as_dgRMatrix_listw(listw)
 as_dsTMatrix_listw(listw)
-as_dgCMatrix_I(n)
-as_dgCMatrix_IrW(W, rho)
+as_dsCMatrix_I(n)
+as_dsCMatrix_IrW(W, rho)
 Jacobian_W(W, rho)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -35,7 +35,7 @@ Jacobian_W(W, rho)
 \examples{
 example(NY_data)
 W <- as_dsTMatrix_listw(listw_NY)
-I <- as_dgCMatrix_I(dim(W)[1])
+I <- as_dsCMatrix_I(dim(W)[1])
 IrW <- (I - 0.1 * W)
 CHOL <- chol(IrW)
 sum(2*log(diag(CHOL)))
