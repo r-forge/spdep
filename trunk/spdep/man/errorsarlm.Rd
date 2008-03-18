@@ -1,4 +1,4 @@
-% Copyright 2002-4 by Roger S. Bivand
+% Copyright 2002-8 by Roger S. Bivand
 \name{errorsarlm}
 \alias{errorsarlm}
 %\alias{sar.error.f}

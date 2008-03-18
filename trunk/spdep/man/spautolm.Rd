@@ -36,7 +36,7 @@ is called.}
   \item{verbose}{default=FALSE; if TRUE, reports function values during optimization.}
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()}}
   \item{family}{character string: either \code{"SAR"} or \code{"CAR"} for simultaneous or conditional autoregressions; \code{"SMA"} for spatial moving average added thanks to Jielai Ma - \code{"SMA"} is only implemented for method=\code{"full"} because it necessarily involves dense matrices}
-  \item{method}{character string: default \code{"full"} for use of full matrices, \code{"Matrix"} or \code{"spam"} for sparse matrices (restricted to spatial weights symmetric or similar to symmetric) using methods in either the Matrix or spam packages. Note that users should change from Matrix or spam}
+  \item{method}{character string: default \code{"full"} for use of full matrices, \code{"Matrix"} or \code{"spam"} for sparse matrices (restricted to spatial weights symmetric or similar to symmetric) using methods in either the Matrix or spam packages. Note that users should change from spam to Matrix}
   \item{interval}{search interval for autoregressive parameter when not using method="eigen"; default is c(-1,0.999), \code{optimize} will reset NA/NaN to a bound and gives a warning when the interval is poorly set}
   \item{zero.policy}{Include list of no-neighbour observations in output if TRUE --- otherwise zero.policy is handled within the listw argument}
 %  \item{cholAlloc}{control arguments for memory allocation in \code{chol} for

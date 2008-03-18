@@ -1,4 +1,4 @@
-% Copyright 2002-7 by Roger S. Bivand
+% Copyright 2002-8 by Roger S. Bivand
 \name{lagsarlm}
 \alias{lagsarlm}
 \title{Spatial simultaneous autoregressive lag model estimation}
