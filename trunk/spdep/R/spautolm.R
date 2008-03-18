@@ -1,4 +1,4 @@
-# Copyright 2005-7 by Roger Bivand
+# Copyright 2005-8 by Roger Bivand
 spautolm <- function(formula, data = list(), listw, weights,
     na.action=na.fail, verbose=FALSE, tol.opt=.Machine$double.eps^(2/3),
     family="SAR", method="full", interval=c(-1,0.999), zero.policy=FALSE,
@@ -318,13 +318,14 @@ spautolm <- function(formula, data = list(), listw, weights,
     SSE <- .SPAR.fit(lambda=lambda, Y=Y, X=X, n=n, W=W, weights=weights,
         I=I, family=family, out=FALSE, tol.solve=tol.solve)
     s2 <- SSE/n
-    CHOL <- try(chol(I - lambda * W_J), silent=TRUE)
-    if (class(CHOL) == "try-error") {
-        Jacobian <- NA
-    } else {
-        Jacobian <- sum(2*log(diag(CHOL)))
-    }
+#    CHOL <- try(chol(I - lambda * W_J), silent=TRUE)
+#    if (class(CHOL) == "try-error") {
+#        Jacobian <- NA
+#    } else {
+#        Jacobian <- sum(2*log(diag(CHOL)))
+#    }
 #    gc(FALSE)
+    Jacobian <- determinant(I - lambda * W_J, logarithm=TRUE)$modulus
     ret <- ((1/ifelse((length(grep("CAR", family)) != 0), 2, 1))*Jacobian +
 	(1/2)*sum_lw - ((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
     if (verbose)  cat("lambda:", lambda, "function", ret, "Jacobian", Jacobian, "SSE", SSE, "\n")

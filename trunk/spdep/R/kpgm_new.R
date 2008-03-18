@@ -1,4 +1,4 @@
-# Copyright 2005-7 by Luc Anselin and Roger Bivand
+# Copyright 2005-8 by Luc Anselin and Roger Bivand
 # Kelejian-Prucha generalized moments equations
 # for spatial SAR error model
 # main function
@@ -16,14 +16,14 @@
 #    the G and g matrices, calls optim unconstrained optimizer with
 #    kpgm as function and plausible starting values to get estimate
 #    for lambda, then finds results with spatially weighted least squares
-#    and finds LL using SparseM functions
+#    and finds LL using Matrix functions
 # Value:
 # an S3 "kpglsar" object
 
 GMerrorsar <- function(#W, y, X, 
 	formula, data = list(), listw, na.action=na.fail, 
 	zero.policy=FALSE, return_LL=TRUE, control=list(), verbose=FALSE,
-	sparse_method="spam") {
+	sparse_method="Matrix") {
 #	ols <- lm(I(y) ~ I(X) - 1)
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, na.action=na.action, method="model.frame")
@@ -134,8 +134,10 @@ GMerrorsar <- function(#W, y, X,
 			  Jacobian <- determinant((I - lambda * csrw), 
 			    logarithm=TRUE)$modulus
 			} else if (sparse_method == "Matrix") {
-			  CHOL <- chol(I - lambda * csrw)
-			  Jacobian <- sum(2*log(diag(CHOL)))
+#			  CHOL <- chol(I - lambda * csrw)
+#			  Jacobian <- sum(2*log(diag(CHOL)))
+			  Jacobian <- determinant(I - lambda * csrw,
+ 			    logarithm=TRUE)$modulus
 			}
 			gc(FALSE)
 			LL <- (Jacobian -

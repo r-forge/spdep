@@ -1,4 +1,4 @@
-# Copyright 1998-2007 by Roger Bivand (non-W styles Rein Halbersma)
+# Copyright 1998-2008 by Roger Bivand (non-W styles Rein Halbersma)
 #
 
 errorsarlm <- function(formula, data = list(), listw, na.action=na.fail, 
@@ -276,13 +276,14 @@ sar.error.f.M <- function(lambda, csrw, I, y, wy, x, WX, n, quiet) {
 	xl.q.yl <- t(xl.q) %*% yl
 	SSE <- t(yl) %*% yl - t(xl.q.yl) %*% xl.q.yl
 	s2 <- SSE/n
-    	CHOL <- try(chol(I - lambda * csrw), silent=TRUE)
-    	if (class(CHOL) == "try-error") {
-        	Jacobian <- NA
-    	} else {
-        	Jacobian <- sum(2*log(diag(CHOL)))
-    	}
+#    	CHOL <- try(chol(I - lambda * csrw), silent=TRUE)
+#    	if (class(CHOL) == "try-error") {
+#        	Jacobian <- NA
+#    	} else {
+#        	Jacobian <- sum(2*log(diag(CHOL)))
+#    	}
 #	gc(FALSE)
+	Jacobian <- determinant(I - lambda * csrw, logarithm=TRUE)$modulus
 	ret <- (Jacobian -
 		((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
 	if (!quiet) cat("lambda:", lambda, " function:", ret, " Jacobian:", Jacobian, " SSE:", SSE, "\n")

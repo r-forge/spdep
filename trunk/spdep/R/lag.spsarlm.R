@@ -1,4 +1,4 @@
-# Copyright 1998-2007 by Roger Bivand and Andrew Bernat
+# Copyright 1998-2008 by Roger Bivand and Andrew Bernat
 #
 
 lagsarlm <- function(formula, data = list(), listw, 
@@ -256,13 +256,14 @@ sar.lag.mix.f.M <- function(rho, W, I, e.a, e.b, e.c, n, quiet)
 {
 	SSE <- e.a - 2*rho*e.b + rho*rho*e.c
 	s2 <- SSE/n
-    	CHOL <- try(chol(I - rho * W), silent=TRUE)
-    	if (class(CHOL) == "try-error") {
-        	Jacobian <- NA
-    	} else {
-        	Jacobian <- sum(2*log(diag(CHOL)))
-    	}
+#    	CHOL <- try(chol(I - rho * W), silent=TRUE)
+#    	if (class(CHOL) == "try-error") {
+#        	Jacobian <- NA
+#    	} else {
+#        	Jacobian <- sum(2*log(diag(CHOL)))
+#    	}
 #	gc(FALSE)
+	Jacobian <- determinant(I - rho * W, logarithm=TRUE)$modulus
 	ret <- (Jacobian
 		- ((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*s2))*SSE)
 	if (!quiet) 
