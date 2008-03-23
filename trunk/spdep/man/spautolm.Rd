@@ -20,7 +20,7 @@
 spautolm(formula, data = list(), listw, weights,
  na.action=na.fail, verbose = FALSE, tol.opt = .Machine$double.eps^(2/3),
  family = "SAR", method="full", interval=c(-1,0.999),
- zero.policy = FALSE, %cholAlloc=NULL, 
+ zero.policy = FALSE, super=NULL, Matrix_intern=FALSE, %cholAlloc=NULL, 
  tol.solve=.Machine$double.eps, llprof=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -39,6 +39,8 @@ is called.}
   \item{method}{character string: default \code{"full"} for use of full matrices, \code{"Matrix"} or \code{"spam"} for sparse matrices (restricted to spatial weights symmetric or similar to symmetric) using methods in either the Matrix or spam packages. Note that users should change from spam to Matrix}
   \item{interval}{search interval for autoregressive parameter when not using method="eigen"; default is c(-1,0.999), \code{optimize} will reset NA/NaN to a bound and gives a warning when the interval is poorly set}
   \item{zero.policy}{Include list of no-neighbour observations in output if TRUE --- otherwise zero.policy is handled within the listw argument}
+  \item{super}{default NULL, otherwise logical argument to \code{\link[Matrix]{Cholesky}}, only used for method="Matrix"; at present only super=FALSE is supported, and it does not appear to work for \dQuote{B} style spatial weights. It should only be used for positive lambda.}
+  \item{Matrix_intern}{default FALSE, if TRUE, use Matrix internal function.}
 %  \item{cholAlloc}{control arguments for memory allocation in \code{chol} for
 % sparse matrices in method="SparseM": if NULL, default values are used
 % (larger than SparseM defaults), otherwise a list with elements: nsubmax,
@@ -129,19 +131,47 @@ esar0 <- errorsarlm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY)
 summary(esar0)
 system.time(esar1f <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
- data=nydata, listw=listw_NY, family="SAR", method="full"))
+ data=nydata, listw=listw_NY, family="SAR", method="full", verbose=TRUE))
 summary(esar1f)
 system.time(esar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
- data=nydata, listw=listw_NY, family="SAR", method="Matrix"))
+ data=nydata, listw=listw_NY, family="SAR", method="Matrix", verbose=TRUE))
+summary(esar1M)
+listw_NYC <- nb2listw(nyadjlw$neighbours, style="C")
+system.time(esar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NYC, family="SAR", method="Matrix", verbose=TRUE))
+summary(esar1M)
+system.time(esar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NYC, family="SAR", method="Matrix", verbose=TRUE,
+ super=FALSE))
+summary(esar1M)
+system.time(esar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NYC, family="SAR", method="Matrix", verbose=TRUE,
+ super=FALSE, Matrix_intern=TRUE))
+summary(esar1M)
+system.time(esar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NYC, family="SAR", method="Matrix", verbose=TRUE,
+ super=TRUE))
 summary(esar1M)
 system.time(esar1s <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
- data=nydata, listw=listw_NY, family="SAR", method="spam"))
+ data=nydata, listw=listw_NY, family="SAR", method="spam", verbose=TRUE))
 summary(esar1s)
+system.time(esar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NY, family="SAR", method="Matrix", verbose=TRUE,
+ super=TRUE))
+summary(esar1M)
 esar1wf <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY, weights=POP8, family="SAR", method="full")
 summary(esar1wf)
-esar1wM <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
- listw=listw_NY, weights=POP8, family="SAR", method="Matrix")
+system.time(esar1wM <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NY, weights=POP8, family="SAR", method="Matrix"))
+summary(esar1wM)
+system.time(esar1wM <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NYC, weights=POP8, family="SAR", method="Matrix",
+ super=FALSE))
+summary(esar1wM)
+system.time(esar1wM <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NYC, weights=POP8, family="SAR", method="Matrix",
+ super=TRUE))
 summary(esar1wM)
 esar1ws <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY, weights=POP8, family="SAR", method="spam")
@@ -149,8 +179,14 @@ summary(esar1ws)
 ecar1f <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY, family="CAR", method="full")
 summary(ecar1f)
-ecar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
- listw=listw_NY, family="CAR", method="Matrix")
+system.time(ecar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NY, family="CAR", method="Matrix"))
+summary(ecar1M)
+system.time(ecar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NYC, family="CAR", method="Matrix", super=FALSE))
+summary(ecar1M)
+system.time(ecar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NYC, family="CAR", method="Matrix", super=TRUE))
 summary(ecar1M)
 ecar1s <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY, family="CAR", method="spam")
@@ -158,8 +194,16 @@ summary(ecar1s)
 ecar1wf <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY, weights=nydata$POP8, family="CAR", method="full")
 summary(ecar1wf)
-ecar1wM <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
- listw=listw_NY, weights=POP8, family="CAR", method="Matrix")
+system.time(ecar1wM <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NY, weights=POP8, family="CAR", method="Matrix"))
+summary(ecar1wM)
+system.time(ecar1wM <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NYC, weights=POP8, family="CAR", method="Matrix",
+ super=FALSE))
+summary(ecar1wM)
+system.time(ecar1wM <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
+ data=nydata, listw=listw_NYC, weights=POP8, family="CAR", method="Matrix",
+ super=TRUE))
 summary(ecar1wM)
 ecar1ws <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
  listw=listw_NY, weights=POP8, family="CAR", method="spam")

@@ -3,7 +3,8 @@ spautolm <- function(formula, data = list(), listw, weights,
     na.action=na.fail, verbose=FALSE, tol.opt=.Machine$double.eps^(2/3),
     family="SAR", method="full", interval=c(-1,0.999), zero.policy=FALSE,
 #    cholAlloc=NULL, 
-    tol.solve=.Machine$double.eps, llprof=NULL) 
+    super=NULL, Matrix_intern=FALSE, tol.solve=.Machine$double.eps,
+    llprof=NULL) 
 {
     if (!inherits(listw, "listw")) 
         stop("No neighbourhood list")
@@ -173,21 +174,45 @@ spautolm <- function(formula, data = list(), listw, weights,
 	    W_J <- as_dsTMatrix_listw(listw2U(similar.listw(listw)))
 #	    similar <- TRUE
 	} else W_J <- as_dsTMatrix_listw(listw)
+	W_J <- as(W_J, "CsparseMatrix")
+	if (!is.null(super)) {
+		if (!is.logical(super)) stop("super must be logical")
+		if (listw$style == "B") {
+                    warning("B style not permitted for fast Matrix method")
+                    super <- NULL
+		} else {
+                    nWC <- - W_J
+		    if (super) {
+                        super <- !super
+                        warning("super=TRUE not yet working")
+                    }
+		    W_J <- Cholesky(nWC, super=super, Imult = 2)
+		    if (interval[1] < 0) {
+			warning("lower interval bound set to 0")
+			interval[1] <- 0
+                    }
+                }
+	}
+	else nWC <- NULL
 #	gc(FALSE)
-        Sweights <- as(Diagonal(x=weights), "sparseMatrix")
+#        Sweights <- as(Diagonal(x=weights), "sparseMatrix")
+        Sweights <- as(as(Diagonal(x=weights), "symmetricMatrix"), 
+	    "CsparseMatrix")
 # do line search
         if (!is.null(llprof)) {
             ll_prof <- numeric(length(llprof))
             for (i in seq(along=llprof)) ll_prof[i] <- .opt.fit.Matrix(
                 llprof[i], Y=Y, X=X, n=n, W=W, W_J=W_J, I=I,
                 weights=Sweights, sum_lw=sum_lw, family=family,
-                verbose=verbose, tol.solve=tol.solve)
+                verbose=verbose, tol.solve=tol.solve, super=super, nWC=nWC,
+                Matrix_intern=Matrix_intern)
         }
         opt <- optimize(.opt.fit.Matrix, lower=interval[1],
             upper=interval[2], maximum=TRUE,
             tol = tol.opt, Y=Y, X=X, n=n, W=W, W_J=W_J, I=I,
             weights=Sweights, sum_lw=sum_lw, family=family,
-            verbose=verbose, tol.solve=tol.solve)
+            verbose=verbose, tol.solve=tol.solve, super=super, nWC=nWC,
+            Matrix_intern=Matrix_intern)
         lambda <- opt$maximum
         names(lambda) <- "lambda"
         LL <- opt$objective
@@ -202,7 +227,8 @@ spautolm <- function(formula, data = list(), listw, weights,
 # get null LL
         LL0 <- .opt.fit.Matrix(lambda=as.numeric(0), Y=Y, X=X, n=n, W=W,
             W_J=W_J, I=I, weights=Sweights, sum_lw=sum_lw, family=family,
-            verbose=verbose, tol.solve=tol.solve)
+            verbose=verbose, tol.solve=tol.solve, super=super, nWC=nWC,
+            Matrix_intern=Matrix_intern)
 #        weights <- diag(Sweights)
     }  else if (method == "spam") {
         if (family == "SMA") stop("SMA only for full method")
@@ -313,19 +339,31 @@ spautolm <- function(formula, data = list(), listw, weights,
 #}
 
 .opt.fit.Matrix <- function(lambda, Y, X, n, W, W_J, I, weights, sum_lw,
-    family="SAR", verbose=TRUE, tol.solve=.Machine$double.eps) {
+    family="SAR", verbose=TRUE, tol.solve=.Machine$double.eps, 
+    super=NULL, nWC=NULL, Matrix_intern=FALSE) {
 # fitting function called from optimize()
     SSE <- .SPAR.fit(lambda=lambda, Y=Y, X=X, n=n, W=W, weights=weights,
         I=I, family=family, out=FALSE, tol.solve=tol.solve)
     s2 <- SSE/n
-#    CHOL <- try(chol(I - lambda * W_J), silent=TRUE)
-#    if (class(CHOL) == "try-error") {
-#        Jacobian <- NA
-#    } else {
-#        Jacobian <- sum(2*log(diag(CHOL)))
-#    }
-#    gc(FALSE)
-    Jacobian <- determinant(I - lambda * W_J, logarithm=TRUE)$modulus
+    if (isTRUE(all.equal(lambda, 0))) {
+        Jacobian <- lambda
+    } else {
+        if (is.null(super))
+            Jacobian <- determinant(I - lambda * W_J, logarithm=TRUE)$modulus
+        else {
+            if (Matrix_intern) 
+                detTRY <- try(Matrix:::ldetL2up(W_J, nWC, 1/lambda),
+                    silent=TRUE)
+            else
+                detTRY <- try(c(determinant(update(W_J, nWC, 
+                    1/lambda))$modulus), silent=TRUE)
+            if (class(detTRY) == "try-error") {
+                Jacobian <- NaN
+            } else {
+                Jacobian <- n * log(lambda) + detTRY
+            }
+        }
+    }
     ret <- ((1/ifelse((length(grep("CAR", family)) != 0), 2, 1))*Jacobian +
 	(1/2)*sum_lw - ((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
     if (verbose)  cat("lambda:", lambda, "function", ret, "Jacobian", Jacobian, "SSE", SSE, "\n")
