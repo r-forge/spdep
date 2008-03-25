@@ -78,7 +78,7 @@ COL.errW.GM <- GMerrorsar(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="W"))
 summary(COL.errW.GM)
 COL.errW.GM1 <- GMerrorsar(CRIME ~ INC + HOVAL, data=COL.OLD,
- nb2listw(COL.nb, style="W"), sparse_method="Matrix")
+ nb2listw(COL.nb, style="W"), sparse_method="spam")
 summary(COL.errW.GM1)
 example(NY_data)
 esar1f <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,

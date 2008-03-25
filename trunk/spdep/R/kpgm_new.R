@@ -120,8 +120,8 @@ GMerrorsar <- function(#W, y, X,
 			    csrw <- as_dsTMatrix_listw(similar.listw(listw))
 			    similar <- TRUE
 			  } else csrw <- as_dsTMatrix_listw(listw)
+			  csrw <- as(csrw, "CsparseMatrix")
 			  I <- as_dsCMatrix_I(n)
-			  tmpmax <- sum(card(listw$neighbours)) + n
 			} else stop("unknown sparse_method")
 			gc(FALSE)
 			yl <- y - lambda*wy
@@ -134,8 +134,6 @@ GMerrorsar <- function(#W, y, X,
 			  Jacobian <- determinant((I - lambda * csrw), 
 			    logarithm=TRUE)$modulus
 			} else if (sparse_method == "Matrix") {
-#			  CHOL <- chol(I - lambda * csrw)
-#			  Jacobian <- sum(2*log(diag(CHOL)))
 			  Jacobian <- determinant(I - lambda * csrw,
  			    logarithm=TRUE)$modulus
 			}

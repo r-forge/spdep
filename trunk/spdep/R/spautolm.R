@@ -98,65 +98,6 @@ spautolm <- function(formula, data = list(), listw, weights,
         LL0 <- .opt.fit.full(lambda=0, Y=Y, X=X, n=n, W=W, eig=eig, I=I,
             weights=diag(weights), sum_lw=sum_lw, family=family, verbose=FALSE,
 		tol.solve=tol.solve)
-#    \} else if (method == "SparseM") \{
-#        if (family == "SMA") stop("SMA only for full method")
-#        if (listw$style %in% c("W", "S") && !can.sim)
-#        stop("SparseM method requires symmetric weights")
-#        if (listw$style %in% c("B", "C", "U") && 
-# 	    !(is.symmetric.glist(listw$neighbours, listw$weights)))
-#	    stop("SparseM method requires symmetric weights")
-#        I <- asMatrixCsrI(n)
-#	W <- asMatrixCsrListw(listw, zero.policy=zero.policy)
-#        if (family == "CAR") if (!isTRUE(all.equal(W, t(W))))
-#	    warning("Non-symmetric spatial weights in CAR model")
-## Jacobian only from symmetric W_J, W can be asymmetric though
-#        if (listw$style %in% c("W", "S") & can.sim) {
-#	    W_J <- asMatrixCsrListw(similar.listw(listw),
-#                zero.policy=zero.policy)
-##	    similar <- TRUE
-#	} else W_J <- W
-#	gc(FALSE)
-#        Sweights <- new("matrix.csr", ra=weights, ja=1:n, ia=1:(n+1), 
-#	    dimension=c(n,n))
-##	tmpmax <- sum(card(listw$neighbours)) + n
-#	if (is.null(cholAlloc)) {
-#	# Martin Reismann large sparse nnzlmax problem
-#		nlink <- sum(card(listw$neighbours))
-#		tmpmax <- 3 * (nlink + n)
-#		nnzlmax <- max(10*nlink, floor(.2*nlink^1.4))
-#		nsubmax <- tmpmax
-#		cholAlloc <- list(nsubmax=nsubmax, nnzlmax=nnzlmax,
-#			tmpmax=tmpmax)
-#	}
-## do line search
-#        if (!is.null(llprof)) {
-#            ll_prof <- numeric(length(llprof))
-#            for (i in seq(along=llprof)) ll_prof[i] <- .opt.fit.SparseM(
-#                llprof[i], Y=Y, X=X, n=n, W=W, W_J=W_J, I=I,
-#                weights=Sweights, sum_lw=sum_lw, family=family,
-#                verbose=verbose, cholAlloc=cholAlloc, tol.solve=tol.solve)
-#        }
-#        opt <- optimize(.opt.fit.SparseM, lower=interval[1],
-#            upper=interval[2], maximum=TRUE,
-#            tol = tol.opt, Y=Y, X=X, n=n, W=W, W_J=W_J, I=I,
-#            weights=Sweights, sum_lw=sum_lw, family=family,
-#            verbose=verbose, cholAlloc=cholAlloc, tol.solve=tol.solve)
-#        lambda <- opt$maximum
-#        names(lambda) <- "lambda"
-#        LL <- opt$objective
-## get GLS coefficients
-#        fit <- .SPAR.fit(lambda=lambda, Y=Y, X=X, n=n, W=W, I=I,
-#            weights=Sweights, family=family, out=TRUE, tol.solve=tol.solve)
-## create residuals and fitted values (Cressie 1993, p. 564)
-#	fit$signal_trend <- drop(X %*% fit$coefficients)
-#	fit$signal_stochastic <- drop(lambda * W %*% (Y - fit$signal_trend))
-#	fit$fitted.values <- fit$signal_trend + fit$signal_stochastic
-#	fit$residuals <- drop(Y - fit$fitted.values)
-## get null LL
-#        LL0 <- .opt.fit.SparseM(lambda=as.numeric(0), Y=Y, X=X, n=n, W=W,
-#            W_J=W_J, I=I, weights=Sweights, sum_lw=sum_lw, family=family,
-#            verbose=verbose, cholAlloc=cholAlloc, tol.solve=tol.solve)
-##        weights <- diag(Sweights)
     }  else if (method == "Matrix") {
         if (family == "SMA") stop("SMA only for full method")
         if (listw$style %in% c("W", "S") && !can.sim)
@@ -357,22 +298,6 @@ spautolm <- function(formula, data = list(), listw, weights,
     ret
 }
 
-#.opt.fit.SparseM <- function(lambda, Y, X, n, W, W_J, I, weights, sum_lw,
-#    family="SAR", verbose=TRUE, cholAlloc, tol.solve=.Machine$double.eps) {
-## fitting function called from optimize()
-#    SSE <- .SPAR.fit(lambda=lambda, Y=Y, X=X, n=n, W=W, weights=weights,
-#        I=I, family=family, out=FALSE, tol.solve=tol.solve)
-#    s2 <- SSE/n
-#    Det <- get("det", "package:SparseM")
-#    Jacobian <- log(Det(chol((I - lambda * W_J), nsubmax=cholAlloc$nsubmax, 
-#	nnzlmax=cholAlloc$nnzlmax, tmpmax=cholAlloc$tmpmax))^2)
-#    gc(FALSE)
-#    ret <- ((1/ifelse((length(grep("CAR", family)) != 0), 2, 1))*Jacobian +
-#	(1/2)*sum_lw - ((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
-#    if (verbose)  cat("lambda:", lambda, "function", ret, "Jacobian", 
-#        Jacobian, "SSE", SSE, "\n")
-#    ret
-#}
 
 .opt.fit.Matrix <- function(lambda, Y, X, n, W, W_J, I, weights, sum_lw,
     family="SAR", verbose=TRUE, tol.solve=.Machine$double.eps, 

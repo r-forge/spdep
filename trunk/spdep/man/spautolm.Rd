@@ -37,7 +37,7 @@ is called.}
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()}}
   \item{family}{character string: either \code{"SAR"} or \code{"CAR"} for simultaneous or conditional autoregressions; \code{"SMA"} for spatial moving average added thanks to Jielai Ma - \code{"SMA"} is only implemented for method=\code{"full"} because it necessarily involves dense matrices}
   \item{method}{character string: default \code{"full"} for use of full matrices, \code{"Matrix"} or \code{"spam"} for sparse matrices (restricted to spatial weights symmetric or similar to symmetric) using methods in either the Matrix or spam packages. Note that users should change from spam to Matrix}
-  \item{interval}{search interval for autoregressive parameter when not using method="eigen"; default is c(-1,0.999), \code{optimize} will reset NA/NaN to a bound and gives a warning when the interval is poorly set}
+  \item{interval}{search interval for autoregressive parameter when not using method="eigen"; default is c(-1,0.999), \code{optimize} will reset NA/NaN to a bound and gives a warning when the interval is poorly set; method="Matrix" will attempt to search for an appropriate interval}
   \item{zero.policy}{Include list of no-neighbour observations in output if TRUE --- otherwise zero.policy is handled within the listw argument}
   \item{super}{logical argument to \code{\link[Matrix]{Cholesky}}, only used for method="Matrix"; at present only super=FALSE is supported. It should only be used for positive lambda. If NULL, the Cholesky decompisition of the matrix is undertaken at each step.}
   \item{Matrix_intern}{default TRUE, if FALSE, does not use vectorised Matrix internal function.}
