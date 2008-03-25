@@ -119,8 +119,11 @@ summary(COL.lag.eig, correlation=TRUE)
 \dontrun{COL.lag.SM <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="spam", quiet=FALSE)
 summary(COL.lag.SM, correlation=TRUE)}
-COL.lag.M <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
- nb2listw(COL.nb), method="Matrix", quiet=FALSE)
+system.time(COL.lag.M <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ nb2listw(COL.nb), method="Matrix", quiet=FALSE))
+summary(COL.lag.M, correlation=TRUE)
+system.time(COL.lag.M <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ nb2listw(COL.nb), method="spam", quiet=FALSE))
 summary(COL.lag.M, correlation=TRUE)
 COL.lag.B <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="B"))

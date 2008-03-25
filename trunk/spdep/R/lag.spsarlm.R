@@ -263,7 +263,7 @@ sar.lag.mix.f.M <- function(rho, W, I, e.a, e.b, e.c, n, nW, nChol,
 	ret <- (Jacobian
 		- ((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*s2))*SSE)
 	if (!quiet) 
-	    cat("(Method) rho:\t", rho, "\tfunction value:\t", ret, "\n")
+	    cat("(Matrix) rho:\t", rho, "\tfunction value:\t", ret, "\n")
 	ret
 }
 
@@ -330,7 +330,7 @@ dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, method, interval,
 		wn2 <- which(is.finite(ndet2))
                 lwn2n <- nrho2[wn2[1]]
 		interval <- c(lwn2n, lwp2n)
-		if (quiet) cat("using interval:", interval, "\n")
+		if (!quiet) cat("using interval:", interval, "\n")
 	}
 	LLs <- NULL
 	# intercept-only bug fix Larry Layne 20060404
