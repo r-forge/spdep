@@ -1,3 +1,12 @@
+2008-04-22 09:17  rsbivand
+
+	* man/: errorsarlm.Rd, globalG.test.Rd, lagsarlm.Rd: final tidy
+
+2008-03-25 13:21  rsbivand
+
+	* ChangeLog, R/lag.spsarlm.R, inst/ChangeLog, man/lagsarlm.Rd:
+	  Matrix
+
 2008-03-25 12:28  rsbivand
 
 	* DESCRIPTION, R/error.spsarlm.R, R/kpgm_new.R, R/lag.spsarlm.R,
