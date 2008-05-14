@@ -1,3 +1,23 @@
+2008-05-14 20:21  rsbivand
+
+	* g/svn2cl.xsl: removed try() on Matrix logdet; arg to localmoran
+
+2008-05-14 20:20  rsbivand
+
+	* g/inst/ChangeLog: removed try() on Matrix logdet; arg to
+	  localmoran
+
+2008-05-14 20:19  rsbivand
+
+	* g/inst/ChangeLog: removed try() on Matrix logdet; arg to
+	  localmoran
+
+2008-05-14 20:18  rsbivand
+
+	* g/ChangeLog, g/Changelog, g/DESCRIPTION, g/R/localmoran.R,
+	  g/man/localmoran.Rd, g/oChangelog: removed try() on Matrix
+	  logdet; arg to localmoran
+
 2008-04-27 16:57  rsbivand
 
 	* g/DESCRIPTION, g/R/spautolm.R, g/man/spautolm.Rd:
