@@ -45,3 +45,14 @@ Jacobian_W <- function(W, rho) {
 	sum(2*log(diag(chol(as_dsCMatrix_IrW(W, rho)))))
 }
 
+# ww <- as(as_dgRMatrix_listw(w), "CsparseMatrix")
+# zz <- 0.5 * (ww + t(ww))
+
+# w1 <- nb2listw(eire.nb, style="B")
+# d <- Diagonal(x=1/sqrt(card(eire.nb)))
+# d1 <- as(as(d, "symmetricMatrix"), "CsparseMatrix")
+# ww1 <- as(as_dgRMatrix_listw(w1), "CsparseMatrix")
+# sim1 <- d1 %*% ww1 %*% d1
+# range(eigen(sim1)$values)
+# range(eigenw(w))
+
