@@ -163,7 +163,6 @@ similar.listw_spam <- function(listw) {
 		sww1 <- sdd %*% sww
 		res <- sdd1 %*% sww1 %*% sdd1
 	} else if (listw$style == "S") {
-		sww <- as.spam.listw(sw)
 		q <- attr(listw$weights, "comp")$q
 		Q <- attr(listw$weights, "comp")$Q
 		eff.n <- attr(listw$weights, "comp")$eff.n
