@@ -4,7 +4,8 @@ localmoran.exact.alt <- function(model, select, nb, glist = NULL, style = "W",
     zero.policy = FALSE, alternative = "greater", spChk=NULL, 
     resfun=weighted.residuals, Omega=NULL, save.Vi = FALSE, save.M=FALSE) {
 # need to impose check on weights TODO!!
-    if (class(nb) != "nb") 
+# class to inherits Jari Oksanen 080603
+    if (!inherits(nb, "nb"))
         stop(paste(deparse(substitute(nb)), "not an nb object"))
 #    if (class(model) != "lm") 
 #        stop(paste(deparse(substitute(model)), "not an lm object"))

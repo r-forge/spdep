@@ -256,7 +256,8 @@ similar.listw <- function(listw) {
 
 nb2WB <- function(nb)
 {
-	if (class(nb) != "nb") stop("not nb class object")
+# class to inherits Jari Oksanen 080603
+  	if (!inherits(nb, "nb")) stop("not a neighbours list")
         adj <- unlist(nb)
         num <- unlist(lapply(nb, length))
         weights <- rep(1, sum(num))

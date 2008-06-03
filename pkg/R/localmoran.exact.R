@@ -4,7 +4,8 @@ localmoran.exact <- function(model, select, nb, glist = NULL, style = "W",
     zero.policy = FALSE, alternative = "greater", spChk=NULL, 
     resfun=weighted.residuals, save.Vi = FALSE) {
 # need to impose check on weights TODO!!
-    if (class(nb) != "nb") 
+# class to inherits Jari Oksanen 080603
+  if (!inherits(nb, "nb"))
         stop(paste(deparse(substitute(nb)), "not an nb object"))
     n <- length(nb)
     u <- resfun(model)
