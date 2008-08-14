@@ -20,7 +20,7 @@
 \def\SP{\texttt{S-PLUS}\/}
 \def\SS{\texttt{S}\/}
 
-\title{Introduction to the North Carolina SIDS data set} 
+\title{Introduction to the North Carolina SIDS data set (revised)} 
 \author{Roger Bivand} 
 
 \begin{document} 
@@ -68,19 +68,23 @@ library(spdep)
 \section{Getting the data into \RR}
 
 We will be using the \pkg{spdep} package, here version:
-\Sexpr{spdep()[1]}, and the \pkg{maptools} package. The
-data from the sources refered to above is collected in the
-\code{nc.sids} data set in \pkg{spdep}. But to map it, we also
-need access to data for the county boundaries for North Carolina;
-this has been made available in the \pkg{maptools} package in
-shapefile format\footnote{These data are taken with permission from:
+\Sexpr{spdep()[1]}, the pkg{sp} package and the \pkg{maptools}
+package. The data from the sources refered to above is documented in
+the help page for the \code{nc.sids} data set in \pkg{spdep}. The
+actual data, included in a shapefile of the county boundaries
+for North Carolina has been made available in the \pkg{maptools}
+package\footnote{These data are taken with permission from:
 \url{http://sal.agecon.uiuc.edu/datasets/sids.zip}.}. These data are known
 to be geographical coordinates (longitude-latitude in decimal degrees)
-and are assumed to use the NAD83 datum.
+and are assumed to use the NAD27 datum.
 
 \begin{footnotesize}
-<<echo=TRUE,eval=FALSE>>= 
-library(spdep)
+<<echo=TRUE,eval=TRUE>>= 
+library(sp)
+library(maptools)
+nc_file <- system.file("shapes/sids.shp", package="maptools")[1]
+llCRS <- CRS("+proj=longlat +datum=NAD27")
+nc <- readShapePoly(nc_file, ID="CNTY_ID", proj4string=llCRS)
 @
 \end{footnotesize}
 
@@ -88,33 +92,17 @@ The shapefile format presupposes that you have three files with extensions
 \code{*.shp}, \code{*.shx}, and \code{*.dbf}, where the first contains the
 geometry data, the second the spatial index, and the third the attribute
 data. They are required to have the same name apart from the extension,
-and are read using \code{read.shape()}. By default, this function reads
-in the data in all three files, although it is only given the name of
-the file with the geometry.
-The imported object in \RR~has class \code{Map}, and is a list with
-two components, \code{"Shapes"}, which is a list of shapes, and
-\code{"att.data"}, which is a data frame with tabular data, one row
-for each shape in \code{"Shapes"}. Here we will be using data previously read from the shapefile, and stored in the \code{nc.sids} data set:
+and are read here using \code{readShapePoly()} into the 
+\code{SpatialPolygonsDataFrame} object \code{nc}; the class is defined 
+in \pkg{sp}. The centroids of the largest polygon in each county are available using the \code{coordinates} method from \pkg{sp} as a two-column matrix, and can be used to place labels:
 
 
 \begin{footnotesize}
-<<echo=TRUE>>= 
-data(nc.sids)
-@ 
 <<label=plotNC1,fig=FALSE,echo=TRUE,eval=FALSE>>= 
-plot(sidspolys, forcefill=FALSE)
-points(sidscents)
+plot(nc, axes=TRUE)
+text(coordinates(nc), label=nc$FIPSNO, cex=0.5)
 @
 \end{footnotesize}
-We can examine the names of the columns of the data frame to see what it
-contains --- in fact some of the same columns that we will be examining
-below, and some others which will be useful in cleaning the data
-set. We will similarly convert the geometry format of the \code{Map}
-object to that of a \code{polylist} object, which will be easier to
-handle. Finally, we retreive the centroids of the county polygons to use
-as label points. Using the \code{plot()} function for \code{"polylist"}
-objects from \pkg{maptools}, we can display the polygon boundaries and
-centroids, shown in Figure \ref{plotNC1}.
 
 \begin{figure}[htbp]
 \begin{center} 
@@ -128,51 +116,10 @@ centroids, shown in Figure \ref{plotNC1}.
 \label{plotNC1}
 \end{figure}
 
-
-It may be of interest to look at the structure of a polygon
-list member. This is made up of a two-column matrix with polygon
-coordinates. In general, each sub-polygon will have equal first
-and last coordinates to ensure closure, but this is not absolutely
-required. Rows in the coordinate matrix set to \code{NA} represent
-breaks between sub-polygons, and are respected by the underlying
-\RR~graphics functions. The attributes contain further information about
-the polygon: \code{pstart} is a list with \code{from} and \code{to}
-components, which are vectors of first and last rows in the matrix for
-each sub-polygon in the object --- there are \code{nParts} elements
-in both \code{from} and \code{to}. \code{RingDir} and \code{ringDir}
-should be the same (but are not here, \code{ringDir} is correct, and
-\code{RingDir} is wrong!), and are computed in two different ways to
-determine whether each of the \code{nParts} sub-polygons runs clockwise
-or counter-clockwise. Counter-clockwise sub-polygons are ``holes'' in
-the surrounding sub-polygon. Finally, \code{bbox} contains the bounding
-box of this object. Its appearance is shown in Figure \ref{poly6}.
-
-\setkeys{Gin}{width=0.4\textwidth}
-\begin{figure}[htbp]
-\begin{center} 
-<<label=poly6,echo=FALSE,eval=FALSE>>=
-plot(sidspolys[[56]], type="l", asp=1, axes=FALSE, xlab="", ylab="")
-@
-<<fig=TRUE,echo=FALSE,width=2,height=2>>= 
-opar <- par(mar=c(3,3,1,1)+0.1)
-<<poly6>>
-par(opar)
-@ 
-\end{center}
-\caption{Plot of polygon 56 from the list of polygons.}
-\label{poly6}
-\end{figure}
-\setkeys{Gin}{width=0.95\textwidth}
-
-\begin{footnotesize}
-<<fig=FALSE,echo=TRUE>>= 
-round(t(sidspolys[[56]]), 3)
-sidscents[56,]
-@ 
-<<fig=FALSE,echo=TRUE,eval=FALSE>>= 
-<<poly6>>
-@ 
-\end{footnotesize}
+We can examine the names of the columns of the data frame to see what it
+contains --- in fact some of the same columns that we will be examining
+below, and some others which will be useful in cleaning the data
+set. 
 
 
 
@@ -180,10 +127,21 @@ We will now examine the data set reproduced from Cressie and collaborators,
 included in \pkg{spdep}, and add the neighbour relationships used in
 \citet{cressie+chan:1989} to the background map as a graph shown in Figure \ref{plot-CC89.nb}:
 
+
+\begin{footnotesize}
+<<echo=TRUE,eval=TRUE>>= 
+library(spdep)
+gal_file <- system.file("etc/weights/ncCR85.gal", package="spdep")[1]
+ncCR85 <- read.gal(gal_file, region.id=nc$FIPSNO)
+gal_file <- system.file("etc/weights/ncCC89.gal", package="spdep")[1]
+ncCC89 <- read.gal(gal_file, region.id=nc$FIPSNO)
+@
+\end{footnotesize}
+
 \begin{footnotesize}
 <<label=plot-CC89.nb,fig=FALSE,echo=TRUE,eval=FALSE>>= 
-plot(sidspolys, border="grey", forcefill=FALSE)
-plot(ncCC89.nb, sidscents, add=TRUE, col="blue")
+plot(nc, border="grey")
+plot(ncCC89, coordinates(nc), add=TRUE, col="blue")
 @ 
 \end{footnotesize}
 
@@ -195,7 +153,7 @@ plot(ncCC89.nb, sidscents, add=TRUE, col="blue")
 <<zfig>>
 @ 
 \end{center}
-\caption{Overplotting shapefile boundaries with 30 mile neighbour relations as a graph.}
+\caption{Overplotting county boundaries with 30 mile neighbour relations as a graph.}
 \label{plot-CC89.nb}
 \end{figure}
 
@@ -212,21 +170,21 @@ argument. The names should be unique, as with data frame row names.
 
 \begin{footnotesize}
 <<echo=TRUE>>= 
-ncCC89.nb
-r.id <- attr(ncCC89.nb, "region.id")
-ncCC89.nb[[match("1825", r.id)]]
-r.id[ncCC89.nb[[match("1825", r.id)]]]
+ncCC89
+r.id <- attr(ncCC89, "region.id")
+ncCC89[[match("37001", r.id)]]
+r.id[ncCC89[[match("37001", r.id)]]]
 @ 
 \end{footnotesize}
 The neighbour list object records neighbours by their order in
 relation to the list itself, so the neighbours list for the county with
-\code{region.id} "1825" are the second, eighteenth, and nineteenth in
-the list. We can retreive their codes by looking them up
-in the \code{region.id} attribute.
+\code{region.id} "37001" are the seventeenth, nineteenth, thirty-second, 
+forty-first and sixty-eighth in the list. We can retreive their codes by 
+looking them up in the \code{region.id} attribute.
 
 \begin{footnotesize}
 <<echo=TRUE>>= 
-nc.sids[card(ncCC89.nb) == 0,]
+as.character(nc$NAME)[card(ncCC89) == 0]
 @ 
 \end{footnotesize}
 We should also note that this neighbour criterion generates two counties
@@ -262,16 +220,12 @@ separately in Figure \ref{choymap}.
 
 \begin{footnotesize}
 <<echo=TRUE>>= 
-ch <- choynowski(nc.sids$SID74, nc.sids$BIR74)
+ch <- choynowski(nc$SID74, nc$BIR74)
+nc$ch_pmap_low <- ifelse(ch$type, ch$pmap, NA)
+nc$ch_pmap_high <- ifelse(!ch$type, ch$pmap, NA)
 @ 
 <<label=choymap,fig=FALSE,echo=TRUE,eval=FALSE>>= 
-plot(sidspolys, forcefill=FALSE)
-legend(c(-84,-81), c(33.9,34.5), fill=grey(c(2,5)/7),
- legend=c("high", "low"), bty="n", ncol=2)
-plot(subset(sidspolys, ((ch$pmap < 0.05) & (ch$type))),
- col=grey(5/7), add=TRUE, forcefill=FALSE)
-plot(subset(sidspolys, ((ch$pmap < 0.05) & (!ch$type))),
- col=grey(2/7), add=TRUE, forcefill=FALSE)
+spplot(nc, c("ch_pmap_low", "ch_pmap_high"), at=c(0, 0.001, 0.01, 0.05, 0.1, 1), col.regions=grey.colors(5))
 @
 \end{footnotesize}
 
@@ -305,15 +259,13 @@ upper tail, as Figure \ref{poismap} shows.
 
 \begin{footnotesize}
 <<echo=TRUE>>= 
-pmap <- probmap(nc.sids$SID74, nc.sids$BIR74)
+pmap <- probmap(nc$SID74, nc$BIR74)
+nc$pmap <- pmap$pmap
 brks <- c(0,0.001,0.01,0.025,0.05,0.95,0.975,0.99,0.999,1)
-cols <- c("#FFFFFF", "#F0F0F0", "#D9D9D9", "#BDBDBD", "#969696",
- "#737373", "#525252", "#252525", "#000000")
+library(RColorBrewer)
 @ 
 <<label=poismap,fig=FALSE,echo=TRUE,eval=FALSE>>= 
-plot(sidspolys, col=cols[findInterval(pmap$pmap, brks)], forcefill=FALSE)
-legend(c(-84,-81), c(33.9,34.5), fill=cols, legend=leglabs(brks),
- bty="n", ncol=2)
+spplot(nc, "pmap", at=brks, col.regions=rev(brewer.pal(9, "RdBu")))
 @
 \end{footnotesize}
 
@@ -342,7 +294,7 @@ is that the ratio of the mean and variance is larger than unity.
 
 \begin{footnotesize}
 <<label=poishist,fig=FALSE,echo=TRUE,eval=FALSE>>= 
-hist(pmap$pmap, main="")
+hist(nc$pmap, main="")
 @
 \end{footnotesize}
 
@@ -368,17 +320,12 @@ population at risk (suggested by Marilia Carvalho and associates):
 
 \begin{footnotesize}
 <<echo=TRUE>>= 
-res <- glm(nc.sids$SID74 ~ offset(log(BIR74)), data=nc.sids,
- family="quasipoisson")
-stdres <- rstandard(res)
-brks <- c(-Inf, -2, -1.5, -1, 1, 1.5, 2, +Inf)
-cols <- c("#F7F7F7", "#D9D9D9", "#BDBDBD", "#969696", "#737373",
- "#525252", "#252525")
+res <- glm(SID74 ~ offset(log(BIR74)), data=nc, family="quasipoisson")
+nc$stdres <- rstandard(res)
+brks <- c(-4, -3, -2, -1.5, -1, -0.5, 0.5, 1, 1.5, 2, 3, 4)
 @
 <<label=poismap2,fig=FALSE,echo=TRUE,eval=FALSE>>= 
-plot(sidspolys, col=cols[findInterval(stdres, brks)], forcefill=FALSE)
-legend(c(-84,-81), c(33.9,34.5), fill=cols, legend=leglabs(brks),
- bty="n", ncol=2)
+spplot(nc, "stdres", at=brks, col.regions=rev(brewer.pal(11, "RdBu")))
 @
 \end{footnotesize}
 
@@ -429,17 +376,15 @@ interpretation of \citet{marshall:1991}, rather than that in GeoDa
 
 \begin{footnotesize}
 <<echo=TRUE>>= 
-res <- EBlocal(nc.sids$SID74, nc.sids$BIR74, ncCC89.nb, zero.policy=TRUE)
-brks <- c(-Inf,2,2.5,3,3.5,Inf)
-cols <- c("#F7F7F7", "#CCCCCC", "#969696", "#636363", "#252525")
-sub <- is.finite(res$est)
+global_rate <- sum(nc$SID74)/sum(nc$BIR74)
+nc$Expected <- global_rate * nc$BIR74
+res <- EBlocal(nc$SID74, nc$Expected, ncCC89, zero.policy=TRUE)
+nc$EB_loc <- res$est
+brks <- c(0, 0.25, 0.5, 0.75, 1, 2, 3, 4, 5)
+spl <- list("sp.text", loc=coordinates(nc)[card(ncCC89) == 0,], txt=rep("*", 2), cex=1.2)
 @
 <<label=EBlocal,fig=FALSE,echo=TRUE,eval=FALSE>>= 
-plot(sidspolys, forcefill=FALSE)
-legend(c(-84,-81), c(33.9,34.5), fill=cols, legend=leglabs(brks),
- bty="n", ncol=2)
-plot(subset(sidspolys, sub), col=cols[findInterval(res$est[sub]*1000, brks)], add=TRUE, forcefill=FALSE)
-points(sidscents[!sub,], pch=8)
+spplot(nc, "EB_loc", at=brks, col.regions=rev(brewer.pal(8, "RdBu")), sp.layout=spl)
 @
 \end{footnotesize}
 
@@ -462,8 +407,17 @@ marked by stars.
 \end{figure}
 @ 
 
+In addition to Empirical Bayes smoothing globally, used both for disease mapping and the Assunção and Reis correction to Moran's $I$ for rates data (to shrink towards the global rate when the population at risk is small, here as a Monte Carlo test), lists of local neighbours can be used to shrink towards a local rate.
 
-\section{Preliminary exploration of the data (incomplete)}
+
+\begin{scriptsize}
+<<echo=TRUE>>= 
+EBImoran.mc(nc$SID74, nc$BIR74, nb2listw(ncCC89, style="B", zero.policy=TRUE), nsim=999, zero.policy=TRUE)
+@
+\end{scriptsize}
+
+
+\section{Exploration and modelling of the data}
 
 One of the first steps taken by \citet{cressie+read:1985} is to try to
 bring out spatial trends by dividing North Carolina up into $4\times4$
@@ -475,13 +429,14 @@ as the polygons.
 
 \begin{footnotesize}
 <<echo=TRUE>>= 
-both <- factor(paste(nc.sids$L.id, nc.sids$M.id, sep=":"))
-cols <- sample(rainbow(length(table(unclass(both)))))
+xtra <- read.dbf(system.file("etc/misc/nc_xtra.dbf", package="spdep"))
+row.names(xtra) <- xtra$CNTY_ID
+nc1 <- spCbind(nc, xtra)
+nc1$both <- factor(paste(nc1$L_id, nc1$M_id, sep=":"))
+nboth <- length(table(unclass(nc1$both)))
 @ 
 <<label=LMmap,fig=FALSE,echo=TRUE,eval=FALSE>>= 
-plot(sidspolys, col=cols[both[order(nc.sids$CNTY.ID)]], forcefill=FALSE)
-legend(c(-84, -81), c(33.5, 34.6), legend=levels(both), fill=cols,
- bty="n", cex=0.9, y.intersp=0.9, ncol=2)
+spplot(nc1, "both", col.regions=sample(rainbow(nboth)))
 @
 \end{footnotesize}
 
@@ -497,7 +452,66 @@ legend(c(-84, -81), c(33.5, 34.6), legend=levels(both), fill=cols,
 \label{LMmap}
 \end{figure}
 
-(document to be extended in next release --- terminates here to at least show how \pkg{maptools} and \pkg{spdep} can be used together).
+We will now try to replicate three of the four models fitted by Cressie and Chan to the transformed rates variable. The first thing to do is to try to replicate their 30 mile distance between county seats neighbours, which almost works. From there we try to reconstruct three of the four models they fit, concluding that we can get quite close, but that a number of questions are raised along the way.
+
+Cressie constructs a transformed SIDS rates variable, 1974--78, for his analyses (with co-workers). We can replicate his stem-and-leaf figure on p. 396 in the book, taken from Cressie and Read (1989):
+
+<<echo=TRUE>>= 
+nc1$ft.SID74 <- sqrt(1000)*(sqrt(nc1$SID74/nc1$BIR74) + sqrt((nc1$SID74+1)/nc1$BIR74))
+stem(round(nc1$ft.SID74, 1), scale=2)
+@
+
+Building the weights is much more complicated, because they use a combination of distance-metric and population-at-risk based weights, but we can get quite close (see also Kaluzny):
+
+<<echo=TRUE>>= 
+sids.nhbr30.dist <- nbdists(ncCC89, cbind(nc1$east, nc1$north))
+sids.nhbr <- listw2sn(nb2listw(ncCC89, glist=sids.nhbr30.dist, style="B", zero.policy=TRUE))
+dij <- sids.nhbr[,3]
+n <- nc1$BIR74
+el1 <- min(dij)/dij
+el2 <- sqrt(n[sids.nhbr$to]/n[sids.nhbr$from])
+sids.nhbr$weights <- el1*el2
+sids.nhbr.listw <- sn2listw(sids.nhbr)
+@
+
+The first model (I) is a null model with just an intercept, the second (II) includes all the Cressie and Read 12 parcels of contiguous counties in 4 east-west and 4 north-south bands, while the fourth (IV) includes the transformed non-white birth-rate:
+
+<<echo=TRUE>>= 
+nc1$ft.NWBIR74 <- sqrt(1000)*(sqrt(nc1$NWBIR74/nc1$BIR74) + sqrt((nc1$NWBIR74+1)/nc1$BIR74))
+@
+
+Cressie identifies Anson county as an outlier, and drops it from further analysis. Because the weights are constructed in a complicated way, they will be subsetted by dropping the row and column of the weights matrix:
+
+<<echo=TRUE>>= 
+lm_nc <- lm(ft.SID74 ~ 1, data=nc1)
+outl <- which.max(rstandard(lm_nc))
+as.character(nc1$names[outl])
+mdata.4 <- mdata[-outl,]
+W <- listw2mat(sids.nhbr.listw)
+W.4 <- W[-outl, -outl]
+sids.nhbr.listw.4 <- mat2listw(W.4)
+nc2 <- nc1[!(1:length(nc1$CNTY_ID) %in% outl),]
+@ 
+
+We now try to replicate the Cressie and Chan 1989 and Cressie 1991/3 results for the null weighted CAR model (Cressie has intercept 2.838, $\hat{\theta}$ 0.833, for k=1):
+
+The spatial parcels model also seems to work, with Cressie's $\hat{\theta}$ 0.710, and the other coefficients agreeing more or less by rank:
+
+Finally, the non-white model repeats Cressie's finding that much of the variance of the transformed SIDS rate for 1974--8 can be accounted for by the transformed non-white birth variable (Cressie intercept 1.644, $\hat{b}$ 0.0346, $\hat{\theta}$ 0.640 --- not significant):
+
+<<echo=TRUE>>= 
+ecarIaw <- spautolm(ft.SID74 ~ 1, data=nc2, listw=sids.nhbr.listw.4, weights=BIR74, family="CAR")
+summary(ecarIaw)
+ecarIIaw <- spautolm(ft.SID74 ~ both - 1, data=nc2, listw=sids.nhbr.listw.4, weights=BIR74, family="CAR")
+summary(ecarIIaw)
+ecarIVaw <- spautolm(ft.SID74 ~ ft.NWBIR74, data=nc2, listw=sids.nhbr.listw.4, weights=BIR74, family="CAR")
+summary(ecarIVaw)
+nc2$fitIV <- fitted.values(ecarIVaw)
+spplot(nc2, "fitIV", cuts=12, col.regions=grey.colors(13, 0.9, 0.3))
+# Cressie 1993, p. 565
+ecarIVawll <- spautolm(ft.SID74 ~ ft.NWBIR74, data=nc2, listw=sids.nhbr.listw.4, weights=BIR74, family="CAR", llprof=100)
+plot(ll ~ lambda, ecarIVawll$llprof, type="l")
+
 
 <<echo=FALSE>>=
 options("width"=owidth)
