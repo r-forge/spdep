@@ -52,11 +52,11 @@ pdf(file=file, width = 6.5, height = 5, pointsize = 12, bg = "white")
 <<label=zfig,echo=FALSE,eval=FALSE>>=
 par(opar)
 dev.null <- dev.off()
-cat("\\includegraphics{", file, "}\n\n", sep="")
+cat("\\includegraphics[width=0.95\\textwidth]{", file, "}\n\n", sep="")
 @
 <<label=zfigl,echo=FALSE,eval=FALSE>>=
 dev.null <- dev.off()
-cat("\\includegraphics{", file, "}\n\n", sep="")
+cat("\\includegraphics[width=0.95\\textwidth]{", file, "}\n\n", sep="")
 @
 
 \section{Introduction}
@@ -244,7 +244,7 @@ ch <- choynowski(nc$SID74, nc$BIR74)
 nc$ch_pmap_low <- ifelse(ch$type, ch$pmap, NA)
 nc$ch_pmap_high <- ifelse(!ch$type, ch$pmap, NA)
 @ 
-<<label=choymap,fig=FALSE,echo=TRUE,eval=FALSE>>= 
+<<echo=TRUE,eval=FALSE>>= 
 spplot(nc, c("ch_pmap_low", "ch_pmap_high"), at=c(0, 0.001, 0.01, 0.05, 0.1, 1), col.regions=grey.colors(5))
 @
 \end{footnotesize}
@@ -253,7 +253,7 @@ spplot(nc, c("ch_pmap_low", "ch_pmap_high"), at=c(0, 0.001, 0.01, 0.05, 0.1, 1),
 \begin{center} 
 <<results=tex,echo=FALSE>>= 
 <<afigl>>
-<<choymap>>
+print(spplot(nc, c("ch_pmap_low", "ch_pmap_high"), at=c(0, 0.001, 0.01, 0.05, 0.1, 1), col.regions=grey.colors(5)))
 <<zfigl>>
 @ 
 \end{center}
@@ -284,7 +284,7 @@ nc$pmap <- pmap$pmap
 brks <- c(0,0.001,0.01,0.025,0.05,0.95,0.975,0.99,0.999,1)
 library(RColorBrewer)
 @ 
-<<label=poismap,fig=FALSE,echo=TRUE,eval=FALSE>>= 
+<<echo=TRUE,eval=FALSE>>= 
 spplot(nc, "pmap", at=brks, col.regions=rev(brewer.pal(9, "RdBu")))
 @
 \end{footnotesize}
@@ -293,7 +293,7 @@ spplot(nc, "pmap", at=brks, col.regions=rev(brewer.pal(9, "RdBu")))
 \begin{center} 
 <<results=tex,echo=FALSE>>= 
 <<afigl>>
-<<poismap>>
+print(spplot(nc, "pmap", at=brks, col.regions=rev(brewer.pal(9, "RdBu"))))
 <<zfigl>>
 @ 
 \end{center}
@@ -344,7 +344,7 @@ res <- glm(SID74 ~ offset(log(BIR74)), data=nc, family="quasipoisson")
 nc$stdres <- rstandard(res)
 brks <- c(-4, -3, -2, -1.5, -1, -0.5, 0.5, 1, 1.5, 2, 3, 4)
 @
-<<label=poismap2,fig=FALSE,echo=TRUE,eval=FALSE>>= 
+<<echo=TRUE,eval=FALSE>>= 
 spplot(nc, "stdres", at=brks, col.regions=rev(brewer.pal(11, "RdBu")))
 @
 \end{footnotesize}
@@ -365,7 +365,7 @@ from a Negative Binomial.
 \begin{center} 
 <<results=tex,echo=FALSE>>= 
 <<afigl>>
-<<poismap2>>
+print(spplot(nc, "stdres", at=brks, col.regions=rev(brewer.pal(11, "RdBu"))))
 <<zfigl>>
 @ 
 \end{center}
@@ -403,7 +403,7 @@ nc$EB_loc <- res$est
 brks <- c(0, 0.25, 0.5, 0.75, 1, 2, 3, 4, 5)
 spl <- list("sp.text", loc=coordinates(nc)[card(ncCC89) == 0,], txt=rep("*", 2), cex=1.2)
 @
-<<label=EBlocal,fig=FALSE,echo=TRUE,eval=FALSE>>= 
+<<echo=TRUE,eval=FALSE>>= 
 spplot(nc, "EB_loc", at=brks, col.regions=rev(brewer.pal(8, "RdBu")), sp.layout=spl)
 @
 \end{footnotesize}
@@ -418,7 +418,7 @@ marked by stars.
 \begin{center} 
 <<results=tex,echo=FALSE>>= 
 <<afigl>>
-<<EBlocal>>
+print(spplot(nc, "EB_loc", at=brks, col.regions=rev(brewer.pal(8, "RdBu")), sp.layout=spl))
 <<zfigl>>
 @ 
 \end{center}
@@ -450,7 +450,7 @@ rectangles before proceeding further (see Figure \ref{LMmap}).
 nc$both <- factor(paste(nc$L_id, nc$M_id, sep=":"))
 nboth <- length(table(unclass(nc$both)))
 @ 
-<<label=LMmap,fig=FALSE,echo=TRUE,eval=FALSE>>= 
+<<echo=TRUE,eval=FALSE>>= 
 spplot(nc, "both", col.regions=sample(rainbow(nboth)))
 @
 \end{footnotesize}
@@ -459,7 +459,7 @@ spplot(nc, "both", col.regions=sample(rainbow(nboth)))
 \begin{center} 
 <<results=tex,echo=FALSE>>= 
 <<afigl>>
-<<LMmap>>
+print(spplot(nc, "both", col.regions=sample(rainbow(nboth))))
 <<zfigl>>
 @ 
 \end{center}
@@ -636,7 +636,7 @@ summary(ecarIVaw)
 <<echo=TRUE>>= 
 nc2$fitIV <- fitted.values(ecarIVaw)
 @
-<<label=fitIV,fig=FALSE,echo=TRUE,eval=FALSE>>= 
+<<echo=TRUE,eval=FALSE>>= 
 spplot(nc2, "fitIV", cuts=12, col.regions=grey.colors(13, 0.9, 0.3))
 @
 \end{footnotesize}
@@ -645,7 +645,7 @@ spplot(nc2, "fitIV", cuts=12, col.regions=grey.colors(13, 0.9, 0.3))
 \begin{center} 
 <<echo=FALSE,eval=TRUE,results=tex>>= 
 <<afigl>>
-<<fitIV>>
+print(spplot(nc2, "fitIV", cuts=12, col.regions=grey.colors(13, 0.9, 0.3)))
 <<zfigl>>
 @
 \caption{Fitted values for model IV, including covariate.}
