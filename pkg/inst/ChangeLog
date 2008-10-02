@@ -1,3 +1,13 @@
+2008-06-27 09:56  rsbivand
+
+	* g/ChangeLog, g/inst/ChangeLog: truncation point in exact Moran
+
+2008-06-27 09:40  rsbivand
+
+	* g/DESCRIPTION, g/R/localmoran.exact.R, g/R/moran.exact.R,
+	  g/R/moran.exact.alt.R, g/man/lm.morantest.exact.Rd,
+	  g/man/localmoran.exact.Rd: truncation point in exact Moran
+
 2008-06-19 04:08  rsbivand
 
 	* g/man/SpatialFiltering.Rd: link
