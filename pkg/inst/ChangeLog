@@ -1,3 +1,17 @@
+2008-09-18 12:21  rsbivand
+
+	* g/DESCRIPTION, g/inst/doc/sids.Rnw: vignette
+
+2008-09-18 07:18  rsbivand
+
+	* g/DESCRIPTION, g/R/nb2mat.R, g/inst/doc/sids.Rnw: vignette
+	  (FIXME), double mat2listw
+
+2008-08-14 12:55  rsbivand
+
+	* g/inst/doc/sids.Rnw, g/man/spautolm.Rd: mdata in spautolm help
+	  file
+
 2008-06-27 09:56  rsbivand
 
 	* g/ChangeLog, g/inst/ChangeLog: truncation point in exact Moran
