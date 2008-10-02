@@ -1,3 +1,20 @@
+2008-10-02 21:14  rsbivand
+
+	* g/R/mstree.R, g/R/nbcosts.R, g/R/plot.mst.R, g/R/plot.skater.R,
+	  g/R/prunecost.R, g/R/prunemst.R, g/R/skater.R,
+	  g/inst/etc/shapes/bhicv.dbf, g/inst/etc/shapes/bhicv.shp,
+	  g/inst/etc/shapes/bhicv.shx, g/man/bhicv.Rd, g/man/mstree.Rd,
+	  g/man/nbcosts.Rd, g/man/plot.mst.Rd, g/man/plot.skater.Rd,
+	  g/man/prunecost.Rd, g/man/prunemst.Rd, g/man/skater.Rd,
+	  g/man/ssw.Rd, g/src/skater.c: merging SKATER regionalisation
+	  functions
+
+2008-10-02 21:09  rsbivand
+
+	* g/ChangeLog, g/DESCRIPTION, g/NAMESPACE, g/R/edit.nb.R,
+	  g/R/plot.nb.R, g/R/weights-utils.R, g/inst/ChangeLog,
+	  g/man/plot.nb.Rd: aggregate.nb, edit.nb
+
 2008-09-18 12:21  rsbivand
 
 	* g/DESCRIPTION, g/inst/doc/sids.Rnw: vignette
