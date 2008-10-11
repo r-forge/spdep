@@ -2,6 +2,8 @@ useDynLib(spdep)
 
 importFrom(stats, model.matrix, model.response, aggregate)
 
+importFrom(boot, boot)
+
 import(spam)
 import(Matrix)
 
@@ -51,6 +53,8 @@ export(lm.morantest.exact, print.moranex, localmoran.exact, localmoran.exact.alt
 export(as.spam.listw)
 
 export(mstree, nbcosts, nbcost, plot.mst, plot.skater, prunecost, ssw, prunemst, skater)
+
+export(aple, aple.mc)
 
 import(maptools)
 
