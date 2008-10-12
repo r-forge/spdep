@@ -6,6 +6,8 @@ anova.sarlm             Comparison of simultaneous autoregressive
 aple                    Approximate profile-likelihood estimator (APLE)
 aple.mc                 Approximate profile-likelihood estimator (APLE)
                         permutation test
+aple.plot               Approximate profile-likelihood estimator (APLE)
+                        scatterplot
 as_dgRMatrix_listw      Interface between Matrix class objects and
                         weights lists
 auckland                Marshall's infant mortality in Auckland dataset

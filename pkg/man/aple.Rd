@@ -22,7 +22,7 @@ aple(x, listw)
 \references{Li, H, Calder, C. A. and Cressie N. A. C. (2007) Beyond Moran's I: testing for spatial dependence based on the spatial autoregressive model. Geographical Analysis 39, 357-375.}
 \author{Roger Bivand \email{Roger.Bivand@nhh.no}}
 
-\seealso{\code{\link{nb2listw}}, \code{\link{aple.mc}}%, \code{\link{aple.plot}}
+\seealso{\code{\link{nb2listw}}, \code{\link{aple.mc}}, \code{\link{aple.plot}}
 }
 \examples{
 example(wheat)
