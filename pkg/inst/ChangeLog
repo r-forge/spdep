@@ -1,3 +1,20 @@
+2008-10-12 14:12  rsbivand
+
+	* g/ChangeLog, g/DESCRIPTION, g/INDEX, g/NAMESPACE, g/R/apleplot.R,
+	  g/inst/ChangeLog, g/man/aple.Rd, g/man/aple.plot.Rd: adding aple
+
+2008-10-11 12:19  rsbivand
+
+	* g/R/aple.R, g/R/aple.mc.R, g/data/wheat.txt,
+	  g/inst/etc/shapes/wheat.dbf, g/inst/etc/shapes/wheat.shp,
+	  g/inst/etc/shapes/wheat.shx, g/man/aple.Rd, g/man/aple.mc.Rd,
+	  g/man/wheat.Rd: adding aple
+
+2008-10-11 12:17  rsbivand
+
+	* g/ChangeLog, g/DESCRIPTION, g/INDEX, g/NAMESPACE,
+	  g/inst/ChangeLog: adding aple
+
 2008-10-03 06:20  rsbivand
 
 	* g/man/aggregate.nb.Rd: aggregate.nb, edit.nb
