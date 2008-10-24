@@ -54,7 +54,7 @@ export(as.spam.listw)
 
 export(mstree, nbcosts, nbcost, plot.mst, plot.skater, prunecost, ssw, prunemst, skater)
 
-export(aple, aple.mc, aple.plot)
+export(aple, aple.mc, aple.plot, localAple)
 
 import(maptools)
 
