@@ -1,3 +1,12 @@
+2008-10-24 11:16  rsbivand
+
+	* g/DESCRIPTION, g/NAMESPACE, g/R/apleplot.R, g/man/aple.plot.Rd:
+	  local aple
+
+2008-10-12 14:13  rsbivand
+
+	* g/ChangeLog, g/inst/ChangeLog: changelog
+
 2008-10-12 14:12  rsbivand
 
 	* g/ChangeLog, g/DESCRIPTION, g/INDEX, g/NAMESPACE, g/R/apleplot.R,
