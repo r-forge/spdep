@@ -109,6 +109,7 @@ exactMoran <- function(I, gamma, alternative="greater", type="Global", np2=NULL,
         zeroTreat=zeroTreat)
     else upper <- Inf
     II <- integrate(integrand, lower=0, upper=upper)$value
+# FIXME II > pi/2
     sd.ex <- qnorm(0.5-II/pi)
     if (alternative == "two.sided") p.v <- 2 * pnorm(sd.ex, 
 	lower.tail=FALSE)
