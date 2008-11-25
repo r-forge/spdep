@@ -110,7 +110,20 @@ exactMoran <- function(I, gamma, alternative="greater", type="Global", np2=NULL,
     else upper <- Inf
     II <- integrate(integrand, lower=0, upper=upper)$value
 # FIXME II > pi/2
-    sd.ex <- qnorm(0.5-II/pi)
+    if (II > pi/2 && type == "Local") {
+        tau <- gamma
+	df <- np2 + 2
+        if (length(tau) == 2) tau <- c(tau[1], rep(0, df-2), tau[2])
+        E.I <- sum(tau)/df
+        tau <- tau - E.I
+        V.I <- (2*sum(tau^2)) / (df*(df+2))
+        sd.ex <- (I - E.I) / sqrt(V.I)
+        warning("Normal approximation SD substituted", call.=FALSE)
+        oType <- "N"
+    } else {
+        sd.ex <- qnorm(0.5-II/pi)
+        oType <- "E"
+    }
     if (alternative == "two.sided") p.v <- 2 * pnorm(sd.ex, 
 	lower.tail=FALSE)
     else if (alternative == "greater")
@@ -127,7 +140,7 @@ exactMoran <- function(I, gamma, alternative="greater", type="Global", np2=NULL,
 
     res <- list(statistic = statistic, p.value = p.value,
         estimate = estimate, method = method,
-	alternative = alternative, gamma=gamma)
+	alternative = alternative, gamma=gamma, oType=oType)
     class(res) <- "moranex"
     return(res)
 }
