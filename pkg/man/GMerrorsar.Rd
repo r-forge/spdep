@@ -33,7 +33,7 @@ neighbours, if FALSE (default) assign NA - causing \code{GMerrorsar()} to termin
   \item{return_LL}{default TRUE, if FALSE, do not try to calculate the log likelihood of the function for the fitted model values --- see details}
   \item{method}{default \code{"Nelder-Mead"}, method passed to \code{optim}, or optionally \code{"nlminb"} to use an alternative optimizer}
   \item{control}{A list of control parameters. See details in \code{\link[stats]{optim}} or \code{\link[stats]{nlminb}}.}
-  \item{pars}{starting values for lambda and sigma squared for GMM optimisation, if missing (default), approximated from initial OLS model as the autocorrelation coefficient corrected for weights style and model sigma squared}
+  \item{pars}{starting values for \eqn{\lambda}{lambda} and \eqn{\sigma^2}{sigma squared} for GMM optimisation, if missing (default), approximated from initial OLS model as the autocorrelation coefficient corrected for weights style and model sigma squared}
   \item{verbose}{default=FALSE; if TRUE, reports function values during optimization.}
   \item{sparse_method}{default "Matrix", can also be "spam" to use spam package objects for finding the Jacobian}
 }
@@ -55,7 +55,7 @@ variable in making predictions for the fitting data.
   \item{s2}{GMM residual variance}
   \item{SSE}{sum of squared GMM errors}
   \item{parameters}{number of parameters estimated}
-  \item{lm.model}{the \code{lm} object returned when estimating for $\lambda=0$}
+  \item{lm.model}{the \code{lm} object returned when estimating for \eqn{\lambda=0}{lambda=0}}
   \item{call}{the call used to create this object}
   \item{residuals}{GMM residuals}
   \item{lm.target}{the \code{lm} object returned for the GMM fit}
