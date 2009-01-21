@@ -1,3 +1,12 @@
+2009-01-21 10:31  rsbivand
+
+	* ChangeLog, DESCRIPTION, R/gabrielneigh.R, R/relneigh.R,
+	  inst/ChangeLog, man/GMerrorsar.Rd, man/bhicv.Rd, man/eigenw.Rd,
+	  man/errorsarlm.Rd, man/graphneigh.Rd, man/lagsarlm.Rd,
+	  man/listw2sn.Rd, man/lm.LMtests.Rd, man/nblag.Rd,
+	  man/spautolm.Rd, src/gabriel.c, src/relative.c: gabriel/relative
+	  memory overruns; new parser help file changes
+
 2009-01-02 19:08  rsbivand
 
 	* ChangeLog, R/utils.R, man/lag.listw.Rd, src/lagw.c: fix NAs in
