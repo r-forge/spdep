@@ -76,7 +76,9 @@ geary.test <- function(x, listw, randomisation=TRUE, zero.policy=FALSE,
 	data.name <- paste(deparse(substitute(x)), "\nweights:",
 	    deparse(substitute(listw)), "\n")
 	res <- list(statistic=statistic, p.value=PrC, estimate=vec, 
-	    alternative=alternative, method=method, data.name=data.name)
+	    alternative=ifelse(alternative == "two.sided", alternative, 
+	    paste("Expectation", alternative, "than statistic")), 
+	    method=method, data.name=data.name)
 	class(res) <- "htest"
 	res
 }
