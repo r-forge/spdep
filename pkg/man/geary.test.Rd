@@ -1,4 +1,4 @@
-% Copyright 2001-8 by Roger S. Bivand
+% Copyright 2001-9 by Roger S. Bivand
 \name{geary.test}
 \alias{geary.test}
 \title{Geary's C test for spatial autocorrelation}
@@ -31,11 +31,11 @@ A list with class \code{htest} containing the following components:
  the standard deviate.}
   \item{data.name}{a character string giving the name(s) of the data.}
 }
-\references{Cliff, A. D., Ord, J. K. 1981 Spatial processes, Pion, p. 21.}
+\references{Cliff, A. D., Ord, J. K. 1981 Spatial processes, Pion, p. 21, Cliff, A. D., Ord, J. K. 1973 Spatial Autocorrelation, Pion, pp. 15-16, 21.}
 
 \author{Roger Bivand \email{Roger.Bivand@nhh.no}}
 
-\note{The derivation of the test (Cliff and Ord, 1981, p. 18) assumes that the weights matrix is symmetric. For inherently non-symmetric matrices, such as k-nearest neighbour matrices, \code{listw2U()} can be used to make the matrix symmetric. In non-symmetric weights matrix cases, the variance of the test statistic may be negative (thanks to Franz Munoz I for a well documented bug report). Geary's C is affected by non-symmetric weights under normality much more than Moran's I.
+\note{The derivation of the test (Cliff and Ord, 1981, p. 18) assumes that the weights matrix is symmetric. For inherently non-symmetric matrices, such as k-nearest neighbour matrices, \code{listw2U()} can be used to make the matrix symmetric. In non-symmetric weights matrix cases, the variance of the test statistic may be negative (thanks to Franz Munoz I for a well documented bug report). Geary's C is affected by non-symmetric weights under normality much more than Moran's I. From 0.4-35, the sign of the standard deviate of C is changed to match Cliff and Ord (1973, p. 21).
 }
 
 \seealso{\code{\link{geary}}, \code{\link{geary.mc}}, \code{\link{listw2U}}}

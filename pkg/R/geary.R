@@ -1,4 +1,4 @@
-# Copyright 2001-3 by Roger Bivand 
+# Copyright 2001-9 by Roger Bivand 
 #
 
 
@@ -54,7 +54,9 @@ geary.test <- function(x, listw, randomisation=TRUE, zero.policy=FALSE,
 	} else {
 		VC <- ((2*wc$S1 + wc$S2)*wc$n1 - 4*S02) / (2*(n + 1)*S02)
 	}
-	ZC <- (C - EC) / sqrt(VC)
+#	ZC <- (C - EC) / sqrt(VC)
+# order changed 090609 RSB (C&O 1973, p. 21)
+	ZC <- (EC - C) / sqrt(VC)
 	statistic <- ZC
 	names(statistic) <- "Geary C statistic standard deviate"
 	PrC <- NA
