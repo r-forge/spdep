@@ -25,7 +25,7 @@ geary.intern <- function(x, listw, n, zero.policy, type="geary") {
 }
 
 geary.test <- function(x, listw, randomisation=TRUE, zero.policy=FALSE,
-    alternative="less", spChk=NULL, adjust.n=TRUE) {
+    alternative="greater", spChk=NULL, adjust.n=TRUE) {
 	alternative <- match.arg(alternative, c("less", "greater", "two.sided"))
 	if(!inherits(listw, "listw")) stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
