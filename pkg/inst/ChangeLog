@@ -1,3 +1,39 @@
+2009-06-29 12:30  rsbivand
+
+	* ChangeLog, R/aple.R: aple similarity check override
+
+2009-06-29 12:26  rsbivand
+
+	* R/aple.R, R/aple.mc.R, R/apleplot.R, man/aple.Rd, man/aple.mc.Rd,
+	  man/aple.plot.Rd, man/moran.test.Rd: Geary reversal
+
+2009-06-09 16:36  rsbivand
+
+	* R/geary.R: Geary's C standard deviate
+
+2009-06-09 16:26  rsbivand
+
+	* R/geary.R, man/geary.test.Rd: Geary's C standard deviate
+
+2009-06-09 14:41  rsbivand
+
+	* DESCRIPTION, R/geary.R, man/geary.test.Rd: Geary's C standard
+	  deviate
+
+2009-04-27 19:28  rsbivand
+
+	* R/sarlm.R: predict sarlm details
+
+2009-02-27 12:10  rsbivand
+
+	* R/moran.exact.R, R/mtmoran.R: first zero eiegenvalue in
+	  lm.morantest.*
+
+2009-01-21 12:24  rsbivand
+
+	* ChangeLog, inst/ChangeLog: gabriel/relative memory overruns; new
+	  parser help file changes
+
 2009-01-21 10:31  rsbivand
 
 	* ChangeLog, DESCRIPTION, R/gabrielneigh.R, R/relneigh.R,
