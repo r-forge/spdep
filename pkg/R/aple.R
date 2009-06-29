@@ -1,7 +1,7 @@
 preAple <- function(x, listw, override_similarity_check=FALSE) {
     stopifnot(isTRUE(all.equal(mean(x), 0.0)))
     if (listw$style %in% c("W", "S") && !override_similarity_check) {
-        can.sim <- spdep:::can.be.simmed(listw)
+        can.sim <- can.be.simmed(listw)
         eig <- eigenw(similar.listw(listw))
     } else {
         can.sim <- FALSE
