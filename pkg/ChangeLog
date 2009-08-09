@@ -1,3 +1,12 @@
+2009-08-09 14:39  rsbivand
+
+	* DESCRIPTION, NAMESPACE, R/weights-utils.R, man/testnb.Rd: speedup
+	  for make.sym.nb when all observations have neighbours
+
+2009-06-29 12:32  rsbivand
+
+	* ChangeLog, inst/ChangeLog: aple similarity check override
+
 2009-06-29 12:30  rsbivand
 
 	* ChangeLog, R/aple.R: aple similarity check override
