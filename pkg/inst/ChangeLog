@@ -1,3 +1,27 @@
+2009-09-06 10:02  rsbivand
+
+	* ChangeLog, R/error.spsarlm.R, R/lag.spsarlm.R, R/spautolm.R,
+	  man/errorsarlm.Rd, man/lagsarlm.Rd, man/spautolm.Rd: fix bugs in
+	  residuals.spautolm for non-NULL na.act
+
+2009-08-17 13:26  rsbivand
+
+	* DESCRIPTION, inst/doc/00Index.dcf, inst/doc/CO69.Rnw,
+	  inst/doc/sids.Rnw, inst/etc/misc/geary_eire.txt,
+	  inst/etc/misc/raw_grass_borders.RData,
+	  inst/etc/misc/unstand_sn.txt, man/lm.morantest.sad.Rd,
+	  man/localmoran.sad.Rd: adding Cliff & Ord 1969 vignette
+
+2009-08-09 17:47  rsbivand
+
+	* inst/ChangeLog: speedup for make.sym.nb when all observations
+	  have neighbours
+
+2009-08-09 17:47  rsbivand
+
+	* ChangeLog: speedup for make.sym.nb when all observations have
+	  neighbours
+
 2009-08-09 14:39  rsbivand
 
 	* DESCRIPTION, NAMESPACE, R/weights-utils.R, man/testnb.Rd: speedup
