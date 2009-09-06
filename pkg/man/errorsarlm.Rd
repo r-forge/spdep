@@ -13,7 +13,7 @@ error models of the form:
 where \eqn{\lambda}{lambda} is found by \code{optimize()} first, and \eqn{\beta}{beta} and other parameters by generalized least squares subsequently (one-dimensional search using optim performs badly on some platforms).
 }
 \usage{
-errorsarlm(formula, data=list(), listw, na.action=na.fail,
+errorsarlm(formula, data=list(), listw, na.action,
  method="eigen", quiet=TRUE, zero.policy=FALSE,
  interval = c(-1, 0.999), tol.solve=1.0e-10,
  tol.opt=.Machine$double.eps^0.5%, cholAlloc=NULL
@@ -27,7 +27,7 @@ of model specification are given for \code{lm()}}
 By default the variables are taken from the environment which the function 
 is called.}
   \item{listw}{a \code{listw} object created for example by \code{nb2listw}}
-  \item{na.action}{a function (default \code{na.fail}), can also be \code{na.omit} or \code{na.exclude} with consequences for residuals and fitted values - in these cases the weights list will be subsetted to remove NAs in the data. It may be necessary to set zero.policy to TRUE because this subsetting may create no-neighbour observations. Note that only weights lists created without using the glist argument to \code{nb2listw} may be subsetted.}
+  \item{na.action}{a function (default \code{options("na.action")}), can also be \code{na.omit} or \code{na.exclude} with consequences for residuals and fitted values - in these cases the weights list will be subsetted to remove NAs in the data. It may be necessary to set zero.policy to TRUE because this subsetting may create no-neighbour observations. Note that only weights lists created without using the glist argument to \code{nb2listw} may be subsetted.}
   \item{method}{"eigen" (default) - the Jacobian is computed as the product 
 of (1 - rho*eigenvalue) using \code{eigenw}, and "spam" or "Matrix" for strictly symmetric weights lists of styles "B" and "C", or made symmetric by similarity (Ord, 1975, Appendix C) if possible for styles "W" and "S", using code from the spam package or Matrix package to calculate the determinant.
 }

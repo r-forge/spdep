@@ -2,7 +2,7 @@
 #
 
 lagsarlm <- function(formula, data = list(), listw, 
-	na.action=na.fail, type="lag", method="eigen", quiet=TRUE, 
+	na.action, type="lag", method="eigen", quiet=TRUE, 
 	zero.policy=FALSE, interval=c(-1,0.999), tol.solve=1.0e-10, 
 	tol.opt=.Machine$double.eps^0.5#, cholAlloc=NULL
 	) {

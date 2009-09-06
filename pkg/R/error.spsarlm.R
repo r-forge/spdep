@@ -1,7 +1,7 @@
 # Copyright 1998-2008 by Roger Bivand (non-W styles Rein Halbersma)
 #
 
-errorsarlm <- function(formula, data = list(), listw, na.action=na.fail, 
+errorsarlm <- function(formula, data = list(), listw, na.action, 
 	method="eigen", quiet=TRUE, zero.policy=FALSE, interval=c(-1,0.999), 
 	tol.solve=1.0e-10, tol.opt=.Machine$double.eps^0.5) {
 	mt <- terms(formula, data = data)

@@ -1,6 +1,6 @@
-# Copyright 2005-8 by Roger Bivand
+# Copyright 2005-9 by Roger Bivand
 spautolm <- function(formula, data = list(), listw, weights,
-    na.action=na.fail, verbose=FALSE, tol.opt=.Machine$double.eps^(2/3),
+    na.action, verbose=FALSE, tol.opt=.Machine$double.eps^(2/3),
     family="SAR", method="full", interval=c(-1,0.999), zero.policy=FALSE,
 #    cholAlloc=NULL, 
     super=NULL, Matrix_intern=TRUE, tol.solve=.Machine$double.eps,
@@ -425,13 +425,13 @@ print.spautolm <- function(x, ...) {
 residuals.spautolm <- function(object, ...) {
 	if (is.null(object$na.action))
 		object$fit$residuals
-	else napredict(object$na.action, object$residuals)
+	else napredict(object$na.action, object$fit$residuals)
 }
 
 fitted.spautolm <- function(object, ...) {
 	if (is.null(object$na.action))
 		object$fit$fitted.values
-	else napredict(object$na.action, object$fitted.values)
+	else napredict(object$na.action, object$fit$fitted.values)
 }
 
 deviance.spautolm <- function(object, ...) {
