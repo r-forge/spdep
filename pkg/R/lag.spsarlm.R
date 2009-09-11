@@ -1,4 +1,4 @@
-# Copyright 1998-2008 by Roger Bivand and Andrew Bernat
+# Copyright 1998-2009 by Roger Bivand and Andrew Bernat
 #
 
 lagsarlm <- function(formula, data = list(), listw, 
@@ -192,8 +192,8 @@ lagsarlm <- function(formula, data = list(), listw,
 		lm.target=lm.lag, fitted.values=fit,
 		se.fit=NULL, formula=formula, similar=similar,
 		ase=ase, LLs=LLs, rho.se=rho.se, LMtest=LMtest, 
-		resvar=varb, zero.policy=zero.policy, aliased=aliased),
-		class=c("sarlm"))
+		resvar=varb, zero.policy=zero.policy, aliased=aliased,
+                listw_style=listw$style), class=c("sarlm"))
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]

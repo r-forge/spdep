@@ -4,6 +4,10 @@ importFrom(stats, model.matrix, model.response, aggregate)
 
 importFrom(boot, boot)
 
+importFrom(MASS, mvrnorm)
+
+importFrom(coda, as.mcmc, HPDinterval)
+
 import(spam)
 import(Matrix)
 
@@ -55,6 +59,8 @@ export(as.spam.listw)
 export(mstree, nbcosts, nbcost, plot.mst, plot.skater, prunecost, ssw, prunemst, skater)
 
 export(aple, aple.mc, aple.plot, localAple)
+
+export(trW, impacts, impacts.default, impacts.sarlm, print.sarlmImpact, summary.sarlmImpact, print.summary.sarlmImpact, plot.sarlmImpact, HPDinterval.sarlmImpact)
 
 import(maptools)
 
@@ -143,4 +149,12 @@ S3method(print, summary.stsls)
 
 S3method(plot, mst)
 S3method(plot, skater)
+
+S3method(impacts, sarlm)
+S3method(impacts, default)
+S3method(print, sarlmImpact)
+S3method(plot, sarlmImpact)
+S3method(summary, sarlmImpact)
+S3method(HPDinterval, sarlmImpact)
+S3method(print, summary.sarlmImpact)
 
