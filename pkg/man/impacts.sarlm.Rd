@@ -76,6 +76,9 @@ impacts.sarlm(mobj, listw=listw)
 impacts.sarlm(mobj, tr=trMat)
 impacts.sarlm(mobj, tr=trMC)
 summary(impacts.sarlm(mobj, tr=trMat, R=1000), zstats=TRUE)
+mobj1 <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw, type="mixed", method="Matrix", fdHess=TRUE)
+summary(mobj1)
+summary(impacts.sarlm(mobj1, tr=trMat, R=1000), zstats=TRUE)
 }
 \keyword{spatial}
 

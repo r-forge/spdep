@@ -61,7 +61,6 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
         res <- lagImpacts(T, g, P)
         if (!is.null(R)) {
             mu <- c(s2, rho, beta)
-            require(MASS, quietly=TRUE)
             samples <- mvrnorm(n=R, mu=mu, Sigma=resvar, tol=tol,
                 empirical=empirical)
             check <- ((samples[,2] > interval[1]) & (samples[,2] < interval[2]))
@@ -79,7 +78,6 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
                 }
                 lagImpacts(T, g, P)
             }
-            require(coda, quietly=TRUE)
             sres <- apply(samples, 1, processSample)
             direct <- as.mcmc(t(sapply(sres, function(x) x$direct)))
             indirect <- as.mcmc(t(sapply(sres, function(x) x$indirect)))
@@ -97,7 +95,6 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
         else if (obj$type == "mixed") res <- mixedImpactsExact(SW, P, n, listw)
         if (!is.null(R)) {
             mu <- c(s2, rho, beta)
-            require(MASS, quietly=TRUE)
             samples <- mvrnorm(n=R, mu=mu, Sigma=resvar, tol=tol,
                 empirical=empirical)
             check <- ((samples[,2] > interval[1]) & (samples[,2] < interval[2]))
@@ -113,7 +110,6 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
                     return(mixedImpactsExact(SW, P, n, listw))
                 }
             }
-            require(coda, quietly=TRUE)
             sres <- apply(samples, 1, processSample)
             direct <- as.mcmc(t(sapply(sres, function(x) x$direct)))
             indirect <- as.mcmc(t(sapply(sres, function(x) x$indirect)))
