@@ -109,6 +109,8 @@ lagsarlm <- function(formula, data = list(), listw,
 #range inverted 031031, email from Salvati Nicola (and Rein Halbersma)
 		if (is.complex(eig)) eig.range <- 1/range(Re(eig))
 		else eig.range <- 1/range(eig)
+                interval <- c(eig.range[1]+.Machine$double.eps,
+                    eig.range[2]-.Machine$double.eps)
 		lm.null <- lm(y ~ x - 1)
 		lm.w <- lm.fit(x, wy)
 		e.null <- lm.null$residuals
@@ -193,7 +195,7 @@ lagsarlm <- function(formula, data = list(), listw,
 		se.fit=NULL, formula=formula, similar=similar,
 		ase=ase, LLs=LLs, rho.se=rho.se, LMtest=LMtest, 
 		resvar=varb, zero.policy=zero.policy, aliased=aliased,
-                listw_style=listw$style), class=c("sarlm"))
+                listw_style=listw$style, interval=interval), class=c("sarlm"))
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]

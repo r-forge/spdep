@@ -1,3 +1,5 @@
+# Copyright 2009 by Roger Bivand
+
 trW <- function(W, m=100, p=50, type="mult") {
 # returns traces
     n <- dim(W)[1]
@@ -21,14 +23,6 @@ trW <- function(W, m=100, p=50, type="mult") {
     tr
 }
 
-impacts <- function(obj, ...) {
-    UseMethod("impacts", obj, ...)
-}
-
-impacts.default  <- function(obj, ...) {
-    stop("impacts only for sarlm objects")
-}
-
 impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
   empirical=FALSE) {
     if (obj$type == "error")
@@ -40,6 +34,8 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
     s2 <- obj$s2
     if (!is.null(R)) {
         resvar <- obj$resvar
+        interval <- obj$interval
+        if (is.null(interval)) interval <- c(-1,0.999)
         if (is.logical(resvar))
             stop("coefficient covariance matrix not available")
     }
@@ -68,6 +64,8 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
             require(MASS, quietly=TRUE)
             samples <- mvrnorm(n=R, mu=mu, Sigma=resvar, tol=tol,
                 empirical=empirical)
+            check <- ((samples[,2] > interval[1]) & (samples[,2] < interval[2]))
+            if (any(!check)) samples <- samples[check,]
             processSample <- function(x) {
                 g <- x[2]^(0:q)
                 beta <- x[-(1:2)]
@@ -90,7 +88,7 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
             colnames(indirect) <- bnames
             colnames(total) <- bnames
             res <- list(res=res, sres=list(direct=direct,
-                indirect=indirect, total=total, n=n))
+                indirect=indirect, total=total))
         }
         attr(res, "method") <- "trace"
     } else {
@@ -102,6 +100,8 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
             require(MASS, quietly=TRUE)
             samples <- mvrnorm(n=R, mu=mu, Sigma=resvar, tol=tol,
                 empirical=empirical)
+            check <- ((samples[,2] > interval[1]) & (samples[,2] < interval[2]))
+            if (any(!check)) samples <- samples[check,]
             processSample <- function(x) {
                 beta <- x[-(1:2)]
                 if (obj$type == "lag") {
@@ -122,7 +122,7 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
             colnames(indirect) <- bnames
             colnames(total) <- bnames
             res <- list(res=res, sres=list(direct=direct,
-                indirect=indirect, total=total, n=n))
+                indirect=indirect, total=total))
         }
         attr(res, "method") <- "exact"
     }
@@ -236,7 +236,7 @@ print.summary.sarlmImpact <- function(x, ...) {
     invisible(x)
 }
 
-plot.sarlmImpact <- function(x, y, ..., choice="direct", trace=FALSE,
+plot.sarlmImpact <- function(x, ..., choice="direct", trace=FALSE,
     density=TRUE) {
     if (is.null(x$sres)) stop("plot method unavailable")
     plot(x$sres[[choice]], trace=trace, density=density, sub=choice)

@@ -60,7 +60,7 @@ export(mstree, nbcosts, nbcost, plot.mst, plot.skater, prunecost, ssw, prunemst,
 
 export(aple, aple.mc, aple.plot, localAple)
 
-export(trW, impacts, impacts.default, impacts.sarlm, print.sarlmImpact, summary.sarlmImpact, print.summary.sarlmImpact, plot.sarlmImpact, HPDinterval.sarlmImpact)
+export(trW, impacts.sarlm, print.sarlmImpact, summary.sarlmImpact, print.summary.sarlmImpact, plot.sarlmImpact, HPDinterval.sarlmImpact)
 
 import(maptools)
 
@@ -150,8 +150,6 @@ S3method(print, summary.stsls)
 S3method(plot, mst)
 S3method(plot, skater)
 
-S3method(impacts, sarlm)
-S3method(impacts, default)
 S3method(print, sarlmImpact)
 S3method(plot, sarlmImpact)
 S3method(summary, sarlmImpact)
