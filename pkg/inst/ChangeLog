@@ -1,3 +1,18 @@
+2009-09-12 11:52  rsbivand
+
+	* NAMESPACE, R/impacts.R, R/lag.spsarlm.R, man/impacts.sarlm.Rd,
+	  man/trW.Rd: impacts for lag and mixed spatial regressions
+
+2009-09-11 19:45  rsbivand
+
+	* DESCRIPTION, NAMESPACE, R/impacts.R, R/lag.spsarlm.R: impacts for
+	  lag and mixed spatial regressions
+
+2009-09-06 10:04  rsbivand
+
+	* ChangeLog, inst/ChangeLog: fix bugs in residuals.spautolm for
+	  non-NULL na.act
+
 2009-09-06 10:02  rsbivand
 
 	* ChangeLog, R/error.spsarlm.R, R/lag.spsarlm.R, R/spautolm.R,
