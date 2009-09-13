@@ -79,12 +79,13 @@ impacts.sarlm(mobj, tr=trMat)
 impacts.sarlm(mobj, tr=trMC)
 summary(impacts.sarlm(mobj, tr=trMat, R=1000), zstats=TRUE)
 mobj1 <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw, type="mixed", method="Matrix", fdHess=TRUE)
-mobj2 <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw, type="mixed", method="Matrix", fdHess=TRUE, optimHess=TRUE)
 summary(mobj1)
 summary(impacts.sarlm(mobj1, tr=trMat, R=1000), zstats=TRUE, short=TRUE)
 summary(impacts.sarlm(mobj, tr=trMat, R=1000), zstats=TRUE, short=TRUE)
-summary(mobj2)
+mobj2 <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw, type="mixed", method="Matrix", fdHess=TRUE, optimHess=TRUE)
 summary(impacts.sarlm(mobj2, tr=trMat, R=1000), zstats=TRUE, short=TRUE)
+mobj3 <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw, type="mixed", method="spam", fdHess=TRUE)
+summary(impacts.sarlm(mobj3, tr=trMat, R=1000), zstats=TRUE, short=TRUE)
 }
 \keyword{spatial}
 

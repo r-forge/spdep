@@ -172,6 +172,20 @@ lagsarlm <- function(formula, data = list(), listw,
 		    LMtest <- NULL
 		    varb <- FALSE
 		    ase <- FALSE
+                } else if (fdHess && method == "spam") {
+                    coefs <- c(rho, coef.rho)
+        	    if (listw$style %in% c("W", "S") & can.sim) {
+	    		W <- listw2U_spam(similar.listw_spam(listw))
+	    		similar <- TRUE
+		    } else W <- as.spam.listw(listw)
+        	    I <- diag.spam(1, n, n)
+                    fdHess <- getVmat_spam(coefs, y, x, wy, n, W, I,
+                        tol.solve=1.0e-10, optim=FALSE)
+ 		    rest.se <- sqrt(diag(fdHess))[-1]
+		    rho.se <- sqrt(fdHess[1,1])
+		    LMtest <- NULL
+		    varb <- FALSE
+		    ase <- FALSE
                } else {
 		    rest.se <- NULL
 		    rho.se <- NULL
@@ -273,23 +287,25 @@ sar.lag.mix.f.M <- function(rho, W, I, e.a, e.b, e.c, n, nW, nChol,
 		pChol, quiet) {
 	SSE <- e.a - 2*rho*e.b + rho*rho*e.c
 	s2 <- SSE/n
+        .f <- if (package_version(packageDescription("Matrix")$Version) >
+           "0.999375-30") 2 else 1
         if (isTRUE(all.equal(rho, 0))) {
             Jacobian <- rho
         } else if (rho > 0) {
-	    detTRY <- try(Matrix:::ldetL2up(nChol, nW, 1/rho),
+	    detTRY <- try(determinant(update(nChol, nW, 1/rho))$modulus,
                 silent=TRUE)
             if (class(detTRY) == "try-error") {
                 Jacobian <- NaN
             } else {
-                Jacobian <- n * log(rho) + detTRY
+                Jacobian <- n * log(rho) + (.f * detTRY)
             }
 	} else {
-            detTRY <- try(Matrix:::ldetL2up(pChol, W, 1/(-rho)),
+            detTRY <- try(determinant(update(pChol, W, 1/(-rho)))$modulus,
                 silent=TRUE)
             if (class(detTRY) == "try-error") {
                Jacobian <- NaN
             } else {
-               Jacobian <- n * log(-(rho)) + detTRY
+               Jacobian <- n * log(-(rho)) + (.f * detTRY)
             }
 	}	
 #	Jacobian <- determinant(I - rho * W, logarithm=TRUE)$modulus

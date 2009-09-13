@@ -315,6 +315,8 @@ spautolm <- function(formula, data = list(), listw, weights,
     SSE <- .SPAR.fit(lambda=lambda, Y=Y, X=X, n=n, W=W, weights=weights,
         I=I, family=family, out=FALSE, tol.solve=tol.solve)
     s2 <- SSE/n
+    .f <- if (package_version(packageDescription("Matrix")$Version) >
+           "0.999375-30") 2 else 1
     if (isTRUE(all.equal(lambda, 0))) {
         Jacobian <- lambda
     } else {
@@ -331,7 +333,7 @@ spautolm <- function(formula, data = list(), listw, weights,
                 if (class(detTRY) == "try-error") {
                     Jacobian <- NaN
                 } else {
-                    Jacobian <- n * log(lambda) + detTRY
+                    Jacobian <- n * log(lambda) + (.f * detTRY)
                 }
             } else {
                 if (Matrix_intern) 
@@ -343,7 +345,7 @@ spautolm <- function(formula, data = list(), listw, weights,
                 if (class(detTRY) == "try-error") {
                     Jacobian <- NaN
                 } else {
-                    Jacobian <- n * log(-(lambda)) + detTRY
+                    Jacobian <- n * log(-(lambda)) + (.f * detTRY)
                 }
             }
         }

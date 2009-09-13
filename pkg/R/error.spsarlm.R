@@ -219,7 +219,9 @@ sar.error.f.M <- function(lambda, csrw, I, y, wy, x, WX, n, quiet) {
 	xl.q.yl <- t(xl.q) %*% yl
 	SSE <- t(yl) %*% yl - t(xl.q.yl) %*% xl.q.yl
 	s2 <- SSE/n
-	Jacobian <- determinant(I - lambda * csrw, logarithm=TRUE)$modulus
+        .f <- if (package_version(packageDescription("Matrix")$Version) >
+           "0.999375-30") 2 else 1
+	Jacobian <- .f * determinant(I - lambda * csrw, logarithm=TRUE)$modulus
 	ret <- (Jacobian -
 		((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
 	if (!quiet) cat("lambda:", lambda, " function:", ret, " Jacobian:", Jacobian, " SSE:", SSE, "\n")
