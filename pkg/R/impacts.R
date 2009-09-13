@@ -23,8 +23,8 @@ trW <- function(W, m=100, p=50, type="mult") {
     tr
 }
 
-impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
-  empirical=FALSE) {
+impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, useHESS=NULL,
+  tol=1e-6, empirical=FALSE) {
     if (obj$type == "error")
         stop("impact measures only for lag and spatial Durbin models")
     if (!is.null(obj$listw_style) && obj$listw_style != "W") 
@@ -32,12 +32,30 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
     rho <- obj$rho
     beta <- obj$coefficients
     s2 <- obj$s2
+    usingHESS <- NULL
     if (!is.null(R)) {
         resvar <- obj$resvar
+        usingHESS <- FALSE
+        irho <- 2
+        drop2beta <- 1:2
+        if (is.logical(resvar)) {
+            fdHess <- obj$fdHess
+            if (is.logical(fdHess)) 
+                stop("coefficient covariance matrix not available")
+            irho <- 1
+            drop2beta <- 1
+            usingHESS <- TRUE
+        }
+        if (!is.null(useHESS) && useHESS) {
+            fdHess <- obj$fdHess
+            if (is.logical(fdHess)) 
+                stop("Hessian matrix not available")
+            irho <- 1
+            drop2beta <- 1
+            usingHESS <- TRUE
+        }
         interval <- obj$interval
         if (is.null(interval)) interval <- c(-1,0.999)
-        if (is.logical(resvar))
-            stop("coefficient covariance matrix not available")
     }
     icept <- grep("(Intercept)", names(beta))
     if (obj$type == "lag") {
@@ -60,14 +78,21 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
         }
         res <- lagImpacts(T, g, P)
         if (!is.null(R)) {
-            mu <- c(s2, rho, beta)
-            samples <- mvrnorm(n=R, mu=mu, Sigma=resvar, tol=tol,
-                empirical=empirical)
-            check <- ((samples[,2] > interval[1]) & (samples[,2] < interval[2]))
+            if (usingHESS) {
+                mu <- c(rho, beta)
+                samples <- mvrnorm(n=R, mu=mu, Sigma=fdHess, tol=tol,
+                    empirical=empirical)
+            } else {
+                mu <- c(s2, rho, beta)
+                samples <- mvrnorm(n=R, mu=mu, Sigma=resvar, tol=tol,
+                    empirical=empirical)
+            }
+            check <- ((samples[,irho] > interval[1]) & 
+                (samples[,irho] < interval[2]))
             if (any(!check)) samples <- samples[check,]
-            processSample <- function(x) {
-                g <- x[2]^(0:q)
-                beta <- x[-(1:2)]
+            processSample <- function(x, irho, drop2beta) {
+                g <- x[irho]^(0:q)
+                beta <- x[-drop2beta]
                 if (obj$type == "lag") {
                     P <- matrix(beta[-icept], ncol=1)
                 } else if (obj$type == "mixed") {
@@ -78,7 +103,8 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
                 }
                 lagImpacts(T, g, P)
             }
-            sres <- apply(samples, 1, processSample)
+            sres <- apply(samples, 1, processSample, irho=irho,
+                drop2beta=drop2beta)
             direct <- as.mcmc(t(sapply(sres, function(x) x$direct)))
             indirect <- as.mcmc(t(sapply(sres, function(x) x$indirect)))
             total <- as.mcmc(t(sapply(sres, function(x) x$total)))
@@ -94,13 +120,20 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
         if (obj$type == "lag") res <- lagImpactsExact(SW, P, n)
         else if (obj$type == "mixed") res <- mixedImpactsExact(SW, P, n, listw)
         if (!is.null(R)) {
-            mu <- c(s2, rho, beta)
-            samples <- mvrnorm(n=R, mu=mu, Sigma=resvar, tol=tol,
-                empirical=empirical)
-            check <- ((samples[,2] > interval[1]) & (samples[,2] < interval[2]))
+            if (usingHESS) {
+                mu <- c(rho, beta)
+                samples <- mvrnorm(n=R, mu=mu, Sigma=fdHess, tol=tol,
+                    empirical=empirical)
+            } else {
+                mu <- c(s2, rho, beta)
+                samples <- mvrnorm(n=R, mu=mu, Sigma=resvar, tol=tol,
+                    empirical=empirical)
+            }
+            check <- ((samples[,irho] > interval[1]) & 
+                (samples[,irho] < interval[2]))
             if (any(!check)) samples <- samples[check,]
-            processSample <- function(x) {
-                beta <- x[-(1:2)]
+            processXSample <- function(x, drop2beta) {
+                beta <- x[-drop2beta]
                 if (obj$type == "lag") {
                     P <- matrix(beta[-icept], ncol=1)
                     return(lagImpactsExact(SW, P, n))
@@ -110,7 +143,7 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
                     return(mixedImpactsExact(SW, P, n, listw))
                 }
             }
-            sres <- apply(samples, 1, processSample)
+            sres <- apply(samples, 1, processXSample, drop2beta=drop2beta)
             direct <- as.mcmc(t(sapply(sres, function(x) x$direct)))
             indirect <- as.mcmc(t(sapply(sres, function(x) x$indirect)))
             total <- as.mcmc(t(sapply(sres, function(x) x$total)))
@@ -122,6 +155,7 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, tol=1e-6,
         }
         attr(res, "method") <- "exact"
     }
+    attr(res, "useHESS") <- usingHESS
     attr(res, "type") <- obj$type
     attr(res, "bnames") <- bnames
     class(res) <- "sarlmImpact"
@@ -183,7 +217,7 @@ print.sarlmImpact <- function(x, ...) {
     invisible(x)
 }
 
-summary.sarlmImpact <- function(object, ..., zstats=FALSE) {
+summary.sarlmImpact <- function(object, ..., zstats=FALSE, short=FALSE) {
     if (is.null(object$sres)) stop("summary method unavailable")
     direct_sum <- summary(object$sres$direct)
     indirect_sum <- summary(object$sres$indirect)
@@ -197,9 +231,11 @@ summary.sarlmImpact <- function(object, ..., zstats=FALSE) {
         pzmat <- 2*(1-pnorm(abs(zmat)))
         res <- c(res, list(zmat=zmat, pzmat=pzmat))
     }
+    attr(res, "useHESS") <- attr(object, "useHESS")
     attr(res, "bnames") <- attr(object, "bnames")
     attr(res, "method") <- attr(object, "method")
     attr(res, "type") <- attr(object, "type")
+    attr(res, "short") <- short
     class(res) <- "summary.sarlmImpact"
     res
 }
@@ -210,16 +246,20 @@ print.summary.sarlmImpact <- function(x, ...) {
         "):\n", sep="")
     print(mat)
     cat("========================================================\n")
-    cat("Simulation results:\nDirect:\n")
-    print(x$direct_sum)
-    cat("========================================================\n")
-    cat("Indirect:\n")
-    print(x$indirect_sum)
-    cat("========================================================\n")
-    cat("Total:\n")
-    print(x$total_sum)
+    tp <- ifelse(attr(x, "useHESS"), "Hessian approximation", "asymptotic")
+    cat("Simulation results (", tp, " variance matrix):\n", sep="")
+    if (!attr(x, "short")) {
+        cat("Direct:\n")
+        print(x$direct_sum)
+        cat("========================================================\n")
+        cat("Indirect:\n")
+        print(x$indirect_sum)
+        cat("========================================================\n")
+        cat("Total:\n")
+        print(x$total_sum)
+    }
     if (!is.null(x$zmat)) {
-    cat("========================================================\n")
+        cat("========================================================\n")
         cat("Simulated z-values:\n")
         mat <- x$zmat
         rownames(mat) <- attr(x, "bnames")

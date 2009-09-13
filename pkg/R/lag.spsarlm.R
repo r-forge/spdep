@@ -4,7 +4,7 @@
 lagsarlm <- function(formula, data = list(), listw, 
 	na.action, type="lag", method="eigen", quiet=TRUE, 
 	zero.policy=FALSE, interval=c(-1,0.999), tol.solve=1.0e-10, 
-	tol.opt=.Machine$double.eps^0.5, fdHess=FALSE) {
+	tol.opt=.Machine$double.eps^0.5, fdHess=FALSE, optimHess=FALSE) {
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, na.action=na.action, 
 		method="model.frame")
@@ -149,7 +149,7 @@ lagsarlm <- function(formula, data = list(), listw,
 		LLs <- opt$LLs
 		lm.null <- opt$lm.null
                 if (fdHess && method == "Matrix") {
-                    coefs <- c(s2, rho, coef.rho)
+                    coefs <- c(rho, coef.rho)
         	    if (listw$style %in% c("W", "S") & can.sim) {
 	    		W <- listw2U_Matrix(similar.listw_Matrix(listw))
 	    		similar <- TRUE
@@ -165,12 +165,12 @@ lagsarlm <- function(formula, data = list(), listw,
 		    pChol <- Cholesky(W, super=FALSE, Imult = Imult)
 		    nChol <- Cholesky(nW, super=FALSE, Imult = Imult)
 
-                    fdHess <- getVmat_Matrix(coefs, n, W, I, nW, nChol,
-                        pChol, tol.solve=tol.solve)
-		    varb <- fdHess
- 		    rest.se <- sqrt(diag(varb))[-c(1:2)]
-		    rho.se <- sqrt(varb[2,2])
+                    fdHess <- getVmat_Matrix(coefs, y, x, wy, n, W, I, nW,
+                        nChol, pChol, tol.solve=tol.solve, optim=optimHess)
+ 		    rest.se <- sqrt(diag(fdHess))[-1]
+		    rho.se <- sqrt(fdHess[1,1])
 		    LMtest <- NULL
+		    varb <- FALSE
 		    ase <- FALSE
                } else {
 		    rest.se <- NULL
@@ -181,8 +181,9 @@ lagsarlm <- function(formula, data = list(), listw,
                }
 	} else {
                 if (fdHess) {
-                    coefs <- c(s2, rho, coef.rho)
-                    fdHess <- getVmat_eig(coefs, n, eig, tol.solve=tol.solve)
+                    coefs <- c(rho, coef.rho)
+                    fdHess <- getVmat_eig(coefs, y, x, wy, n, eig,
+                       tol.solve=tol.solve, optim=optimHess)
                 }
 		LLs <- NULL
 		tr <- function(A) sum(diag(A))
@@ -224,8 +225,8 @@ lagsarlm <- function(formula, data = list(), listw,
 		se.fit=NULL, formula=formula, similar=similar,
 		ase=ase, LLs=LLs, rho.se=rho.se, LMtest=LMtest, 
 		resvar=varb, zero.policy=zero.policy, aliased=aliased,
-                listw_style=listw$style, interval=interval), 
-                fdHess=fdHess, class=c("sarlm"))
+                listw_style=listw$style, interval=interval, fdHess=fdHess), 
+                class=c("sarlm"))
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]

@@ -14,7 +14,7 @@ where \eqn{\rho}{rho} is found by \code{optimize()} first, and \eqn{\beta}{beta}
 lagsarlm(formula, data=list(), listw, na.action,
   type="lag", method="eigen", quiet=TRUE,
   zero.policy=FALSE, interval = c(-1, 0.999), tol.solve=1.0e-10, 
-  tol.opt=.Machine$double.eps^0.5, fdHess = FALSE)
+  tol.opt=.Machine$double.eps^0.5, fdHess = FALSE, optimHess=FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -36,6 +36,7 @@ neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminat
   \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=1.0e-10). This may be used if necessary to extract coefficient standard errors (for instance lowering to 1e-12), but errors in \code{solve()} may constitute indications of poorly scaled variables: if the variables have scales differing much from the autoregressive coefficient, the values in this matrix may be very different in scale, and inverting such a matrix is analytically possible by definition, but numerically unstable; rescaling the RHS variables alleviates this better than setting tol.solve to a very small value}
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()} (default=square root of double precision machine tolerance)}
   \item{fdHess}{Use \code{fdHess} to compute an approximate Hessian using finite differences; may be used to make a coefficient covariance matrix when the number of observations is large}
+  \item{optimHess}{default FALSE, use \code{fdHess} from \pkg{nlme}, if TRUE, use \code{optim} to calculate Hessian at optimum}
 %  \item{cholAlloc}{control arguments for memory allocation in \code{chol}
 % for sparse matrices in method="SparseM": if NULL, default values are
 % used (larger than SparseM defaults), otherwise a list with elements:

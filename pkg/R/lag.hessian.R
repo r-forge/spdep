@@ -1,8 +1,9 @@
-f_laglm_eig <- function(coefs, n, eig) {
-    rho <- coefs[2]
-    s2 <- coefs[1]
-    beta <- coefs[-(1:2)]
-    SSE <- s2*n
+f_laglm_eig <- function(coefs, y, X, yW, n, eig) {
+    rho <- coefs[1]
+    beta <- coefs[-1]
+    res <- (y - rho * yW) - X %*% beta
+    SSE <- sum(res^2)
+    s2 <- SSE/n
     if (is.complex(eig)) 
         det <- sum(log(1 - rho * Re(eig)))
     else det <- sum(log(1 - rho * eig))
@@ -11,16 +12,25 @@ f_laglm_eig <- function(coefs, n, eig) {
    ret
 }
 
-getVmat_eig <- function(coefs, n, eig, tol.solve=1.0e-10) {
-    fd <- fdHess(coefs, f_laglm_eig, n, eig)
-    solve(-(fd$Hessian), tol.solve=tol.solve)
+getVmat_eig <- function(coefs, y, X, yW, n, eig, tol.solve=1.0e-10,
+    optim=FALSE) {
+    if (optim) {
+        opt <- optim(par=coefs, fn=f_laglm_eig, y=y, X=X, yW=yW, n=n, eig=eig,
+            method="BFGS", hessian=TRUE)
+        res <- solve(-(opt$hessian), tol.solve=tol.solve)
+    } else {
+        fd <- fdHess(coefs, f_laglm_eig, y, X, yW, n, eig)
+        res <- solve(-(fd$Hessian), tol.solve=tol.solve)
+    }
+    res
 }
 
-f_laglm_Matrix <- function(coefs, n, W, I, nW, nChol, pChol) {
-    rho <- coefs[2]
-    beta <- coefs[-(1:2)]
-    s2 <- coefs[1]
-    SSE <- s2*n
+f_laglm_Matrix <- function(coefs, y, X, yW, n, W, I, nW, nChol, pChol) {
+    rho <- coefs[1]
+    beta <- coefs[-1]
+    res <- (y - rho * yW) - X %*% beta
+    SSE <- sum(res^2)
+    s2 <- SSE/n
     a <- -.Machine$double.eps^(1/2)
     b <- .Machine$double.eps^(1/2)
     Jacobian <- ifelse(rho > b, n * log(rho) +
@@ -32,8 +42,18 @@ f_laglm_Matrix <- function(coefs, n, W, I, nW, nChol, pChol) {
    ret
 }
 
-getVmat_Matrix <- function(coefs, n, W, I, nW, nChol, pChol, tol.solve=1.0e-10) {
-    fd <- fdHess(coefs, f_laglm_Matrix, n, W, I, nW, nChol, pChol)
-    solve(-(fd$Hessian), tol.solve=tol.solve)
+getVmat_Matrix <- function(coefs, y, X, yW, n, W, I, nW, nChol, pChol,
+    tol.solve=1.0e-10, optim=FALSE) {
+    if (optim) {
+        opt <- optim(par=coefs, fn=f_laglm_Matrix, y=y, X=X, yW=yW, n=n,
+            W=W, I=I, nW=nW, nChol=nChol, pChol=pChol, method="BFGS",
+            hessian=TRUE)
+        res <- solve(-(opt$hessian), tol.solve=tol.solve)
+    } else {
+        fd <- fdHess(coefs, f_laglm_Matrix, y, X, yW, n, W, I, nW, nChol,
+            pChol)
+        res <- solve(-(fd$Hessian), tol.solve=tol.solve)
+    }
+    res
 }
 

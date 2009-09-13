@@ -9,10 +9,10 @@
 \title{Impacts in spatial lag models}
 \description{The calculation of impacts for spatial lag and spatial Durbin models is needed in order to interpret the regression coefficients correctly, because of the spillovers between the terms in these data generation processes (unlike the spatial error model).}
 \usage{
-impacts.sarlm(obj, \dots, tr, R = NULL, listw = NULL, tol = 1e-06, empirical = FALSE)
+impacts.sarlm(obj, \dots, tr, R = NULL, listw = NULL, useHESS = NULL, tol = 1e-06, empirical = FALSE)
 \method{plot}{sarlmImpact}(x, ..., choice="direct", trace=FALSE, density=TRUE)
 \method{print}{sarlmImpact}(x, ...)
-\method{summary}{sarlmImpact}(object, ..., zstats=FALSE)
+\method{summary}{sarlmImpact}(object, ..., zstats=FALSE, short=FALSE)
 \method{HPDinterval}{sarlmImpact}(obj, prob = 0.95, ..., choice="direct")
 }
 \arguments{
@@ -21,10 +21,12 @@ impacts.sarlm(obj, \dots, tr, R = NULL, listw = NULL, tol = 1e-06, empirical = F
   \item{tr}{A vector of traces of powers of the spatial weights matrix created using \code{trW}, for approximate impact measures; if not given, \code{listw} must be given for exact measures (for small to moderate spatial weights matrices); the traces must be for the same spatial weights as were used in fitting the spatial regression}
   \item{R}{If given, simulations are used to compute distributions for the impact measures, returned as \code{mcmc} objects}
   \item{listw}{If \code{tr} is not given, a spatial weights object as created by \code{nb2listw}; they must be the same spatial weights as were used in fitting the spatial regression}
+  \item{useHESS}{Use the Hessian approximation (if available) even if the asymptotic coefficient covariance matrix is available; used for comparing methods}
   \item{tol}{Argument passed to \code{mvrnorm}: tolerance (relative to largest variance) for numerical lack of positive-definiteness in the coefficient covariance matrix}
   \item{empirical}{Argument passed to \code{mvrnorm} (default FALSE): if true, the coefficients and their covariance matrix specify the empirical not population mean and covariance matrix}
   \item{x, object}{sarlmImpact objects created by \code{impacts.sarlm}}
-  \item{zstats}{If TRUE, also return z-values and p-values for the impacts based on the simulations}
+  \item{zstats}{default FALSE, if TRUE, also return z-values and p-values for the impacts based on the simulations}
+  \item{short}{default FALSE, if TRUE passed to the print summary method to omit printing of the mcmc summaries}
   \item{choice}{One of three impacts: direct, indirect, or total}
   \item{trace}{Argument passed to \code{plot.mcmc}: plot trace plots}
   \item{density}{Argument passed to \code{plot.mcmc}: plot density plots}
@@ -77,8 +79,12 @@ impacts.sarlm(mobj, tr=trMat)
 impacts.sarlm(mobj, tr=trMC)
 summary(impacts.sarlm(mobj, tr=trMat, R=1000), zstats=TRUE)
 mobj1 <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw, type="mixed", method="Matrix", fdHess=TRUE)
+mobj2 <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw, type="mixed", method="Matrix", fdHess=TRUE, optimHess=TRUE)
 summary(mobj1)
-summary(impacts.sarlm(mobj1, tr=trMat, R=1000), zstats=TRUE)
+summary(impacts.sarlm(mobj1, tr=trMat, R=1000), zstats=TRUE, short=TRUE)
+summary(impacts.sarlm(mobj, tr=trMat, R=1000), zstats=TRUE, short=TRUE)
+summary(mobj2)
+summary(impacts.sarlm(mobj2, tr=trMat, R=1000), zstats=TRUE, short=TRUE)
 }
 \keyword{spatial}
 
