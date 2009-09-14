@@ -1,3 +1,33 @@
+2009-09-14 08:24  rsbivand
+
+	* DESCRIPTION, R/lag.spsarlm.R, R/summary.spsarlm.R,
+	  man/impacts.sarlm.Rd, man/lagsarlm.Rd: impacts for lag and mixed
+	  spatial regressions
+
+2009-09-13 19:42  rsbivand
+
+	* R/error.spsarlm.R, R/kpgm_new.R, R/lag.hessian.R,
+	  R/lag.spsarlm.R, R/spautolm.R, man/as_dgRMatrix_listw.Rd,
+	  man/impacts.sarlm.Rd: impacts for lag and mixed spatial
+	  regressions
+
+2009-09-13 17:42  rsbivand
+
+	* R/impacts.R, R/lag.hessian.R, R/lag.spsarlm.R,
+	  man/impacts.sarlm.Rd, man/lagsarlm.Rd: impacts for lag and mixed
+	  spatial regressions
+
+2009-09-12 21:15  rsbivand
+
+	* DESCRIPTION, R/impacts.R, R/lag.hessian.R, R/lag.spsarlm.R,
+	  man/impacts.sarlm.Rd, man/lagsarlm.Rd: impacts for lag and mixed
+	  spatial regressions
+
+2009-09-12 11:54  rsbivand
+
+	* ChangeLog, inst/ChangeLog: impacts for lag and mixed spatial
+	  regressions
+
 2009-09-12 11:52  rsbivand
 
 	* NAMESPACE, R/impacts.R, R/lag.spsarlm.R, man/impacts.sarlm.Rd,
