@@ -5,7 +5,7 @@ lagsarlm <- function(formula, data = list(), listw,
 	na.action, type="lag", method="eigen", quiet=TRUE, 
 	zero.policy=FALSE, interval=c(-1,0.999), tol.solve=1.0e-10, 
 	tol.opt=.Machine$double.eps^0.5, withLL=FALSE, fdHess=TRUE,
-        optimHess=FALSE) {
+        optimHess=FALSE, searchInterval=FALSE) {
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, na.action=na.action, 
 		method="model.frame")
@@ -131,12 +131,13 @@ lagsarlm <- function(formula, data = list(), listw,
 		opt <- dosparse(listw=listw, y=y, x=x, wy=wy, K=K, quiet=quiet,
 			tol.opt=tol.opt, method=method, interval=interval, 
 			can.sim=can.sim, zero.policy=zero.policy,
-                        withLL=withLL)
+                        withLL=withLL, searchInterval=searchInterval)
 		rho <- c(opt$maximum)
 		names(rho) <- "rho"
 		LL <- c(opt$objective)
 		similar <- opt$similar
 		optres <- opt$opt
+                interval <- opt$interval
 	}
 	lm.lag <- lm((y - rho*wy) ~ x - 1)
 	r <- residuals(lm.lag)
@@ -318,7 +319,7 @@ sar.lag.mix.f.M <- function(rho, W, I, e.a, e.b, e.c, n, nW, nChol,
 }
 
 dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, method, interval, 
-	can.sim, zero.policy=FALSE, withLL=FALSE) {
+	can.sim, zero.policy=FALSE, withLL=FALSE, searchInterval=FALSE) {
 	similar <- FALSE
 	m <- ncol(x)
 	n <- nrow(x)
@@ -339,48 +340,50 @@ dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, method, interval,
 		if (listw$style == "B") {
                     Imult <- ceiling((2/3)*max(apply(W, 1, sum)))
 		    interval <- c(-0.5, +0.25)
-		} else interval <- c(-2, +1)
+		} else interval <- c(-1.2, +1)
                 nW <- - W
 		pChol <- Cholesky(W, super=FALSE, Imult = Imult)
 		nChol <- Cholesky(nW, super=FALSE, Imult = Imult)
-		ns1 <- last <- 10
-		prho1 <- seq(sqrt(.Machine$double.eps), interval[2],
+                if (searchInterval) {
+		  ns1 <- last <- 10
+		  prho1 <- seq(sqrt(.Machine$double.eps), interval[2],
                     length.out=ns1)
 		
-		while (last >= ns1) {
+		  while (last >= ns1) {
                    pdet1 <- Matrix:::ldetL2up(nChol, nW, 1/prho1)
 		   wp1 <- which(is.finite(pdet1))
 		   last <- wp1[length(wp1)]
 		   if (last == ns1) prho1 <- seq(interval[2], 
 		       1.5*interval[2], length.out=ns1)
-		}
-                lwp1n <- prho1[last]
-                lwp2n <- prho1[last+1]
-		prho2 <- seq(lwp2n, lwp1n, length.out=ns1)
-                pdet2 <- Matrix:::ldetL2up(nChol, nW, 1/prho2)
-		wp2 <- which(is.finite(pdet2))
-                lwp2n <- prho2[wp2[length(wp2)]]
+		  }
+                  lwp1n <- prho1[last]
+                  lwp2n <- prho1[last+1]
+		  prho2 <- seq(lwp2n, lwp1n, length.out=ns1)
+                  pdet2 <- Matrix:::ldetL2up(nChol, nW, 1/prho2)
+		  wp2 <- which(is.finite(pdet2))
+                  lwp2n <- prho2[wp2[length(wp2)]]
 		
-		nrho1 <- seq(interval[1], -sqrt(.Machine$double.eps),
+		  nrho1 <- seq(interval[1], -sqrt(.Machine$double.eps),
                     length.out=ns1)
 		
-		first <- 1
-		while (first == 1) {
+		  first <- 1
+		  while (first == 1) {
                    ndet1 <- Matrix:::ldetL2up(pChol, W, 1/(-nrho1))
 		   wn1 <- which(is.finite(ndet1))
 		   first <- wn1[1]
 		   if (first == 1) prho1 <- seq(1.5*interval[1], 
 			interval[1], length.out=ns1)
-		}
+		  }
 
-                lwn1n <- nrho1[wn1[1]]
-                lwn2n <- nrho1[wn1[1]-1]
-		nrho2 <- seq(lwn2n, lwn1n, length.out=ns1)
-                ndet2 <- Matrix:::ldetL2up(pChol, W, 1/(-nrho2))
-		wn2 <- which(is.finite(ndet2))
-                lwn2n <- nrho2[wn2[1]]
-		interval <- c(lwn2n, lwp2n)
-		if (!quiet) cat("using interval:", interval, "\n")
+                  lwn1n <- nrho1[wn1[1]]
+                  lwn2n <- nrho1[wn1[1]-1]
+		  nrho2 <- seq(lwn2n, lwn1n, length.out=ns1)
+                  ndet2 <- Matrix:::ldetL2up(pChol, W, 1/(-nrho2))
+		  wn2 <- which(is.finite(ndet2))
+                  lwn2n <- nrho2[wn2[1]]
+		  interval <- c(lwn2n, lwp2n)
+		  if (!quiet) cat("using interval:", interval, "\n")
+                }
 	}
 	LLs <- NULL
 	# intercept-only bug fix Larry Layne 20060404
@@ -437,7 +440,7 @@ dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, method, interval,
 	objective <- opt$objective
 #	gc(FALSE)
 	res <- list(maximum=maximum, objective=objective, LLs=LLs,
-		lm.null=lm.null, similar=similar, opt=opt)
+		lm.null=lm.null, similar=similar, opt=opt, interval=interval)
 	res
 }
 

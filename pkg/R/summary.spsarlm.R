@@ -180,8 +180,8 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
                 pref <- ifelse(x$ase, "Asymptotic",
                     "Approximate (numerical Hessian)")
 		cat(pref, "standard error:", 
-			format(signif(x$rho.se, digits)),
-			"z-value:",format(signif((x$rho/x$rho.se), digits)),
+			format(signif(x$rho.se, digits)), "\n    z-value:", 
+			format(signif((x$rho/x$rho.se), digits)),
 			"p-value:", format.pval(2 * (1 - pnorm(abs(x$rho/
 				x$rho.se))), digits), "\n")
 		if (x$ase) {

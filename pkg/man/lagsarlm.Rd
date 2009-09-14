@@ -15,7 +15,7 @@ lagsarlm(formula, data = list(), listw,
 	na.action, type="lag", method="eigen", quiet=TRUE, 
 	zero.policy=FALSE, interval=c(-1,0.999), tol.solve=1.0e-10, 
 	tol.opt=.Machine$double.eps^0.5, withLL=FALSE, fdHess=TRUE,
-        optimHess=FALSE)
+        optimHess=FALSE, searchInterval=FALSE)
 }
 \arguments{
   \item{formula}{a symbolic description of the model to be fit. The details 
@@ -38,6 +38,7 @@ neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminat
   \item{withLL}{default FALSE; if TRUE, calculate likelihood ratio statistics for right hand side variables when using sparse matrix methods in addition to appriximating the coefficient covariance matrix with a numerical Hessian}
   \item{fdHess}{Use \code{fdHess} to compute an approximate Hessian using finite differences when using sparse matrix methods; may be used to make a coefficient covariance matrix when the number of observations is large}
   \item{optimHess}{default FALSE, use \code{fdHess} from \pkg{nlme}, if TRUE, use \code{optim} to calculate Hessian at optimum}
+  \item{searchInterval}{Default FALSE; when the Matrix method is used, a search may be made to approximate the ends of the line search interval.}
 }
 \details{
   The asymptotic standard error of \eqn{\rho}{rho} is only computed when
