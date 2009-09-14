@@ -32,6 +32,7 @@ summary.sarlm <- function(object, correlation = FALSE, ...)
 			2*(1-pnorm(abs(object$coefficients/object$rest.se))))
 		colnames(object$Coef) <- c("Estimate", "Std. Error", 
 			"z value", "Pr(>|z|)")
+	        rownames(object$Coef) <- names(object$coefficients)
               }
 	}
 	if (!is.null(object$LLs)) {
@@ -58,6 +59,7 @@ summary.sarlm <- function(object, correlation = FALSE, ...)
 		object$LLCoef <- cbind(object$coefficients, LLs, LRs, Pvals)
 		colnames(object$LLCoef) <- c("Estimate", "Log likelihood",
 			"LR statistic", "Pr(>|z|)")
+	        rownames(object$LLCoef) <- names(object$coefficients)
 	}
 	if (object$ase) {
 		object$Wald1 <- Wald1.sarlm(object)
@@ -69,7 +71,6 @@ summary.sarlm <- function(object, correlation = FALSE, ...)
 		}
 	}
 	object$LR1 <- LR1.sarlm(object)
-	rownames(object$Coef) <- names(object$coefficients)
 
 	structure(object, class=c("summary.sarlm", class(object)))
 }
