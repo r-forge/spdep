@@ -213,7 +213,7 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 			digits), "\n")
 	}
         if (x$type != "error" && !is.null(x$LLCoef)) {
-		cat("\nCoefficients: (log likelihood/likelihood ratio)")
+		cat("\nCoefficients: (log likelihood/likelihood ratio)\n")
 		printCoefmat(x$LLCoef, signif.stars=signif.stars,
 			digits=digits, na.print="NA")
         }
