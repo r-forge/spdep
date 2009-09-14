@@ -4,7 +4,8 @@
 lagsarlm <- function(formula, data = list(), listw, 
 	na.action, type="lag", method="eigen", quiet=TRUE, 
 	zero.policy=FALSE, interval=c(-1,0.999), tol.solve=1.0e-10, 
-	tol.opt=.Machine$double.eps^0.5, fdHess=FALSE, optimHess=FALSE) {
+	tol.opt=.Machine$double.eps^0.5, withLL=FALSE, fdHess=TRUE,
+        optimHess=FALSE) {
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, na.action=na.action, 
 		method="model.frame")
@@ -129,8 +130,8 @@ lagsarlm <- function(formula, data = list(), listw,
 	} else {
 		opt <- dosparse(listw=listw, y=y, x=x, wy=wy, K=K, quiet=quiet,
 			tol.opt=tol.opt, method=method, interval=interval, 
-			can.sim=can.sim,  
-			zero.policy=zero.policy)
+			can.sim=can.sim, zero.policy=zero.policy,
+                        withLL=withLL)
 		rho <- c(opt$maximum)
 		names(rho) <- "rho"
 		LL <- c(opt$objective)
@@ -317,7 +318,7 @@ sar.lag.mix.f.M <- function(rho, W, I, e.a, e.b, e.c, n, nW, nChol,
 }
 
 dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, method, interval, 
-	can.sim, zero.policy=FALSE) {
+	can.sim, zero.policy=FALSE, withLL=FALSE) {
 	similar <- FALSE
 	m <- ncol(x)
 	n <- nrow(x)
@@ -383,7 +384,7 @@ dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, method, interval,
 	}
 	LLs <- NULL
 	# intercept-only bug fix Larry Layne 20060404
-	if (m > 1) {
+	if (withLL && m > 1) {
 	    LLs <- vector(mode="list", length=length(K:m))
 	    j <- 1
 	    for (i in K:m) {

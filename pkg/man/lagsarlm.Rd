@@ -1,4 +1,4 @@
-% Copyright 2002-8 by Roger S. Bivand
+% Copyright 2002-9 by Roger S. Bivand
 \name{lagsarlm}
 \alias{lagsarlm}
 \title{Spatial simultaneous autoregressive lag model estimation}
@@ -8,15 +8,15 @@ lag and mixed models of the form:
 
 \deqn{y = \rho W y + X \beta + \varepsilon}{y = rho W y + X beta + e}
 
-where \eqn{\rho}{rho} is found by \code{optimize()} first, and \eqn{\beta}{beta} and other parameters by generalized least squares subsequently (one-dimensional search using optim performs badly on some platforms). In the mixed model, the spatially lagged independent variables are added to X.
+where \eqn{\rho}{rho} is found by \code{optimize()} first, and \eqn{\beta}{beta} and other parameters by generalized least squares subsequently (one-dimensional search using optim performs badly on some platforms). In the mixed model, the spatially lagged independent variables are added to X. Note that interpretation of the fitted coefficients should use impact measures, because of the feedback loops induced by the data generation process for this model.
 }
 \usage{
-lagsarlm(formula, data=list(), listw, na.action,
-  type="lag", method="eigen", quiet=TRUE,
-  zero.policy=FALSE, interval = c(-1, 0.999), tol.solve=1.0e-10, 
-  tol.opt=.Machine$double.eps^0.5, fdHess = FALSE, optimHess=FALSE)
+lagsarlm(formula, data = list(), listw, 
+	na.action, type="lag", method="eigen", quiet=TRUE, 
+	zero.policy=FALSE, interval=c(-1,0.999), tol.solve=1.0e-10, 
+	tol.opt=.Machine$double.eps^0.5, withLL=FALSE, fdHess=TRUE,
+        optimHess=FALSE)
 }
-%- maybe also `usage' for other objects documented here.
 \arguments{
   \item{formula}{a symbolic description of the model to be fit. The details 
 of model specification are given for \code{lm()}}
@@ -35,23 +35,20 @@ neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminat
   \item{interval}{search interval for autoregressive parameter when not using method="eigen"; default is c(-1,1); method="Matrix" will attempt to search for an appropriate interval}
   \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=1.0e-10). This may be used if necessary to extract coefficient standard errors (for instance lowering to 1e-12), but errors in \code{solve()} may constitute indications of poorly scaled variables: if the variables have scales differing much from the autoregressive coefficient, the values in this matrix may be very different in scale, and inverting such a matrix is analytically possible by definition, but numerically unstable; rescaling the RHS variables alleviates this better than setting tol.solve to a very small value}
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()} (default=square root of double precision machine tolerance)}
-  \item{fdHess}{Use \code{fdHess} to compute an approximate Hessian using finite differences; may be used to make a coefficient covariance matrix when the number of observations is large}
+  \item{withLL}{default FALSE; if TRUE, calculate likelihood ratio statistics for right hand side variables when using sparse matrix methods in addition to appriximating the coefficient covariance matrix with a numerical Hessian}
+  \item{fdHess}{Use \code{fdHess} to compute an approximate Hessian using finite differences when using sparse matrix methods; may be used to make a coefficient covariance matrix when the number of observations is large}
   \item{optimHess}{default FALSE, use \code{fdHess} from \pkg{nlme}, if TRUE, use \code{optim} to calculate Hessian at optimum}
-%  \item{cholAlloc}{control arguments for memory allocation in \code{chol}
-% for sparse matrices in method="SparseM": if NULL, default values are
-% used (larger than SparseM defaults), otherwise a list with elements:
-% nsubmax, nnzlmax, and tmpmax, for example cholAlloc=list(nsubmax=25000,
-% nnzlmax=100000, tmpmax=25000)}
 }
 \details{
   The asymptotic standard error of \eqn{\rho}{rho} is only computed when
 method=eigen, because the full matrix operations involved would be costly
-for large n typically associated with the choice of method="spam" or "Matrix". The
-same applies to the coefficient covariance matrix. Taken as the
+for large n typically associated with the choice of method="spam" or "Matrix". The same applies to the coefficient covariance matrix. Taken as the
 asymptotic matrix from the literature, it is typically badly scaled, and with the elements involving \eqn{\rho}{rho} being very small,
 while other parts of the matrix can be very large (often many orders
 of magnitude in difference). It often happens that the \code{tol.solve}
 argument needs to be set to a smaller value than the default, or the RHS variables can be centred or reduced in range.
+
+Versions of the package from 0.4-38 include numerical Hessian values where asymptotic standard errors are not available. This change has been introduced to permit the simulation of distributions for impact measures. Likelihood ratio test output for right hand side variables may be obtained in addition by setting withLL=TRUE. The warnings made above with regard to variable scaling also apply in this case.
 
 Note that the fitted() function for the output object assumes that the response 
 variable may be reconstructed as the sum of the trend, the signal, and the
@@ -65,7 +62,7 @@ variable in making predictions for the fitting data.
   \item{type}{"lag" or "mixed"}
   \item{rho}{simultaneous autoregressive lag coefficient}
   \item{coefficients}{GLS coefficient estimates}
-  \item{rest.se}{asymptotic standard errors if ase=TRUE}
+  \item{rest.se}{asymptotic standard errors if ase=TRUE, otherwise approximate numeriacal Hessian-based values}
   \item{LL}{log likelihood value at computed optimum}
   \item{s2}{GLS residual variance}
   \item{SSE}{sum of squared GLS errors}
@@ -79,14 +76,16 @@ variable in making predictions for the fitting data.
   \item{se.fit}{Not used yet}
   \item{formula}{model formula}
   \item{ase}{TRUE if method=eigen}
-  \item{LLs}{if ase=FALSE (for method="spam" or "Matrix"), the log likelihood values of
-models estimated dropping each of the independent variables in turn, used
-in the summary function as a substitute for variable coefficient
-significance tests}
-  \item{rho.se}{if ase=TRUE, the asymptotic standard error of \eqn{\rho}{rho}}
+  \item{LLs}{if ase=FALSE and withLL=TRUE (for method="spam" or "Matrix"), the log likelihood values of models estimated dropping each of the independent variables in turn, used in the summary function as a substitute for variable coefficient significance tests}
+  \item{rho.se}{if ase=TRUE, the asymptotic standard error of \eqn{\rho}{rho}, otherwise approximate numeriacal Hessian-based value}
   \item{LMtest}{if ase=TRUE, the Lagrange Multiplier test for the absence
 of spatial autocorrelation in the lag model residuals}
+  \item{resvar}{the asymptotic coefficient covariance matrix for (s2, rho, B)}
   \item{zero.policy}{zero.policy for this model}
+  \item{aliased}{the aliased explanatory variables (if any)}
+  \item{listw_style}{the style of the spatial weights used}
+  \item{interval}{the line search interval used to find \eqn{\rho}{rho}}
+  \item{fdHess}{the numerical Hessian-based coefficient covariance matrix for (rho, B) if computed}
   \item{na.action}{(possibly) named vector of excluded or omitted observations if non-default na.action argument used}
 
 The internal sar.lag.mixed.* functions return the value of the log likelihood function at \eqn{\rho}{rho}.
@@ -108,7 +107,7 @@ Bernat for contributions to the asymptotic standard error code.}
 
 \seealso{\code{\link{lm}}, \code{\link{errorsarlm}}, 
 \code{\link{eigenw}}, %\code{\link{asMatrixCsrListw}}, 
-\code{\link{predict.sarlm}},
+\code{\link{predict.sarlm}}, \code{\link{impacts.sarlm}},
 \code{\link{residuals.sarlm}}
 }
 
@@ -119,10 +118,14 @@ COL.lag.eig <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
 summary(COL.lag.eig, correlation=TRUE)
 system.time(COL.lag.M <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="Matrix", quiet=FALSE))
-summary(COL.lag.M, correlation=TRUE)
+summary(COL.lag.M)
+impacts.sarlm(COL.lag.M, listw=nb2listw(COL.nb))
 system.time(COL.lag.M <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ nb2listw(COL.nb), method="Matrix", quiet=FALSE, withLL=TRUE))
+summary(COL.lag.M)
+system.time(COL.lag.sp <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="spam", quiet=FALSE))
-summary(COL.lag.M, correlation=TRUE)
+summary(COL.lag.sp)
 COL.lag.B <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="B"))
 summary(COL.lag.B, correlation=TRUE)

@@ -58,7 +58,7 @@ If simulation is carried out, the object returned is a list with:
 
 
 \seealso{
-\code{\link{trW}}, \code{\link{lagsarlm}}, \code{\link{nb2listw}}, \code{\link[MASS]{mvrnorm}}, \code{\link[coda]{plot.mcmc}}, \code{\link[coda]{summary.mcmc}}, \code{\link[coda]{HPDinterval.mcmc}}
+\code{\link{trW}}, \code{\link{lagsarlm}}, \code{\link{nb2listw}}, \code{\link[MASS]{mvrnorm}}, \code{\link[coda]{plot.mcmc}}, \code{\link[coda]{summary.mcmc}}, \code{\link[coda]{HPDinterval}}
 }
 \examples{
 example(columbus)

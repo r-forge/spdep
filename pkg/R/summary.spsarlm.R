@@ -25,12 +25,14 @@ summary.sarlm <- function(object, correlation = FALSE, ...)
 			"z value", "Pr(>|z|)")
 	} else {
 	    # intercept-only bug fix Larry Layne 20060404
-	    if (is.null(object$LLs)) {
-		object$Coef <- cbind(object$coefficients)
-		colnames(object$Coef) <- c("Estimate")
-
-	    } else {
-		object$coeftitle <- "(log likelihood/likelihood ratio)"
+		object$coeftitle <- "(numerical Hessian approximate standard errors)"
+		object$Coef <- cbind(object$coefficients, object$rest.se, 
+			object$coefficients/object$rest.se,
+			2*(1-pnorm(abs(object$coefficients/object$rest.se))))
+		colnames(object$Coef) <- c("Estimate", "Std. Error", 
+			"z value", "Pr(>|z|)")
+	}
+	if (!is.null(object$LLs)) {
 		m <- length(object$coefficients)
 		LLs <- numeric(m)
 		LRs <- numeric(m)
@@ -51,10 +53,9 @@ summary.sarlm <- function(object, correlation = FALSE, ...)
 				Pvals[i+1] <- res$p.value
 			}
 		}
-		object$Coef <- cbind(object$coefficients, LLs, LRs, Pvals)
-		colnames(object$Coef) <- c("Estimate", "Log likelihood",
+		object$LLCoef <- cbind(object$coefficients, LLs, LRs, Pvals)
+		colnames(object$LLCoef) <- c("Estimate", "Log likelihood",
 			"LR statistic", "Pr(>|z|)")
-	    }
 	}
 	if (object$ase) {
 		object$Wald1 <- Wald1.sarlm(object)
@@ -98,8 +99,8 @@ LR1.sarlm <- function(object)
 
 Wald1.sarlm <- function(object) {
 	if (!inherits(object, "sarlm")) stop("Not a sarlm object")
-	if (!object$ase) 
-		stop("Cannot compute Wald statistic: parameter a.s.e. missing")
+#	if (!object$ase) 
+#		stop("Cannot compute Wald statistic: parameter a.s.e. missing")
 	LLx <- logLik(object)
 	LLy <- logLik(object$lm.model)
 	if (object$type == "lag" || object$type == "mixed") {
@@ -176,12 +177,14 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 		cat("\nRho:", format(signif(x$rho, digits)),
 			"LR test value:", format(signif(res$statistic, digits)),
 			"p-value:", format.pval(res$p.value, digits), "\n")
-		if (x$ase) {
-			cat("Asymptotic standard error:", 
+                pref <- ifelse(x$ase, "Asymptotic",
+                    "Approximate (numerical Hessian)")
+		cat(pref, "standard error:", 
 			format(signif(x$rho.se, digits)),
 			"z-value:",format(signif((x$rho/x$rho.se), digits)),
 			"p-value:", format.pval(2 * (1 - pnorm(abs(x$rho/
 				x$rho.se))), digits), "\n")
+		if (x$ase) {
 			cat("Wald statistic:", format(signif(x$Wald1$statistic, 
 			digits)), "p-value:", format.pval(x$Wald1$p.value, 
 			digits), "\n")
@@ -202,6 +205,11 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 			"p-value:", format.pval((1 - pchisq(x$LMtest, 1)), 
 			digits), "\n")
 	}
+        if (x$type != "error" && !is.null(x$LLCoef)) {
+		cat("\nCoefficients: (log likelihood/likelihood ratio)")
+		printCoefmat(x$LLCoef, signif.stars=signif.stars,
+			digits=digits, na.print="NA")
+        }
     	correl <- x$correlation
     	if (!is.null(correl)) {
         	p <- NCOL(correl)
