@@ -25,12 +25,14 @@ summary.sarlm <- function(object, correlation = FALSE, ...)
 			"z value", "Pr(>|z|)")
 	} else {
 	    # intercept-only bug fix Larry Layne 20060404
+            if (!is.null(object$rest.se)) {
 		object$coeftitle <- "(numerical Hessian approximate standard errors)"
 		object$Coef <- cbind(object$coefficients, object$rest.se, 
 			object$coefficients/object$rest.se,
 			2*(1-pnorm(abs(object$coefficients/object$rest.se))))
 		colnames(object$Coef) <- c("Estimate", "Std. Error", 
 			"z value", "Pr(>|z|)")
+              }
 	}
 	if (!is.null(object$LLs)) {
 		m <- length(object$coefficients)
@@ -144,18 +146,20 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 			cat("Regions with no neighbours included:\n",
 			zero.regs, "\n")
 	}
-	cat("Coefficients:", x$coeftitle, "\n")
-	coefs <- x$Coef
-	if (!is.null(aliased <- x$aliased) && any(x$aliased)){
+        if (!is.null(x$coeftitle)) {
+	    cat("Coefficients:", x$coeftitle, "\n")
+	    coefs <- x$Coef
+	    if (!is.null(aliased <- x$aliased) && any(x$aliased)){
 		cat("    (", table(aliased)["TRUE"], 
 			" not defined because of singularities)\n", sep = "")
 		cn <- names(aliased)
 		coefs <- matrix(NA, length(aliased), 4, dimnames = list(cn, 
                 	colnames(x$Coef)))
             	coefs[!aliased, ] <- x$Coef
-	}
-	printCoefmat(coefs, signif.stars=signif.stars, digits=digits,
+	    }
+	    printCoefmat(coefs, signif.stars=signif.stars, digits=digits,
 		na.print="NA")
+	}
 #	res <- LR.sarlm(x, x$lm.model)
 	res <- x$LR1
 	if (x$type == "error") {
@@ -177,13 +181,15 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 		cat("\nRho:", format(signif(x$rho, digits)),
 			"LR test value:", format(signif(res$statistic, digits)),
 			"p-value:", format.pval(res$p.value, digits), "\n")
-                pref <- ifelse(x$ase, "Asymptotic",
+                if (!is.null(x$rho.se)) {
+                  pref <- ifelse(x$ase, "Asymptotic",
                     "Approximate (numerical Hessian)")
-		cat(pref, "standard error:", 
+		  cat(pref, "standard error:", 
 			format(signif(x$rho.se, digits)), "\n    z-value:", 
 			format(signif((x$rho/x$rho.se), digits)),
 			"p-value:", format.pval(2 * (1 - pnorm(abs(x$rho/
 				x$rho.se))), digits), "\n")
+                }
 		if (x$ase) {
 			cat("Wald statistic:", format(signif(x$Wald1$statistic, 
 			digits)), "p-value:", format.pval(x$Wald1$p.value, 
