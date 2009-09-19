@@ -147,5 +147,15 @@ COL.lag.NA <- lagsarlm(CRIME ~ INC + HOVAL, data=NA.COL.OLD,
 COL.lag.NA$na.action
 COL.lag.NA
 resid(COL.lag.NA)
+data(boston)
+gp2mM <- lagsarlm(log(CMEDV) ~ CRIM + ZN + INDUS + CHAS + I(NOX^2) + 
+I(RM^2) +  AGE + log(DIS) + log(RAD) + TAX + PTRATIO + B + log(LSTAT), 
+data=boston.c, nb2listw(boston.soi), type="mixed", method="Matrix")
+summary(gp2mM)
+gp2mMi <- lagsarlm(log(CMEDV) ~ CRIM + ZN + INDUS + CHAS + I(NOX^2) + 
+I(RM^2) +  AGE + log(DIS) + log(RAD) + TAX + PTRATIO + B + log(LSTAT), 
+data=boston.c, nb2listw(boston.soi), type="mixed", method="Matrix", 
+insert=TRUE)
+summary(gp2mMi)
 }
 \keyword{spatial}
