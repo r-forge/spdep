@@ -1,3 +1,35 @@
+2009-09-19 16:15  rsbivand
+
+	* DESCRIPTION, R/error.spsarlm.R, R/lag.hessian.R, R/lag.spsarlm.R,
+	  R/summary.spsarlm.R, man/as_dgRMatrix_listw.Rd,
+	  man/errorsarlm.Rd, man/lagsarlm.Rd, man/summary.sarlm.Rd: mixed
+	  approximate/asymptotic Hessian
+
+2009-09-14 14:06  rsbivand
+
+	* R/summary.spsarlm.R: impacts for lag and mixed spatial
+	  regressions
+
+2009-09-14 13:31  rsbivand
+
+	* R/summary.spsarlm.R: impacts for lag and mixed spatial
+	  regressions
+
+2009-09-14 13:10  rsbivand
+
+	* R/summary.spsarlm.R: impacts for lag and mixed spatial
+	  regressions
+
+2009-09-14 12:32  rsbivand
+
+	* R/lag.spsarlm.R, R/summary.spsarlm.R, man/lagsarlm.Rd: impacts
+	  for lag and mixed spatial regressions
+
+2009-09-14 08:26  rsbivand
+
+	* ChangeLog, inst/ChangeLog: impacts for lag and mixed spatial
+	  regressions
+
 2009-09-14 08:24  rsbivand
 
 	* DESCRIPTION, R/lag.spsarlm.R, R/summary.spsarlm.R,
