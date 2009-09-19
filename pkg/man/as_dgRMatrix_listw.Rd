@@ -1,6 +1,5 @@
 \name{as_dgRMatrix_listw}
 \alias{as_dgRMatrix_listw}
-\alias{as_dgRMatrix_listw}
 \alias{as_dsTMatrix_listw}
 \alias{as_dsCMatrix_I}
 \alias{as_dsCMatrix_IrW}

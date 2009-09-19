@@ -1,4 +1,4 @@
-% Copyright 2002-8 by Roger S. Bivand
+% Copyright 2002-9 by Roger S. Bivand
 \name{errorsarlm}
 \alias{errorsarlm}
 %\alias{sar.error.f}
@@ -84,9 +84,10 @@ standard errors)}
   \item{se.fit}{Not used yet}
   \item{lambda.se}{if ase=TRUE, the asymptotic standard error of \eqn{\lambda}{lambda}}
   \item{LMtest}{NULL for this model}
+  \item{aliased}{if not NULL, details of aliased variables}
+  \item{LLNullLlm}{Log-likelihood of the null linear model}
   \item{zero.policy}{zero.policy for this model}
   \item{na.action}{(possibly) named vector of excluded or omitted observations if non-default na.action argument used}
-  \item{aliased}{if not NULL, details of aliased variables}
 
 The internal sar.error.* functions return the value of the log likelihood function at \eqn{\lambda}{lambda}.
 }

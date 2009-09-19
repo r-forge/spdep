@@ -9,7 +9,7 @@
   Methods used for presenting the results of estimating spatial SAR models.
 }
 \usage{
-summary.sarlm(object, correlation = FALSE, ...)
+summary.sarlm(object, correlation = FALSE, Nagelkerke = FALSE, ...)
 print.sarlm(x, ...)
 print.summary.sarlm(x, digits = max(5, .Options$digits - 3),
 	signif.stars = FALSE, ...)
@@ -18,6 +18,7 @@ print.summary.sarlm(x, digits = max(5, .Options$digits - 3),
 \arguments{
   \item{object}{\code{sarlm} object from \code{lagsarlm} or \code{errorsarlm}}
   \item{correlation}{logical; if 'TRUE', the correlation matrix of the estimated parameters including sigma is returned and printed (default=FALSE)}
+  \item{Nagelkerke}{if TRUE, the Nagelkerke pseudo R-squared is reported}
   \item{x}{\code{sarlm} object from \code{lagsarlm} or \code{errorsarlm} in
 \code{print.sarlm}, summary object from \code{summary.sarlm} for 
 \code{print.summary.sarlm}}
@@ -45,7 +46,8 @@ West Virginia University, Morgantown, WV (\url{www.spacestat.com});
 Anselin L, Bera AK (1998) Spatial dependence in linear regression models
 with an introduction to spatial econometrics. In: Ullah A, Giles DEA
 (eds) Handbook of applied economic statistics. Marcel Dekker, New York,
-pp. 237-289.}
+pp. 237-289; Nagelkerke NJD (1991) A note on a general definition of the 
+coefficient of determination. Biometrika 78: 691-692.}
 \author{Roger Bivand \email{Roger.Bivand@nhh.no}}
 
 \seealso{\code{\link{errorsarlm}}, \code{\link{lagsarlm}},

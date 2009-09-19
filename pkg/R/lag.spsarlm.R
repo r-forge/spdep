@@ -5,7 +5,7 @@ lagsarlm <- function(formula, data = list(), listw,
 	na.action, type="lag", method="eigen", quiet=TRUE, 
 	zero.policy=FALSE, interval=c(-1,0.999), tol.solve=1.0e-10, 
 	tol.opt=.Machine$double.eps^0.5, withLL=FALSE, fdHess=TRUE,
-        optimHess=FALSE, searchInterval=FALSE) {
+        optimHess=FALSE, insert=FALSE, searchInterval=FALSE) {
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, na.action=na.action, 
 		method="model.frame")
@@ -97,6 +97,7 @@ lagsarlm <- function(formula, data = list(), listw,
 		nacoef <- which(aliased)
 		x <- x[,-nacoef]
 	}
+	LL_null_lm <- logLik(lm(y ~ 1))
 	m <- NCOL(x)
 	similar <- FALSE
 	if (method == "eigen") {
@@ -168,7 +169,8 @@ lagsarlm <- function(formula, data = list(), listw,
 		    nChol <- Cholesky(nW, super=FALSE, Imult = Imult)
 
                     fdHess <- getVmat_Matrix(coefs, y, x, wy, n, W, I, nW,
-                        nChol, pChol, tol.solve=tol.solve, optim=optimHess)
+                        nChol, pChol, s2, tol.solve=tol.solve, optim=optimHess,
+                        insert=insert)
  		    rest.se <- sqrt(diag(fdHess))[-1]
 		    rho.se <- sqrt(fdHess[1,1])
 		    LMtest <- NULL
@@ -181,8 +183,8 @@ lagsarlm <- function(formula, data = list(), listw,
 	    		similar <- TRUE
 		    } else W <- as.spam.listw(listw)
         	    I <- diag.spam(1, n, n)
-                    fdHess <- getVmat_spam(coefs, y, x, wy, n, W, I,
-                        tol.solve=1.0e-10, optim=FALSE)
+                    fdHess <- getVmat_spam(coefs, y, x, wy, n, W, I, s2,
+                        tol.solve=1.0e-10, optim=optimHess, insert=insert)
  		    rest.se <- sqrt(diag(fdHess))[-1]
 		    rho.se <- sqrt(fdHess[1,1])
 		    LMtest <- NULL
@@ -198,8 +200,8 @@ lagsarlm <- function(formula, data = list(), listw,
 	} else {
                 if (fdHess) {
                     coefs <- c(rho, coef.rho)
-                    fdHess <- getVmat_eig(coefs, y, x, wy, n, eig,
-                       tol.solve=tol.solve, optim=optimHess)
+                    fdHess <- getVmat_eig(coefs, y, x, wy, n, eig, s2,
+                       tol.solve=tol.solve, optim=optimHess, insert=insert)
                 }
 		LLs <- NULL
 		tr <- function(A) sum(diag(A))
@@ -241,7 +243,8 @@ lagsarlm <- function(formula, data = list(), listw,
 		se.fit=NULL, formula=formula, similar=similar,
 		ase=ase, LLs=LLs, rho.se=rho.se, LMtest=LMtest, 
 		resvar=varb, zero.policy=zero.policy, aliased=aliased,
-                listw_style=listw$style, interval=interval, fdHess=fdHess), 
+                listw_style=listw$style, interval=interval, fdHess=fdHess,
+                optimHess=optimHess, insert=insert, LLNullLlm=LL_null_lm), 
                 class=c("sarlm"))
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 

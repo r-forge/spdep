@@ -15,7 +15,7 @@ lagsarlm(formula, data = list(), listw,
 	na.action, type="lag", method="eigen", quiet=TRUE, 
 	zero.policy=FALSE, interval=c(-1,0.999), tol.solve=1.0e-10, 
 	tol.opt=.Machine$double.eps^0.5, withLL=FALSE, fdHess=TRUE,
-        optimHess=FALSE, searchInterval=FALSE)
+        optimHess=FALSE, insert=FALSE, searchInterval=FALSE)
 }
 \arguments{
   \item{formula}{a symbolic description of the model to be fit. The details 
@@ -38,6 +38,7 @@ neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminat
   \item{withLL}{default FALSE; if TRUE, calculate likelihood ratio statistics for right hand side variables when using sparse matrix methods in addition to appriximating the coefficient covariance matrix with a numerical Hessian}
   \item{fdHess}{Use \code{fdHess} to compute an approximate Hessian using finite differences when using sparse matrix methods; may be used to make a coefficient covariance matrix when the number of observations is large}
   \item{optimHess}{default FALSE, use \code{fdHess} from \pkg{nlme}, if TRUE, use \code{optim} to calculate Hessian at optimum}
+  \item{insert}{default FALSE, if TRUE and fdHess=TRUE, insert the asymptotic \code{crossprod(X)} into the numerical Hessian instead of the approximated values}
   \item{searchInterval}{Default FALSE; when the Matrix method is used, a search may be made to approximate the ends of the line search interval.}
 }
 \details{
@@ -87,6 +88,9 @@ of spatial autocorrelation in the lag model residuals}
   \item{listw_style}{the style of the spatial weights used}
   \item{interval}{the line search interval used to find \eqn{\rho}{rho}}
   \item{fdHess}{the numerical Hessian-based coefficient covariance matrix for (rho, B) if computed}
+  \item{optimHess}{if TRUE and fdHess returned, \code{optim} used to calculate Hessian at optimum}
+  \item{insert}{if TRUE and fdHess returned, the asymptotic \code{crossprod(X)} is inserted into the numerical Hessian instead of the approximated values}
+  \item{LLNullLlm}{Log-likelihood of the null linear model}
   \item{na.action}{(possibly) named vector of excluded or omitted observations if non-default na.action argument used}
 
 The internal sar.lag.mixed.* functions return the value of the log likelihood function at \eqn{\rho}{rho}.

@@ -13,7 +13,7 @@ print.sarlm <- function(x, ...)
 	invisible(x)
 }
 
-summary.sarlm <- function(object, correlation = FALSE, ...)
+summary.sarlm <- function(object, correlation = FALSE, Nagelkerke=FALSE, ...)
 {
 	if (object$type == "error" || ((object$type == "lag" || 
 		object$type == "mixed") && object$ase)) {
@@ -61,6 +61,11 @@ summary.sarlm <- function(object, correlation = FALSE, ...)
 			"LR statistic", "Pr(>|z|)")
 	        rownames(object$LLCoef) <- names(object$coefficients)
 	}
+
+        if (Nagelkerke) {
+            nk <- NK.sarlm(object)
+            if (!is.null(nk)) object$NK <- nk
+        }
 	if (object$ase) {
 		object$Wald1 <- Wald1.sarlm(object)
 		if (correlation) {
@@ -74,6 +79,14 @@ summary.sarlm <- function(object, correlation = FALSE, ...)
 
 	structure(object, class=c("summary.sarlm", class(object)))
 }
+
+NK.sarlm <- function(obj) {
+     n <- length(obj$residuals)
+     nullLL <- obj$LLNullLlm
+     if (is.null(nullLL)) return(nullLL)
+     c(1 - exp(-(2/n)*(logLik(obj) - nullLL)))
+}
+
 
 LR1.sarlm <- function(object)
 {
@@ -202,6 +215,8 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 	cat("ML residual variance (sigma squared): ", 
 		format(signif(x$s2, digits)), ", (sigma: ", 
 		format(signif(sqrt(x$s2), digits)), ")\n", sep="")
+        if (!is.null(x$NK)) cat("Nagelkerke pseudo-R-squared:",
+            format(signif(x$NK, digits)), "\n")
 	cat("Number of observations:", length(x$residuals), "\n")
 	cat("Number of parameters estimated:", x$parameters, "\n")
 	cat("AIC: ", format(signif(AIC(x), digits)), ", (AIC for lm: ",

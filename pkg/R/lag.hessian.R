@@ -12,16 +12,22 @@ f_laglm_eig <- function(coefs, y, X, yW, n, eig) {
    ret
 }
 
-getVmat_eig <- function(coefs, y, X, yW, n, eig, tol.solve=1.0e-10,
-    optim=FALSE) {
+getVmat_eig <- function(coefs, y, X, yW, n, eig, s2, tol.solve=1.0e-10,
+    optim=FALSE, insert=FALSE) {
     if (optim) {
         opt <- optim(par=coefs, fn=f_laglm_eig, y=y, X=X, yW=yW, n=n, eig=eig,
             method="BFGS", hessian=TRUE)
-        res <- solve(-(opt$hessian), tol.solve=tol.solve)
+        mat <- opt$hessian
     } else {
         fd <- fdHess(coefs, f_laglm_eig, y, X, yW, n, eig)
-        res <- solve(-(fd$Hessian), tol.solve=tol.solve)
+        mat <- fd$Hessian
     }
+    if (insert) {
+        dm <- dim(mat)
+        XtX <- crossprod(X)
+        mat[2:dm[2],2:dm[2]] <- -XtX/s2
+    }
+    res <- solve(-(mat), tol.solve=tol.solve)
     res
 }
 
@@ -45,18 +51,24 @@ f_laglm_Matrix <- function(coefs, y, X, yW, n, W, I, nW, nChol, pChol) {
    ret
 }
 
-getVmat_Matrix <- function(coefs, y, X, yW, n, W, I, nW, nChol, pChol,
-    tol.solve=1.0e-10, optim=FALSE) {
+getVmat_Matrix <- function(coefs, y, X, yW, n, W, I, nW, nChol, pChol, s2,
+    tol.solve=1.0e-10, optim=FALSE, insert=FALSE) {
     if (optim) {
         opt <- optim(par=coefs, fn=f_laglm_Matrix, y=y, X=X, yW=yW, n=n,
             W=W, I=I, nW=nW, nChol=nChol, pChol=pChol, method="BFGS",
             hessian=TRUE)
-        res <- solve(-(opt$hessian), tol.solve=tol.solve)
+        mat <- opt$hessian
     } else {
         fd <- fdHess(coefs, f_laglm_Matrix, y, X, yW, n, W, I, nW, nChol,
             pChol)
-        res <- solve(-(fd$Hessian), tol.solve=tol.solve)
+        mat <- fd$Hessian
     }
+    if (insert) {
+        dm <- dim(mat)
+        XtX <- crossprod(X)
+        mat[2:dm[2],2:dm[2]] <- -XtX/s2
+    }
+    res <- solve(-(mat), tol.solve=tol.solve)
     res
 }
 
@@ -78,16 +90,22 @@ f_laglm_spam <- function(coefs, y, X, yW, n, W, I) {
 }
 
 
-getVmat_spam <- function(coefs, y, X, yW, n, W, I, tol.solve=1.0e-10,
-    optim=FALSE) {
+getVmat_spam <- function(coefs, y, X, yW, n, W, I, s2, tol.solve=1.0e-10,
+    optim=FALSE, insert=FALSE) {
     if (optim) {
         opt <- optim(par=coefs, fn=f_laglm_spam, y=y, X=X, yW=yW, n=n,
             W=W, I=I, method="BFGS", hessian=TRUE)
-        res <- solve(-(opt$hessian), tol.solve=tol.solve)
+        mat <- opt$hessian
     } else {
         fd <- fdHess(coefs, f_laglm_spam, y, X, yW, n, W, I)
-        res <- solve(-(fd$Hessian), tol.solve=tol.solve)
+        mat <- fd$Hessian
     }
+    if (insert) {
+        dm <- dim(mat)
+        XtX <- crossprod(X)
+        mat[2:dm[2],2:dm[2]] <- -XtX/s2
+    }
+    res <- solve(-(mat), tol.solve=tol.solve)
     res
 }
 

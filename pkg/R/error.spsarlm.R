@@ -54,6 +54,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 		nacoef <- which(aliased)
 		x <- x[,-nacoef]
 	}
+	LL_null_lm <- logLik(lm(y ~ 1))
 	m <- NCOL(x)
 	xcolnames <- colnames(x)
 	K <- ifelse(xcolnames[1] == "(Intercept)", 2, 1)
@@ -164,7 +165,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 		opt=opt, fitted.values=fit, ase=ase, formula=formula,
 		se.fit=NULL, resvar=asyvar1, similar=similar,
 		lambda.se=lambda.se, LMtest=LMtest, zero.policy=zero.policy, 
-		aliased=aliased), class=c("sarlm"))
+		aliased=aliased, LLNullLlm=LL_null_lm), class=c("sarlm"))
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]
