@@ -1,3 +1,11 @@
+2009-09-19 19:48  rsbivand
+
+	* man/impacts.sarlm.Rd, man/lagsarlm.Rd: add house data set
+
+2009-09-19 19:18  rsbivand
+
+	* ChangeLog, inst/ChangeLog: add house data set
+
 2009-09-19 19:16  rsbivand
 
 	* data/house.RData, man/house.Rd: add house data set
