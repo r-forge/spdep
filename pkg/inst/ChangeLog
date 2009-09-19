@@ -1,3 +1,11 @@
+2009-09-19 19:16  rsbivand
+
+	* data/house.RData, man/house.Rd: add house data set
+
+2009-09-19 18:45  rsbivand
+
+	* ChangeLog, inst/ChangeLog: mixed approximate/asymptotic Hessian
+
 2009-09-19 18:44  rsbivand
 
 	* man/lagsarlm.Rd: mixed approximate/asymptotic Hessian
