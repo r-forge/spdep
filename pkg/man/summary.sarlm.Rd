@@ -56,7 +56,10 @@ coefficient of determination. Biometrika 78: 691-692.}
 \examples{
 data(oldcol)
 COL.mix.eig <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
- nb2listw(COL.nb), type="mixed", method="eigen", quiet=FALSE)
-summary(COL.mix.eig, correlation=TRUE)
+ nb2listw(COL.nb), type="mixed", method="eigen")
+summary(COL.mix.eig, correlation=TRUE, Nagelkerke=TRUE)
+COL.mix.M <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ nb2listw(COL.nb), type="mixed", method="Matrix")
+summary(COL.mix.M, correlation=TRUE, Nagelkerke=TRUE)
 }
 \keyword{spatial}

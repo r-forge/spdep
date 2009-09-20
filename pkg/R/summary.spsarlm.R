@@ -66,7 +66,7 @@ summary.sarlm <- function(object, correlation = FALSE, Nagelkerke=FALSE, ...)
             nk <- NK.sarlm(object)
             if (!is.null(nk)) object$NK <- nk
         }
-	if (object$ase) {
+	if (object$ase && object$type == "error") {
 		object$Wald1 <- Wald1.sarlm(object)
 		if (correlation) {
 			object$correlation <- diag((diag(object$resvar))
@@ -74,7 +74,22 @@ summary.sarlm <- function(object, correlation = FALSE, Nagelkerke=FALSE, ...)
 				diag((diag(object$resvar))^(-1/2))
 			dimnames(object$correlation) <- dimnames(object$resvar)
 		}
-	}
+	} else if (object$type != "error") {
+		object$Wald1 <- Wald1.sarlm(object)
+		if (correlation) {
+                        oresvar <- object$resvar
+                        ctext <- "Correlation of coefficients"
+                        if (is.null(oresvar) || is.logical(oresvar)) {
+                            oresvar <- object$fdHess
+                            ctext <- "Approximate correlation of coefficients"
+                        }
+			object$correlation <- diag((diag(oresvar))
+				^(-1/2)) %*% oresvar %*% 
+				diag((diag(oresvar))^(-1/2))
+			dimnames(object$correlation) <- dimnames(oresvar)
+                        object$correltext <- ctext
+		}
+        }
 	object$LR1 <- LR1.sarlm(object)
 
 	structure(object, class=c("summary.sarlm", class(object)))
@@ -121,12 +136,16 @@ Wald1.sarlm <- function(object) {
 	LLy <- logLik(object$lm.model)
 	if (object$type == "lag" || object$type == "mixed") {
 		estimate <- object$rho
+                rse <- object$rho.se
+                if (is.null(rse)) return(rse)
 		statistic <- (object$rho / object$rho.se)^2
+		attr(statistic, "names") <- ifelse(is.logical(fdHess), 
+                    "Wald statistic", "Approximate Wald statistic")
 	} else {
 		estimate <- object$lambda
 		statistic <- (object$lambda / object$lambda.se)^2
+		attr(statistic, "names") <- "Wald statistic"
 	}
-	attr(statistic, "names") <- "Wald statistic"
 	parameter <- abs(attr(LLx, "df") - attr(LLy, "df"))
 	if (parameter < 1) 
 		stop("non-positive degrees of freedom: no test possible")
@@ -204,7 +223,7 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 			"p-value:", format.pval(2 * (1 - pnorm(abs(x$rho/
 				x$rho.se))), digits), "\n")
                 }
-		if (x$ase) {
+		if (!is.null(x$Wald1)) {
 			cat("Wald statistic:", format(signif(x$Wald1$statistic, 
 			digits)), "p-value:", format.pval(x$Wald1$p.value, 
 			digits), "\n")
@@ -236,7 +255,7 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
     	if (!is.null(correl)) {
         	p <- NCOL(correl)
         	if (p > 1) {
-            		cat("\nCorrelation of Coefficients:\n")
+            		cat("\n", x$correltext, "\n")
                 	correl <- format(round(correl, 2), nsmall = 2, 
                   	digits = digits)
                 	correl[!lower.tri(correl)] <- ""

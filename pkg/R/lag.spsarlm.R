@@ -171,6 +171,8 @@ lagsarlm <- function(formula, data = list(), listw,
                     fdHess <- getVmat_Matrix(coefs, y, x, wy, n, W, I, nW,
                         nChol, pChol, s2, tol.solve=tol.solve, optim=optimHess,
                         insert=insert)
+                    rownames(fdHess) <- colnames(fdHess) <- 
+                        c("rho", colnames(x))
  		    rest.se <- sqrt(diag(fdHess))[-1]
 		    rho.se <- sqrt(fdHess[1,1])
 		    LMtest <- NULL
@@ -185,6 +187,8 @@ lagsarlm <- function(formula, data = list(), listw,
         	    I <- diag.spam(1, n, n)
                     fdHess <- getVmat_spam(coefs, y, x, wy, n, W, I, s2,
                         tol.solve=1.0e-10, optim=optimHess, insert=insert)
+                    rownames(fdHess) <- colnames(fdHess) <- 
+                        c("rho", colnames(x))
  		    rest.se <- sqrt(diag(fdHess))[-1]
 		    rho.se <- sqrt(fdHess[1,1])
 		    LMtest <- NULL
@@ -202,6 +206,8 @@ lagsarlm <- function(formula, data = list(), listw,
                     coefs <- c(rho, coef.rho)
                     fdHess <- getVmat_eig(coefs, y, x, wy, n, eig, s2,
                        tol.solve=tol.solve, optim=optimHess, insert=insert)
+                    rownames(fdHess) <- colnames(fdHess) <- 
+                        c("rho", colnames(x))
                 }
 		LLs <- NULL
 		tr <- function(A) sum(diag(A))
