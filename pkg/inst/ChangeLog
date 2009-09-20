@@ -1,3 +1,12 @@
+2009-09-20 18:34  rsbivand
+
+	* DESCRIPTION, R/lag.spsarlm.R, R/summary.spsarlm.R,
+	  man/summary.sarlm.Rd: mixed approximate/asymptotic Hessian
+
+2009-09-19 19:49  rsbivand
+
+	* ChangeLog, inst/ChangeLog: add house data set
+
 2009-09-19 19:48  rsbivand
 
 	* man/impacts.sarlm.Rd, man/lagsarlm.Rd: add house data set
