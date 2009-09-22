@@ -1,3 +1,21 @@
+2009-09-22 16:55  rsbivand
+
+	* R/impacts.R: fix no intercept bug
+
+2009-09-22 09:18  rsbivand
+
+	* man/lagsarlm.Rd: mixed approximate/asymptotic Hessian
+
+2009-09-22 08:38  rsbivand
+
+	* DESCRIPTION, R/impacts.R, R/lag.hessian.R, R/lag.spsarlm.R,
+	  man/impacts.sarlm.Rd, man/lagsarlm.Rd: mixed
+	  approximate/asymptotic Hessian
+
+2009-09-20 18:35  rsbivand
+
+	* ChangeLog, inst/ChangeLog: mixed approximate/asymptotic Hessian
+
 2009-09-20 18:34  rsbivand
 
 	* DESCRIPTION, R/lag.spsarlm.R, R/summary.spsarlm.R,
