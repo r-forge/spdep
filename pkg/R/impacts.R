@@ -42,17 +42,21 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, useHESS=NULL,
             fdHess <- obj$fdHess
             if (is.logical(fdHess)) 
                 stop("coefficient covariance matrix not available")
-            irho <- 1
-            drop2beta <- 1
             usingHESS <- TRUE
+            if (!obj$insert) {
+                irho <- 1
+                drop2beta <- 1
+            }
         }
         if (!is.null(useHESS) && useHESS) {
             fdHess <- obj$fdHess
             if (is.logical(fdHess)) 
                 stop("Hessian matrix not available")
-            irho <- 1
-            drop2beta <- 1
             usingHESS <- TRUE
+            if (!obj$insert) {
+                irho <- 1
+                drop2beta <- 1
+            }
         }
         interval <- obj$interval
         if (is.null(interval)) interval <- c(-1,0.999)
@@ -78,14 +82,19 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, useHESS=NULL,
         }
         res <- lagImpacts(T, g, P)
         if (!is.null(R)) {
-            if (usingHESS) {
+            if (usingHESS && !obj$insert) {
                 mu <- c(rho, beta)
                 samples <- mvrnorm(n=R, mu=mu, Sigma=fdHess, tol=tol,
                     empirical=empirical)
             } else {
                 mu <- c(s2, rho, beta)
-                samples <- mvrnorm(n=R, mu=mu, Sigma=resvar, tol=tol,
-                    empirical=empirical)
+                if (usingHESS) {
+                    samples <- mvrnorm(n=R, mu=mu, Sigma=fdHess, tol=tol,
+                        empirical=empirical)
+                } else {
+                    samples <- mvrnorm(n=R, mu=mu, Sigma=resvar, tol=tol,
+                        empirical=empirical)
+                }
             }
             check <- ((samples[,irho] > interval[1]) & 
                 (samples[,irho] < interval[2]))
@@ -120,14 +129,19 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, useHESS=NULL,
         if (obj$type == "lag") res <- lagImpactsExact(SW, P, n)
         else if (obj$type == "mixed") res <- mixedImpactsExact(SW, P, n, listw)
         if (!is.null(R)) {
-            if (usingHESS) {
+            if (usingHESS && !obj$insert) {
                 mu <- c(rho, beta)
                 samples <- mvrnorm(n=R, mu=mu, Sigma=fdHess, tol=tol,
                     empirical=empirical)
             } else {
                 mu <- c(s2, rho, beta)
-                samples <- mvrnorm(n=R, mu=mu, Sigma=resvar, tol=tol,
-                    empirical=empirical)
+                if (usingHESS) {
+                    samples <- mvrnorm(n=R, mu=mu, Sigma=fdHess, tol=tol,
+                        empirical=empirical)
+                } else {
+                    samples <- mvrnorm(n=R, mu=mu, Sigma=resvar, tol=tol,
+                        empirical=empirical)
+                }
             }
             check <- ((samples[,irho] > interval[1]) & 
                 (samples[,irho] < interval[2]))
@@ -156,6 +170,7 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, useHESS=NULL,
         attr(res, "method") <- "exact"
     }
     attr(res, "useHESS") <- usingHESS
+    attr(res, "insert") <- obj$insert
     attr(res, "type") <- obj$type
     attr(res, "bnames") <- bnames
     class(res) <- "sarlmImpact"
@@ -234,6 +249,7 @@ summary.sarlmImpact <- function(object, ..., zstats=FALSE, short=FALSE) {
     attr(res, "useHESS") <- attr(object, "useHESS")
     attr(res, "bnames") <- attr(object, "bnames")
     attr(res, "method") <- attr(object, "method")
+    attr(res, "insert") <- attr(object, "insert")
     attr(res, "type") <- attr(object, "type")
     attr(res, "short") <- short
     class(res) <- "summary.sarlmImpact"
@@ -246,7 +262,7 @@ print.summary.sarlmImpact <- function(x, ...) {
         "):\n", sep="")
     print(mat)
     cat("========================================================\n")
-    tp <- ifelse(attr(x, "useHESS"), "Hessian approximation", "asymptotic")
+    tp <- ifelse(attr(x, "useHESS"), ifelse(attr(x, "insert"), "mixed Hessian approximation", "numerical Hessian approximation"), "asymptotic")
     cat("Simulation results (", tp, " variance matrix):\n", sep="")
     if (!attr(x, "short")) {
         cat("Direct:\n")

@@ -12,8 +12,8 @@ f_laglm_eig <- function(coefs, y, X, yW, n, eig) {
    ret
 }
 
-getVmat_eig <- function(coefs, y, X, yW, n, eig, s2, tol.solve=1.0e-10,
-    optim=FALSE, insert=FALSE) {
+getVmat_eig <- function(coefs, y, X, yW, n, eig, s2, trs, tol.solve=1.0e-10,
+    optim=FALSE) {
     if (optim) {
         opt <- optim(par=coefs, fn=f_laglm_eig, y=y, X=X, yW=yW, n=n, eig=eig,
             method="BFGS", hessian=TRUE)
@@ -22,10 +22,8 @@ getVmat_eig <- function(coefs, y, X, yW, n, eig, s2, tol.solve=1.0e-10,
         fd <- fdHess(coefs, f_laglm_eig, y, X, yW, n, eig)
         mat <- fd$Hessian
     }
-    if (insert) {
-        dm <- dim(mat)
-        XtX <- crossprod(X)
-        mat[2:dm[2],2:dm[2]] <- -XtX/s2
+    if (!is.null(trs)) {
+         mat <- insert_asy(coefs, y, X, yW, n, s2, mat, trs)
     }
     res <- solve(-(mat), tol.solve=tol.solve)
     res
@@ -52,7 +50,7 @@ f_laglm_Matrix <- function(coefs, y, X, yW, n, W, I, nW, nChol, pChol) {
 }
 
 getVmat_Matrix <- function(coefs, y, X, yW, n, W, I, nW, nChol, pChol, s2,
-    tol.solve=1.0e-10, optim=FALSE, insert=FALSE) {
+    trs, tol.solve=1.0e-10, optim=FALSE) {
     if (optim) {
         opt <- optim(par=coefs, fn=f_laglm_Matrix, y=y, X=X, yW=yW, n=n,
             W=W, I=I, nW=nW, nChol=nChol, pChol=pChol, method="BFGS",
@@ -63,10 +61,8 @@ getVmat_Matrix <- function(coefs, y, X, yW, n, W, I, nW, nChol, pChol, s2,
             pChol)
         mat <- fd$Hessian
     }
-    if (insert) {
-        dm <- dim(mat)
-        XtX <- crossprod(X)
-        mat[2:dm[2],2:dm[2]] <- -XtX/s2
+    if (!is.null(trs)) {
+         mat <- insert_asy(coefs, y, X, yW, n, s2, mat, trs)
     }
     res <- solve(-(mat), tol.solve=tol.solve)
     res
@@ -90,8 +86,8 @@ f_laglm_spam <- function(coefs, y, X, yW, n, W, I) {
 }
 
 
-getVmat_spam <- function(coefs, y, X, yW, n, W, I, s2, tol.solve=1.0e-10,
-    optim=FALSE, insert=FALSE) {
+getVmat_spam <- function(coefs, y, X, yW, n, W, I, s2, trs, tol.solve=1.0e-10,
+    optim=FALSE) {
     if (optim) {
         opt <- optim(par=coefs, fn=f_laglm_spam, y=y, X=X, yW=yW, n=n,
             W=W, I=I, method="BFGS", hessian=TRUE)
@@ -100,12 +96,25 @@ getVmat_spam <- function(coefs, y, X, yW, n, W, I, s2, tol.solve=1.0e-10,
         fd <- fdHess(coefs, f_laglm_spam, y, X, yW, n, W, I)
         mat <- fd$Hessian
     }
-    if (insert) {
-        dm <- dim(mat)
-        XtX <- crossprod(X)
-        mat[2:dm[2],2:dm[2]] <- -XtX/s2
+    if (!is.null(trs)) {
+         mat <- insert_asy(coefs, y, X, yW, n, s2, mat, trs)
     }
     res <- solve(-(mat), tol.solve=tol.solve)
     res
+}
+
+trB <- function(rho, tr)  sum(sapply(0:(length(tr)-1),
+    function(i) rho^i * tr[i+1]))
+
+insert_asy <- function(coefs, y, X, yW, n, s2, mat, trs) {
+    p <- length(coefs)-1
+    p2 <- p+2
+    omat <- matrix(0, nrow=p2, ncol=p2)
+    omat[3:p2, 3:p2] <- -crossprod(X)/s2
+    omat[2, 2] <- mat[1, 1]
+    omat[2, 3:p2] <- omat[3:p2, 2] <- -c(crossprod(yW, X)/s2)
+    omat[1, 1] <- -n/(2*(s2^2))
+    omat[1, 2] <- omat[2, 1] <- -trB(coefs[1], trs)/s2
+    omat
 }
 

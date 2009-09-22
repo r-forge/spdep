@@ -95,18 +95,19 @@ trMatb <- trW(Wb, type="mult")
 gp2mMi <- lagsarlm(log(CMEDV) ~ CRIM + ZN + INDUS + CHAS + I(NOX^2) + 
 I(RM^2) +  AGE + log(DIS) + log(RAD) + TAX + PTRATIO + B + log(LSTAT), 
 data=boston.c, nb2listw(boston.soi), type="mixed", method="Matrix", 
-fdHess=TRUE, insert=TRUE)
+fdHess=TRUE, trs=trMatb)
 summary(gp2mMi)
 summary(impacts.sarlm(gp2mMi, tr=trMatb, R=1000), zstats=TRUE, short=TRUE)
 data(house)
 form <- formula(log(price) ~ age + I(age^2) + I(age^3) + log(lotsize) +
    rooms + log(TLA) + beds + syear)
-lobj <- lagsarlm(form, house, nb2listw(LO_nb), method="Matrix", fdHess=TRUE)
+lobj <- lagsarlm(form, house, nb2listw(LO_nb), method="Matrix", fdHess=TRUE,
+ trs=trMat)
 summary(lobj)
 loobj <- impacts.sarlm(lobj, tr=trMat, R=1000)
 summary(loobj, zstats=TRUE, short=TRUE)
 mobj <- lagsarlm(form, house, nb2listw(LO_nb), type="mixed", method="Matrix",
- fdHess=TRUE, insert=TRUE)
+ fdHess=TRUE, trs=trMat)
 summary(mobj)
 moobj <- impacts.sarlm(mobj, tr=trMat, R=1000)
 summary(moobj, zstats=TRUE, short=TRUE)
