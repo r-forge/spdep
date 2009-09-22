@@ -62,15 +62,25 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, useHESS=NULL,
         if (is.null(interval)) interval <- c(-1,0.999)
     }
     icept <- grep("(Intercept)", names(beta))
+    iicept <- length(icept) > 0
     if (obj$type == "lag") {
+      if (iicept) {
         P <- matrix(beta[-icept], ncol=1)
         bnames <- names(beta[-icept])
+      } else {
+        P <- matrix(beta, ncol=1)
+        bnames <- names(beta)
+      }
     } else if (obj$type == "mixed") {
+      if (iicept) {
         b1 <- beta[-icept]
-        p <- length(b1)
-        if (p %% 2 != 0) stop("non-matched coefficient pairs")
-        P <- cbind(b1[1:(p/2)], b1[((p/2)+1):p])
-        bnames <- names(b1[1:(p/2)])
+      } else {
+        b1 <- beta
+      }
+      p <- length(b1)
+      if (p %% 2 != 0) stop("non-matched coefficient pairs")
+      P <- cbind(b1[1:(p/2)], b1[((p/2)+1):p])
+      bnames <- names(b1[1:(p/2)])
     }
     n <- length(obj$fitted.values)
     if (is.null(listw)) {
@@ -103,9 +113,17 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, useHESS=NULL,
                 g <- x[irho]^(0:q)
                 beta <- x[-drop2beta]
                 if (obj$type == "lag") {
+                  if (iicept) {
                     P <- matrix(beta[-icept], ncol=1)
+                  } else {
+                    P <- matrix(beta, ncol=1)
+                  }
                 } else if (obj$type == "mixed") {
-                    b1 <- beta[-icept]
+                    if (iicept) {
+                      b1 <- beta[-icept]
+                    } else {
+                      b1 <- beta
+                    }
                     p <- length(b1)
                     if (p %% 2 != 0) stop("non-matched coefficient pairs")
                     P <- cbind(b1[1:(p/2)], b1[((p/2)+1):p])
@@ -149,10 +167,18 @@ impacts.sarlm <- function(obj, ..., tr, R=NULL, listw=NULL, useHESS=NULL,
             processXSample <- function(x, drop2beta) {
                 beta <- x[-drop2beta]
                 if (obj$type == "lag") {
-                    P <- matrix(beta[-icept], ncol=1)
+                    if (iicept) {
+                      P <- matrix(beta[-icept], ncol=1)
+                    } else {
+                      P <- matrix(beta, ncol=1)
+                    }
                     return(lagImpactsExact(SW, P, n))
                 } else if (obj$type == "mixed") {
-                    b1 <- beta[-icept]
+                    if (iicept) {
+                        b1 <- beta[-icept]
+                    } else {
+                        b1 <- beta
+                    }
                     P <- cbind(b1[1:(p/2)], b1[((p/2)+1):p])
                     return(mixedImpactsExact(SW, P, n, listw))
                 }
