@@ -121,6 +121,13 @@ data(oldcol)
 COL.lag.eig <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="W"), method="eigen", quiet=FALSE)
 summary(COL.lag.eig, correlation=TRUE)
+COL.lag.eig$fdHess
+COL.lag.eig$resvar
+W <- as(as_dgRMatrix_listw(nb2listw(COL.nb)), "CsparseMatrix")
+trMatc <- trW(W, type="mult")
+COL.lag.eig1 <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ nb2listw(COL.nb, style="W"), trs=trMatc)
+COL.lag.eig1$fdHess
 system.time(COL.lag.M <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="Matrix", quiet=FALSE))
 summary(COL.lag.M)
