@@ -1,3 +1,13 @@
+2009-09-23 07:31  rsbivand
+
+	* DESCRIPTION, NAMESPACE, R/error.spsarlm.R, R/summary.spsarlm.R,
+	  man/LR.sarlm.Rd, man/summary.sarlm.Rd: added spatial Hausman test
+	  for error model
+
+2009-09-22 16:56  rsbivand
+
+	* ChangeLog, inst/ChangeLog: fix no intercept bug
+
 2009-09-22 16:55  rsbivand
 
 	* R/impacts.R: fix no intercept bug
