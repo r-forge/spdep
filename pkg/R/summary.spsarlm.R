@@ -1,4 +1,4 @@
-# Copyright 1998-2004 by Roger Bivand (Wald test suggested by Rein Halbersma,
+# Copyright 1998-2009 by Roger Bivand (Wald test suggested by Rein Halbersma,
 # output of correlations suggested by Michael Tiefelsdorf)
 #
 
@@ -68,6 +68,7 @@ summary.sarlm <- function(object, correlation = FALSE, Nagelkerke=FALSE, ...)
         }
 	if (object$ase && object$type == "error") {
 		object$Wald1 <- Wald1.sarlm(object)
+                object$Haus <- Hausman.sarlm(object)
 		if (correlation) {
 			object$correlation <- diag((diag(object$resvar))
 				^(-1/2)) %*% object$resvar %*% 
@@ -159,6 +160,28 @@ Wald1.sarlm <- function(object) {
 
 }
 
+Hausman.sarlm <- function(object) {
+    if (!inherits(object, "sarlm")) stop("not a sarlm object")
+    if (object$type != "error") stop("not a spatial error model")
+    if (object$method != "eigen")
+        stop("Test only available for method=\"eigen\"")
+    if (is.null(object$Hcov)) stop("Vo not available")
+    s2 <- object$s2
+    Vo <- s2 * object$Hcov
+    Vs <- s2 * summary.lm(object$lm.target, corr = FALSE)$cov.unscaled
+    d <- coef(object$lm.model) - coef(object$lm.target)
+    statistic <- t(d) %*% solve(Vo - Vs) %*% d
+    attr(statistic, "names") <- "Hausman test"
+    parameter <- length(d)
+    attr(parameter, "names") <- "df"
+    p.value <- 1 - pchisq(abs(statistic), parameter)
+    method <- paste("Spatial Hausman test")
+    data.name <- deparse(object$formula)
+    res <- list(statistic = statistic, parameter = parameter, 
+        p.value = p.value, method = method, data.name=data.name)
+    class(res) <- "htest"
+    res
+}
 
 print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 	signif.stars = FALSE, ...)
@@ -196,37 +219,39 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 #	res <- LR.sarlm(x, x$lm.model)
 	res <- x$LR1
 	if (x$type == "error") {
-		cat("\nLambda:", format(signif(x$lambda, digits)),
-			"LR test value:", format(signif(res$statistic, digits)),
-			"p-value:", format.pval(res$p.value, digits), "\n")
+		cat("\nLambda: ", format(signif(x$lambda, digits)),
+			", LR test value: ", format(signif(res$statistic,
+                        digits)), ", p-value: ", format.pval(res$p.value,
+                        digits), "\n", sep="")
 		if (x$ase) {
-			cat("Asymptotic standard error:", 
-			format(signif(x$lambda.se, digits)),
-			"z-value:",format(signif((x$lambda/
+		    cat("Asymptotic standard error: ", 
+		        format(signif(x$lambda.se, digits)),
+			", z-value: ",format(signif((x$lambda/
 				x$lambda.se), digits)),
-			"p-value:", format.pval(2*(1-pnorm(abs(x$lambda/
-				x$lambda.se))), digits), "\n")
-			cat("Wald statistic:", format(signif(x$Wald1$statistic, 
-			digits)), "p-value:", format.pval(x$Wald1$p.value, 
-			digits), "\n")
+			", p-value: ", format.pval(2*(1-pnorm(abs(x$lambda/
+				x$lambda.se))), digits), "\n", sep="")
+		cat("Wald statistic: ", format(signif(x$Wald1$statistic, 
+			digits)), ", p-value: ", format.pval(x$Wald1$p.value, 
+			digits), "\n", sep="")
 		}
 	} else {
-		cat("\nRho:", format(signif(x$rho, digits)),
-			"LR test value:", format(signif(res$statistic, digits)),
-			"p-value:", format.pval(res$p.value, digits), "\n")
+		cat("\nRho: ", format(signif(x$rho, digits)), 
+                    ", LR test value:", format(signif(res$statistic, digits)),
+		    ", p-value:", format.pval(res$p.value, digits), "\n",
+                    sep="")
                 if (!is.null(x$rho.se)) {
                   pref <- ifelse(x$ase, "Asymptotic",
                     "Approximate (numerical Hessian)")
-		  cat(pref, "standard error:", 
-			format(signif(x$rho.se, digits)), "\n    z-value:", 
+		  cat(pref, " standard error: ", 
+			format(signif(x$rho.se, digits)), "\n    z-value: ", 
 			format(signif((x$rho/x$rho.se), digits)),
-			"p-value:", format.pval(2 * (1 - pnorm(abs(x$rho/
-				x$rho.se))), digits), "\n")
+			", p-value: ", format.pval(2 * (1 - pnorm(abs(x$rho/
+				x$rho.se))), digits), "\n", sep="")
                 }
 		if (!is.null(x$Wald1)) {
-			cat("Wald statistic:", format(signif(x$Wald1$statistic, 
-			digits)), "p-value:", format.pval(x$Wald1$p.value, 
-			digits), "\n")
+		    cat("Wald statistic: ", format(signif(x$Wald1$statistic, 
+			digits)), ", p-value: ", format.pval(x$Wald1$p.value, 
+			digits), "\n", sep="")
 		}
 
 	}
@@ -240,11 +265,19 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 	cat("Number of parameters estimated:", x$parameters, "\n")
 	cat("AIC: ", format(signif(AIC(x), digits)), ", (AIC for lm: ",
 		format(signif(AIC(x$lm.model), digits)), ")\n", sep="")
+	if (x$type == "error" && x$ase) {
+		if (!is.null(x$Haus)) {
+		    cat("Hausman test: ", format(signif(x$Haus$statistic, 
+			digits)), ", df: ", format(x$Haus$parameter),
+                        ", p-value: ", format.pval(x$Haus$p.value, digits),
+                        "\n", sep="")
+		}
+        }
 	if (x$type != "error" && x$ase) {
 		cat("LM test for residual autocorrelation\n")
-		cat("test value:", format(signif(x$LMtest, digits)),
-			"p-value:", format.pval((1 - pchisq(x$LMtest, 1)), 
-			digits), "\n")
+		cat("test value: ", format(signif(x$LMtest, digits)),
+			", p-value: ", format.pval((1 - pchisq(x$LMtest, 1)), 
+			digits), "\n", sep="")
 	}
         if (x$type != "error" && !is.null(x$LLCoef)) {
 		cat("\nCoefficients: (log likelihood/likelihood ratio)\n")

@@ -137,6 +137,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 	lambda.se <- NULL
 	LMtest <- NULL
 	asyvar1 <- FALSE
+        Hcov <- NULL
 	if (method == "eigen") {
 		tr <- function(A) sum(diag(A))
 		W <- listw2mat(listw)
@@ -153,6 +154,13 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 			c("sigma", "lambda", xcolnames)
 		
 		lambda.se <- sqrt(asyvar1[2,2])
+                pp <- lm.model$rank
+                p1 <- 1L:p
+                R <- chol2inv(lm.model$qr$qr[p1, p1, drop = FALSE])
+                B <- tcrossprod(R, x) %*% A
+                A <- solve(diag(n) - lambda*t(W))
+                C <- A %*% x %*% R
+                Hcov <- B %*% C
 		ase <- TRUE
 	}
 	call <- match.call()
@@ -165,7 +173,8 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 		opt=opt, fitted.values=fit, ase=ase, formula=formula,
 		se.fit=NULL, resvar=asyvar1, similar=similar,
 		lambda.se=lambda.se, LMtest=LMtest, zero.policy=zero.policy, 
-		aliased=aliased, LLNullLlm=LL_null_lm), class=c("sarlm"))
+		aliased=aliased, LLNullLlm=LL_null_lm, Hcov=Hcov),
+                class=c("sarlm"))
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]

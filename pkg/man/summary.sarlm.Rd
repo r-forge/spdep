@@ -1,4 +1,4 @@
-% Copyright 2002 by Roger S. Bivand
+% Copyright 2002-9 by Roger S. Bivand
 \name{summary.sarlm}
 \alias{summary.sarlm}
 \alias{print.sarlm}
