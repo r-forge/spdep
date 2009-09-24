@@ -16,8 +16,7 @@ where \eqn{\lambda}{lambda} is found by \code{optimize()} first, and \eqn{\beta}
 errorsarlm(formula, data=list(), listw, na.action,
  method="eigen", quiet=TRUE, zero.policy=FALSE,
  interval = c(-1, 0.999), tol.solve=1.0e-10,
- tol.opt=.Machine$double.eps^0.5%, cholAlloc=NULL
-)
+ tol.opt=.Machine$double.eps^0.5, returnHcov=TRUE, pWOrder=250)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -37,11 +36,8 @@ neighbours, if FALSE (default) assign NA - causing \code{errorsarlm()} to termin
   \item{interval}{search interval for autoregressive parameter when not using method="eigen"; default is c(-1,1)}
   \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=1.0e-10). This may be used if necessary to extract coefficient standard errors (for instance lowering to 1e-12), but errors in \code{solve()} may constitute indications of poorly scaled variables: if the variables have scales differing much from the autoregressive coefficient, the values in this matrix may be very different in scale, and inverting such a matrix is analytically possible by definition, but numerically unstable; rescaling the RHS variables alleviates this better than setting tol.solve to a very small value}
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optim()} (default=square root of double precision machine tolerance, a larger root may be used if the warning: ERROR: ABNORMAL\_TERMINATION\_IN\_LNSRCH is seen, see help(boston) for an example)}
-%  \item{cholAlloc}{control arguments for memory allocation in \code{chol} for
-% sparse matrices in method="SparseM": if NULL, default values are used
-% (larger than SparseM defaults), otherwise a list with elements: nsubmax,
-% nnzlmax, and tmpmax, for example cholAlloc=list(nsubmax=25000,
-% nnzlmax=100000, tmpmax=25000)}
+  \item{returnHcov}{default TRUE, return the Vo matrix for a spatial Hausman test}
+  \item{pWOrder}{default 250, if returnHcov=TRUE and the method is not \dQuote{eigen}, pass this order to \code{powerWeights} as the power series maximum limit}
 }
 \details{
 The asymptotic standard error of \eqn{\lambda}{lambda} is only computed when
@@ -86,6 +82,7 @@ standard errors)}
   \item{LMtest}{NULL for this model}
   \item{aliased}{if not NULL, details of aliased variables}
   \item{LLNullLlm}{Log-likelihood of the null linear model}
+  \item{Hcov}{Spatial DGP covariance matrix for Hausman test if available}
   \item{zero.policy}{zero.policy for this model}
   \item{na.action}{(possibly) named vector of excluded or omitted observations if non-default na.action argument used}
 

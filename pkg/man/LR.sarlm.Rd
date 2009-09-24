@@ -8,14 +8,14 @@
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{Likelihood ratio test}
 \description{
-  The \code{LR.sarlm()} function provides a likelihood ratio test for objects for which a \code{logLik()} function exists for their class, or for objects of class \code{logLik}. \code{LR1.sarlm()} and \code{Wald1.sarlm()} are used internally in \code{summary.sarlm()}, but may be accessed directly; they report the values respectively of LR and Wald tests for the absence of spatial dependence in spatial lag or error models. The spatial Hausman test is only available for models fitted with \code{errorsarlm}, with \code{method='eigen'}.
+  The \code{LR.sarlm()} function provides a likelihood ratio test for objects for which a \code{logLik()} function exists for their class, or for objects of class \code{logLik}. \code{LR1.sarlm()} and \code{Wald1.sarlm()} are used internally in \code{summary.sarlm()}, but may be accessed directly; they report the values respectively of LR and Wald tests for the absence of spatial dependence in spatial lag or error models. The spatial Hausman test is only available for models fitted with \code{errorsarlm}.
 }
 \usage{
 LR.sarlm(x, y)
 logLik.sarlm(object, ...)
 LR1.sarlm(object)
 Wald1.sarlm(object)
-Hausman.sarlm(object)
+Hausman.sarlm(object, tol=NULL)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -23,6 +23,7 @@ Hausman.sarlm(object)
   \item{y}{a \code{logLik} object or an object for which a \code{logLik()} function exists}
   \item{object}{a \code{sarlm} object from \code{lagsarlm()} or \code{errorsarlm()}}
   \item{...}{other arguments to logLik()}
+  \item{tol}{\code{tol} argument passed to \code{solve}, default NULL}
 }
 \value{
   The tests return objects of class \code{htest} with:

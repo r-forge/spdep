@@ -66,9 +66,11 @@ summary.sarlm <- function(object, correlation = FALSE, Nagelkerke=FALSE, ...)
             nk <- NK.sarlm(object)
             if (!is.null(nk)) object$NK <- nk
         }
+        if (object$type == "error" && !is.null(object$Hcov)) {
+                object$Haus <- Hausman.sarlm(object)
+        }
 	if (object$ase && object$type == "error") {
 		object$Wald1 <- Wald1.sarlm(object)
-                object$Haus <- Hausman.sarlm(object)
 		if (correlation) {
 			object$correlation <- diag((diag(object$resvar))
 				^(-1/2)) %*% object$resvar %*% 
@@ -160,22 +162,27 @@ Wald1.sarlm <- function(object) {
 
 }
 
-Hausman.sarlm <- function(object) {
+Hausman.sarlm <- function(object, tol=NULL) {
     if (!inherits(object, "sarlm")) stop("not a sarlm object")
     if (object$type != "error") stop("not a spatial error model")
-    if (object$method != "eigen")
-        stop("Test only available for method=\"eigen\"")
+    fmeth <- ifelse(object$method != "eigen", "(approximate)", "(asymptotic)") 
     if (is.null(object$Hcov)) stop("Vo not available")
     s2 <- object$s2
     Vo <- s2 * object$Hcov
     Vs <- s2 * summary.lm(object$lm.target, corr = FALSE)$cov.unscaled
     d <- coef(object$lm.model) - coef(object$lm.target)
-    statistic <- t(d) %*% solve(Vo - Vs) %*% d
+    if (!is.null(tol)) VV <- try(solve((Vo - Vs), tol=tol))
+    else VV <- try(solve(Vo - Vs))
+    if (class(VV) == "try.error") {
+        warning("(Vo - Vs) inversion failure")
+        return(NULL)
+    }
+    statistic <- t(d) %*% VV %*% d
     attr(statistic, "names") <- "Hausman test"
     parameter <- length(d)
     attr(parameter, "names") <- "df"
     p.value <- 1 - pchisq(abs(statistic), parameter)
-    method <- paste("Spatial Hausman test")
+    method <- paste("Spatial Hausman test", fmeth)
     data.name <- deparse(object$formula)
     res <- list(statistic = statistic, parameter = parameter, 
         p.value = p.value, method = method, data.name=data.name)
@@ -265,7 +272,7 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 	cat("Number of parameters estimated:", x$parameters, "\n")
 	cat("AIC: ", format(signif(AIC(x), digits)), ", (AIC for lm: ",
 		format(signif(AIC(x$lm.model), digits)), ")\n", sep="")
-	if (x$type == "error" && x$ase) {
+	if (x$type == "error") {
 		if (!is.null(x$Haus)) {
 		    cat("Hausman test: ", format(signif(x$Haus$statistic, 
 			digits)), ", df: ", format(x$Haus$parameter),
