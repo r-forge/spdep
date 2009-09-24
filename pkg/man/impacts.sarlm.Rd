@@ -101,13 +101,13 @@ summary(impacts.sarlm(gp2mMi, tr=trMatb, R=1000), zstats=TRUE, short=TRUE)
 data(house)
 form <- formula(log(price) ~ age + I(age^2) + I(age^3) + log(lotsize) +
    rooms + log(TLA) + beds + syear)
-lobj <- lagsarlm(form, house, nb2listw(LO_nb), method="Matrix", fdHess=TRUE,
- trs=trMat)
+lobj <- lagsarlm(form, house, nb2listw(LO_nb), method="Matrix",
+ fdHess=TRUE, trs=trMat)
 summary(lobj)
 loobj <- impacts.sarlm(lobj, tr=trMat, R=1000)
 summary(loobj, zstats=TRUE, short=TRUE)
-mobj <- lagsarlm(form, house, nb2listw(LO_nb), type="mixed", method="Matrix",
- fdHess=TRUE, trs=trMat)
+mobj <- lagsarlm(form, house, nb2listw(LO_nb), type="mixed",
+ method="Matrix", fdHess=TRUE, trs=trMat)
 summary(mobj)
 moobj <- impacts.sarlm(mobj, tr=trMat, R=1000)
 summary(moobj, zstats=TRUE, short=TRUE)
