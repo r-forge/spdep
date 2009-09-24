@@ -69,13 +69,22 @@ summary.sarlm <- function(object, correlation = FALSE, Nagelkerke=FALSE, ...)
         if (object$type == "error" && !is.null(object$Hcov)) {
                 object$Haus <- Hausman.sarlm(object)
         }
-	if (object$ase && object$type == "error") {
+	if (object$type == "error") {
 		object$Wald1 <- Wald1.sarlm(object)
 		if (correlation) {
-			object$correlation <- diag((diag(object$resvar))
-				^(-1/2)) %*% object$resvar %*% 
-				diag((diag(object$resvar))^(-1/2))
-			dimnames(object$correlation) <- dimnames(object$resvar)
+                        oresvar <- object$resvar
+                        ctext <- "Correlation of coefficients"
+                        if (is.null(oresvar) || is.logical(oresvar)) {
+                            oresvar <- object$fdHess
+                            ctext <- ifelse(object$insert,
+                                "Approximate correlation of coefficients",
+                                "** Guesswork correlation of coefficients **")
+                        }
+			object$correlation <- diag((diag(oresvar))
+				^(-1/2)) %*% oresvar %*% 
+				diag((diag(oresvar))^(-1/2))
+			dimnames(object$correlation) <- dimnames(oresvar)
+                        object$correltext <- ctext
 		}
 	} else if (object$type != "error") {
 		object$Wald1 <- Wald1.sarlm(object)
@@ -141,13 +150,16 @@ Wald1.sarlm <- function(object) {
 		estimate <- object$rho
                 rse <- object$rho.se
                 if (is.null(rse)) return(rse)
-		statistic <- (object$rho / object$rho.se)^2
+		statistic <- (object$rho / rse)^2
 		attr(statistic, "names") <- ifelse(is.logical(fdHess), 
                     "Wald statistic", "Approximate Wald statistic")
 	} else {
 		estimate <- object$lambda
-		statistic <- (object$lambda / object$lambda.se)^2
-		attr(statistic, "names") <- "Wald statistic"
+                lse <- object$lambda.se
+                if (is.null(lse)) return(lse)
+		statistic <- (object$lambda / lse)^2
+		attr(statistic, "names") <- ifelse(is.logical(fdHess), 
+                    "Wald statistic", "Approximate Wald statistic")
 	}
 	parameter <- abs(attr(LLx, "df") - attr(LLy, "df"))
 	if (parameter < 1) 
@@ -230,14 +242,16 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 			", LR test value: ", format(signif(res$statistic,
                         digits)), ", p-value: ", format.pval(res$p.value,
                         digits), "\n", sep="")
-		if (x$ase) {
-		    cat("Asymptotic standard error: ", 
+		if (!is.null(x$lambda.se)) {
+                    pref <- ifelse(x$ase, "Asymptotic",
+                        "Approximate (numerical Hessian)")
+		    cat(pref, " standard error: ", 
 		        format(signif(x$lambda.se, digits)),
-			", z-value: ",format(signif((x$lambda/
+			"\n    z-value: ",format(signif((x$lambda/
 				x$lambda.se), digits)),
 			", p-value: ", format.pval(2*(1-pnorm(abs(x$lambda/
 				x$lambda.se))), digits), "\n", sep="")
-		cat("Wald statistic: ", format(signif(x$Wald1$statistic, 
+		    cat("Wald statistic: ", format(signif(x$Wald1$statistic, 
 			digits)), ", p-value: ", format.pval(x$Wald1$p.value, 
 			digits), "\n", sep="")
 		}

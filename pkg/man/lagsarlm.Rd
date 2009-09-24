@@ -14,8 +14,9 @@ where \eqn{\rho}{rho} is found by \code{optimize()} first, and \eqn{\beta}{beta}
 lagsarlm(formula, data = list(), listw, 
 	na.action, type="lag", method="eigen", quiet=TRUE, 
 	zero.policy=FALSE, interval=c(-1,0.999), tol.solve=1.0e-10, 
-	tol.opt=.Machine$double.eps^0.5, withLL=FALSE, fdHess=TRUE,
-        optimHess=FALSE, trs=NULL, searchInterval=FALSE)
+	tol.opt=.Machine$double.eps^0.5, withLL=FALSE, 
+        fdHess=(method != "eigen"), optimHess=FALSE, trs=NULL, 
+        searchInterval=FALSE)
 }
 \arguments{
   \item{formula}{a symbolic description of the model to be fit. The details 
@@ -36,9 +37,9 @@ neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminat
   \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=1.0e-10). This may be used if necessary to extract coefficient standard errors (for instance lowering to 1e-12), but errors in \code{solve()} may constitute indications of poorly scaled variables: if the variables have scales differing much from the autoregressive coefficient, the values in this matrix may be very different in scale, and inverting such a matrix is analytically possible by definition, but numerically unstable; rescaling the RHS variables alleviates this better than setting tol.solve to a very small value}
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()} (default=square root of double precision machine tolerance)}
   \item{withLL}{default FALSE; if TRUE, calculate likelihood ratio statistics for right hand side variables when using sparse matrix methods in addition to appriximating the coefficient covariance matrix with a numerical Hessian}
-  \item{fdHess}{Use \code{fdHess} to compute an approximate Hessian using finite differences when using sparse matrix methods; may be used to make a coefficient covariance matrix when the number of observations is large}
+  \item{fdHess}{default (method != "eigen"), use \code{fdHess} to compute an approximate Hessian using finite differences when using sparse matrix methods; may be used to make a coefficient covariance matrix when the number of observations is large; may be turned off to save resources if need be, but required for impact measures}
   \item{optimHess}{default FALSE, use \code{fdHess} from \pkg{nlme}, if TRUE, use \code{optim} to calculate Hessian at optimum}
-  \item{trs}{default NULL, if given, a vector of powered spatial weights matrix traces output by \code{trW}; when given, insert the asymptotic analytical values into the numerical Hessian instead of the approximated values; may be used to get around some problems raised when the numerical Hessian is poorly conditioned, generating NaNs in subsequent operations}
+  \item{trs}{default NULL, if given, a vector of powered spatial weights matrix traces output by \code{trW}; when given, insert the asymptotic analytical values into the numerical Hessian instead of the approximated values; may be used to get around some problems raised when the numerical Hessian is poorly conditioned, generating NaNs in subsequent operations; the use of trs is recommended}
   \item{searchInterval}{Default FALSE; when the Matrix method is used, a search may be made to approximate the ends of the line search interval.}
 }
 \details{
@@ -126,7 +127,7 @@ COL.lag.eig$resvar
 W <- as(as_dgRMatrix_listw(nb2listw(COL.nb)), "CsparseMatrix")
 trMatc <- trW(W, type="mult")
 COL.lag.eig1 <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
- nb2listw(COL.nb, style="W"), trs=trMatc)
+ nb2listw(COL.nb, style="W"), fdHess=TRUE, trs=trMatc)
 COL.lag.eig1$fdHess
 system.time(COL.lag.M <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="Matrix", quiet=FALSE))

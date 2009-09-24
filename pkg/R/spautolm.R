@@ -44,7 +44,8 @@ spautolm <- function(formula, data = list(), listw, weights,
     names(aliased) <- substr(cn, 2, nchar(cn))
     if (any(aliased)) {
         nacoef <- which(aliased)
-	x <- x[,-nacoef]
+# bug x for X Bjarke Christensen 090924
+	X <- X[,-nacoef]
     }
     can.sim <- as.logical(NA)
     if (listw$style %in% c("W", "S")) 

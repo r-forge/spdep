@@ -17,7 +17,7 @@ errorsarlm(formula, data=list(), listw, na.action,
  method="eigen", quiet=TRUE, zero.policy=FALSE,
  interval = c(-1, 0.999), tol.solve=1.0e-10,
  tol.opt=.Machine$double.eps^0.5, returnHcov=TRUE, pWOrder=250,
- fdHess=TRUE, optimHess=FALSE, trs=NULL)
+ fdHess=(method != "eigen"), optimHess=FALSE, trs=NULL)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -39,9 +39,9 @@ neighbours, if FALSE (default) assign NA - causing \code{errorsarlm()} to termin
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optim()} (default=square root of double precision machine tolerance, a larger root may be used if the warning: ERROR: ABNORMAL\_TERMINATION\_IN\_LNSRCH is seen, see help(boston) for an example)}
   \item{returnHcov}{default TRUE, return the Vo matrix for a spatial Hausman test}
   \item{pWOrder}{default 250, if returnHcov=TRUE and the method is not \dQuote{eigen}, pass this order to \code{powerWeights} as the power series maximum limit}
-  \item{fdHess}{Use \code{fdHess} to compute an approximate Hessian using finite differences when using sparse matrix methods; may be used to make a coefficient covariance matrix when the number of observations is large}
+  \item{fdHess}{default (method != "eigen"), use \code{fdHess} to compute an approximate Hessian using finite differences when using sparse matrix methods; used to make a coefficient covariance matrix when the number of observations is large; may be turned off to save resources if need be}
   \item{optimHess}{default FALSE, use \code{fdHess} from \pkg{nlme}, if TRUE, use \code{optim} to calculate Hessian at optimum}
-  \item{trs}{default NULL, if given, a vector of powered spatial weights matrix traces output by \code{trW}; when given, insert the asymptotic analytical values into the numerical Hessian instead of the approximated values; may be used to get around some problems raised when the numerical Hessian is poorly conditioned, generating NaNs in subsequent operations}
+  \item{trs}{default NULL, if given, a vector of powered spatial weights matrix traces output by \code{trW}; when given, insert the asymptotic analytical values into the numerical Hessian instead of the approximated values; may be used to get around some problems raised when the numerical Hessian is poorly conditioned, generating NaNs in subsequent operations. When using the numerical Hessian to get the standard error of lambda, it is very strongly advised that trs be given, as the parts of fdHess corresponding to the regression coefficients are badly approximated, affecting the standard error of lambda; the coefficient correlation matrix is unusable}
 }
 \details{
 The asymptotic standard error of \eqn{\lambda}{lambda} is only computed when
@@ -87,6 +87,10 @@ standard errors)}
   \item{aliased}{if not NULL, details of aliased variables}
   \item{LLNullLlm}{Log-likelihood of the null linear model}
   \item{Hcov}{Spatial DGP covariance matrix for Hausman test if available}
+  \item{interval}{}
+  \item{fdHess}{}
+  \item{optimHess}{}
+  \item{insert}{}
   \item{zero.policy}{zero.policy for this model}
   \item{na.action}{(possibly) named vector of excluded or omitted observations if non-default na.action argument used}
 
@@ -117,9 +121,11 @@ summary(COL.errW.eig, correlation=TRUE)
 COL.errB.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="B"), method="eigen", quiet=FALSE)
 summary(COL.errB.eig, correlation=TRUE)
+W <- as(as_dgRMatrix_listw(nb2listw(COL.nb)), "CsparseMatrix")
+trMatc <- trW(W, type="mult")
 COL.errW.M <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
- nb2listw(COL.nb, style="W"), method="Matrix", quiet=FALSE)
-summary(COL.errW.M)
+ nb2listw(COL.nb, style="W"), method="Matrix", quiet=FALSE, trs=trMatc)
+summary(COL.errW.M, correlation=TRUE)
 NA.COL.OLD <- COL.OLD
 NA.COL.OLD$CRIME[20:25] <- NA
 COL.err.NA <- errorsarlm(CRIME ~ INC + HOVAL, data=NA.COL.OLD,

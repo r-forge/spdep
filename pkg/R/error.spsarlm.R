@@ -4,7 +4,7 @@
 errorsarlm <- function(formula, data = list(), listw, na.action, 
 	method="eigen", quiet=TRUE, zero.policy=FALSE, interval=c(-1,0.999), 
 	tol.solve=1.0e-10, tol.opt=.Machine$double.eps^0.5,
-        returnHcov=TRUE, pWOrder=250, fdHess=TRUE,
+        returnHcov=TRUE, pWOrder=250, fdHess=(method != "eigen"),
         optimHess=FALSE, trs=NULL) {
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, na.action=na.action, method="model.frame")
