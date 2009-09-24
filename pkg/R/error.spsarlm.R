@@ -4,7 +4,8 @@
 errorsarlm <- function(formula, data = list(), listw, na.action, 
 	method="eigen", quiet=TRUE, zero.policy=FALSE, interval=c(-1,0.999), 
 	tol.solve=1.0e-10, tol.opt=.Machine$double.eps^0.5,
-        returnHcov=TRUE, pWOrder=250) {
+        returnHcov=TRUE, pWOrder=250, fdHess=TRUE,
+        optimHess=FALSE, trs=NULL) {
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, na.action=na.action, method="model.frame")
 	na.act <- attr(mf, "na.action")
@@ -167,8 +168,52 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
                     Hcov <- B %*% C
                     attr(Hcov, "method") <- method
                 }
+                if (fdHess) {
+                    coefs <- c(lambda, coef.lambda)
+                    fdHess <- getVmate_eig(coefs, y, x, wy, WX, n, eig, s2, trs,
+                       tol.solve=tol.solve, optim=optimHess)
+                    if (is.null(trs)) {
+                        rownames(fdHess) <- colnames(fdHess) <- 
+                            c("lambda", colnames(x))
+                    } else {
+                        rownames(fdHess) <- colnames(fdHess) <- 
+                            c("sigma2", "lambda", colnames(x))
+                    }
+                }
 		ase <- TRUE
 	} else {
+                if (fdHess && method == "Matrix") {
+                    coefs <- c(lambda, coef.lambda)
+                    fdHess <- getVmate_Matrix(coefs, y, x, wy, WX, n, I, csrw,
+                        s2, trs, tol.solve=tol.solve,
+                        optim=optimHess)
+                    if (is.null(trs)) {
+                        rownames(fdHess) <- colnames(fdHess) <- 
+                            c("lambda", colnames(x))
+ 		        rest.se <- sqrt(diag(fdHess)[-1])
+		        lambda.se <- sqrt(fdHess[1,1])
+                    } else {
+                        rownames(fdHess) <- colnames(fdHess) <- 
+                            c("sigma2", "lambda", colnames(x))
+ 		        rest.se <- sqrt(diag(fdHess)[-c(1,2)])
+		        lambda.se <- sqrt(fdHess[2,2])
+                    }
+                } else if (fdHess && method == "spam") {
+                    coefs <- c(lambda, coef.lambda)
+                    fdHess <- getVmate_spam(coefs, y, x, wy, WX, n, csrw, I,
+                        s2, trs, tol.solve=1.0e-10, optim=optimHess)
+                    if (is.null(trs)) {
+                        rownames(fdHess) <- colnames(fdHess) <- 
+                            c("lambda", colnames(x))
+ 		        rest.se <- sqrt(diag(fdHess)[-1])
+		        lambda.se <- sqrt(fdHess[1,1])
+                    } else {
+                        rownames(fdHess) <- colnames(fdHess) <- 
+                            c("sigma2", "lambda", colnames(x))
+ 		        rest.se <- sqrt(diag(fdHess)[-c(1,2)])
+		        lambda.se <- sqrt(fdHess[2,2])
+                    }
+                }                    
                 if (returnHcov) {
                     pp <- lm.model$rank
                     p1 <- 1L:pp
@@ -193,7 +238,9 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 		opt=opt, fitted.values=fit, ase=ase, formula=formula,
 		se.fit=NULL, resvar=asyvar1, similar=similar,
 		lambda.se=lambda.se, LMtest=LMtest, zero.policy=zero.policy, 
-		aliased=aliased, LLNullLlm=LL_null_lm, Hcov=Hcov),
+		aliased=aliased, LLNullLlm=LL_null_lm, Hcov=Hcov,
+                interval=interval, fdHess=fdHess,
+                optimHess=optimHess, insert=!is.null(trs)),
                 class=c("sarlm"))
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 

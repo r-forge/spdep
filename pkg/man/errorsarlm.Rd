@@ -16,7 +16,8 @@ where \eqn{\lambda}{lambda} is found by \code{optimize()} first, and \eqn{\beta}
 errorsarlm(formula, data=list(), listw, na.action,
  method="eigen", quiet=TRUE, zero.policy=FALSE,
  interval = c(-1, 0.999), tol.solve=1.0e-10,
- tol.opt=.Machine$double.eps^0.5, returnHcov=TRUE, pWOrder=250)
+ tol.opt=.Machine$double.eps^0.5, returnHcov=TRUE, pWOrder=250,
+ fdHess=TRUE, optimHess=FALSE, trs=NULL)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -38,6 +39,9 @@ neighbours, if FALSE (default) assign NA - causing \code{errorsarlm()} to termin
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optim()} (default=square root of double precision machine tolerance, a larger root may be used if the warning: ERROR: ABNORMAL\_TERMINATION\_IN\_LNSRCH is seen, see help(boston) for an example)}
   \item{returnHcov}{default TRUE, return the Vo matrix for a spatial Hausman test}
   \item{pWOrder}{default 250, if returnHcov=TRUE and the method is not \dQuote{eigen}, pass this order to \code{powerWeights} as the power series maximum limit}
+  \item{fdHess}{Use \code{fdHess} to compute an approximate Hessian using finite differences when using sparse matrix methods; may be used to make a coefficient covariance matrix when the number of observations is large}
+  \item{optimHess}{default FALSE, use \code{fdHess} from \pkg{nlme}, if TRUE, use \code{optim} to calculate Hessian at optimum}
+  \item{trs}{default NULL, if given, a vector of powered spatial weights matrix traces output by \code{trW}; when given, insert the asymptotic analytical values into the numerical Hessian instead of the approximated values; may be used to get around some problems raised when the numerical Hessian is poorly conditioned, generating NaNs in subsequent operations}
 }
 \details{
 The asymptotic standard error of \eqn{\lambda}{lambda} is only computed when

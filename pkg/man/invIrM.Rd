@@ -81,9 +81,11 @@ system.time(ee <- powerWeights(W, rho=0.9, X=x))
 all.equal(e, as(ee, "matrix"), check.attributes=FALSE)
 nb60rt <- cell2nb(60, 60, torus=TRUE)
 W <- as(as_dgRMatrix_listw(nb2listw(nb60rt)), "CsparseMatrix")
+set.seed(1)
 x <- matrix(rnorm(dim(W)[1]), ncol=1)
 system.time(ee <- powerWeights(W, rho=0.3, X=x))
 str(as(ee, "matrix"))
-coefficients(errorsarlm(as(ee, "matrix")[,1] ~ 1, listw=nb2listw(nb60rt), method="Matrix"))
+obj <- errorsarlm(as(ee, "matrix")[,1] ~ 1, listw=nb2listw(nb60rt), method="Matrix")
+coefficients(obj)
 }
 \keyword{spatial}
