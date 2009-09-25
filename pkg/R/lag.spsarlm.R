@@ -5,13 +5,15 @@ lagsarlm <- function(formula, data = list(), listw,
 	na.action, type="lag", method="eigen", quiet=TRUE, 
 	zero.policy=FALSE, interval=c(-1,0.999), tol.solve=1.0e-10, 
 	tol.opt=.Machine$double.eps^0.5, withLL=FALSE, 
-        fdHess=(method != "eigen"), optimHess=FALSE, trs=NULL, 
+        fdHess=NULL, optimHess=FALSE, trs=NULL, 
         searchInterval=FALSE) {
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, na.action=na.action, 
 		method="model.frame")
 	na.act <- attr(mf, "na.action")
 	if (!inherits(listw, "listw")) stop("No neighbourhood list")
+        if (is.null(fdHess)) fdHess <- method != "eigen"
+        stopifnot(is.logical(fdHess))
 	can.sim <- as.logical(NA)
 	if (listw$style %in% c("W", "S")) 
 		can.sim <- spdep:::can.be.simmed(listw)
