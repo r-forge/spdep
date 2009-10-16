@@ -13,7 +13,8 @@ print.sarlm <- function(x, ...)
 	invisible(x)
 }
 
-summary.sarlm <- function(object, correlation = FALSE, Nagelkerke=FALSE, ...)
+summary.sarlm <- function(object, correlation = FALSE, Nagelkerke=FALSE,
+ Hausman=FALSE, ...)
 {
 	if (object$type == "error" || ((object$type == "lag" || 
 		object$type == "mixed") && object$ase)) {
@@ -66,7 +67,7 @@ summary.sarlm <- function(object, correlation = FALSE, Nagelkerke=FALSE, ...)
             nk <- NK.sarlm(object)
             if (!is.null(nk)) object$NK <- nk
         }
-        if (object$type == "error" && !is.null(object$Hcov)) {
+        if (Hausman && object$type == "error" && !is.null(object$Hcov)) {
                 object$Haus <- Hausman.sarlm(object)
         }
 	if (object$type == "error") {
