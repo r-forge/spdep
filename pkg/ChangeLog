@@ -1,3 +1,13 @@
+2009-10-17 19:37  rsbivand
+
+	* R/error.hessian.R, R/error.spsarlm.R: move errorsarlm/Matrix to
+	  Cholesky
+
+2009-10-16 15:42  rsbivand
+
+	* ChangeLog, inst/ChangeLog: make Hausman test optional in
+	  summary.sarlm
+
 2009-10-16 15:40  rsbivand
 
 	* DESCRIPTION, R/nb2mat.R, R/summary.spsarlm.R,
