@@ -1,3 +1,11 @@
+2009-10-19 17:21  rsbivand
+
+	* R/error.hessian.R, R/summary.spsarlm.R: tidy
+
+2009-10-17 19:38  rsbivand
+
+	* ChangeLog, inst/ChangeLog: move errorsarlm/Matrix to Cholesky
+
 2009-10-17 19:37  rsbivand
 
 	* R/error.hessian.R, R/error.spsarlm.R: move errorsarlm/Matrix to
