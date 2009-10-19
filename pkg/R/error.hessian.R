@@ -1,7 +1,7 @@
 getVmate_eig <- function(coefs, y, X, wy, WX, n, eig, s2, trs,
     tol.solve=1.0e-10, optim=FALSE) {
     if (optim) {
-        opt <- optim(par=coefs, fn=f_errlm_eig, y=y, X=X, wy=wy, WX, n=n,
+        opt <- optim(par=coefs, fn=f_errlm_eig, y=y, X=X, wy=wy, WX=WX, n=n,
             eig=eig, method="BFGS", hessian=TRUE)
         mat <- opt$hessian
     } else {
@@ -104,7 +104,8 @@ getVmate_Matrix <- function(coefs, y, X, wy, WX, n, I, csrw, nW, nChol, pChol,
     s2, trs, tol.solve=1.0e-10, optim=FALSE) {
     if (optim) {
         opt <- optim(par=coefs, fn=f_errlm_Matrix, y=y, X=X, wy=wy, WX=WX, n=n,
-            I=I, csrw=csrw, nW=nW, nChol=, pChol=, method="BFGS", hessian=TRUE)
+            I=I, csrw=csrw, nW=nW, nChol=nChol, pChol=pChol, method="BFGS",
+            hessian=TRUE)
         mat <- opt$hessian
     } else {
         fd <- fdHess(coefs, f_errlm_Matrix, y, X, wy, WX, n, I, csrw, nW,

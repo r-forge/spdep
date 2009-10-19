@@ -196,7 +196,9 @@ Hausman.sarlm <- function(object, tol=NULL) {
     attr(parameter, "names") <- "df"
     p.value <- 1 - pchisq(abs(statistic), parameter)
     method <- paste("Spatial Hausman test", fmeth)
-    data.name <- deparse(object$formula)
+    data.name <- strwrap(deparse(object$formula), exdent=4)
+    if (length(data.name) > 1) 
+        data.name <- paste(data.name, collapse="\n    ")
     res <- list(statistic = statistic, parameter = parameter, 
         p.value = p.value, method = method, data.name=data.name)
     class(res) <- "htest"
