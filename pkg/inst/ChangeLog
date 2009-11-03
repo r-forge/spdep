@@ -1,3 +1,14 @@
+2009-11-03 22:35  rsbivand
+
+	* DESCRIPTION,
+	  R/nblag.R, R/tri2nb.R, man/tri2nb.Rd: replacing tripack
+	  with deldir
+
+2009-11-03 21:18  rsbivand
+
+	* ChangeLog,
+	  inst/ChangeLog: errorsarlm no-intercept problem
+
 2009-11-03 21:17  rsbivand
 
 	* DESCRIPTION,
