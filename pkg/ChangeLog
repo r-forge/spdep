@@ -1,3 +1,11 @@
+2009-11-26 08:07  rsbivand
+
+	* man/nb2lines.Rd: nb2WB no neighbours fix
+
+2009-11-26 07:43  rsbivand
+
+	* ChangeLog, inst/ChangeLog: nb2WB no neighbours fix
+
 2009-11-26 07:42  rsbivand
 
 	* DESCRIPTION, R/nb2listw.R: nb2WB no neighbours fix
