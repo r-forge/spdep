@@ -1,3 +1,8 @@
+2009-11-26 14:31  rsbivand
+
+	* ChangeLog, DESCRIPTION, NAMESPACE, inst/ChangeLog: NAMESPACE
+	  cleaning
+
 2009-11-26 08:07  rsbivand
 
 	* ChangeLog, inst/ChangeLog: nb2WB no neighbours fix
