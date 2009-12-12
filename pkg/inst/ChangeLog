@@ -1,3 +1,11 @@
+2009-12-12 09:50  rsbivand
+
+	* DESCRIPTION, NAMESPACE, R/s2sls.R, man/stsls.Rd: updating stsls
+
+2009-11-26 14:32  rsbivand
+
+	* ChangeLog, inst/ChangeLog: NAMESPACE cleaning
+
 2009-11-26 14:31  rsbivand
 
 	* ChangeLog, DESCRIPTION, NAMESPACE, inst/ChangeLog: NAMESPACE
