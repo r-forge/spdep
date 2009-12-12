@@ -8,11 +8,11 @@ importFrom(MASS, mvrnorm)
 
 importFrom(coda, as.mcmc, HPDinterval)
 
+import(Matrix)
+
 importClassesFrom(spam, spam)
 importMethodsFrom(spam, Math, Math2)
 importFrom(spam, validspamobject)
-
-import(Matrix)
 
 export(EBImoran.mc, probmap, choynowski, EBest, EBlocal, LR.sarlm, 
 	LR1.sarlm, Wald1.sarlm, airdist, card, rookcell, 
