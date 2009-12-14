@@ -1,3 +1,13 @@
+2009-12-14 19:59  rsbivand
+
+	* DESCRIPTION, NAMESPACE, R/impacts.R, R/s2sls.R,
+	  man/impacts.sarlm.Rd, man/lagsarlm.Rd: convert impacts to method,
+	  provide sarlm and stsls methods
+
+2009-12-12 09:51  rsbivand
+
+	* ChangeLog, inst/ChangeLog: updating stsls
+
 2009-12-12 09:50  rsbivand
 
 	* DESCRIPTION, NAMESPACE, R/s2sls.R, man/stsls.Rd: updating stsls
