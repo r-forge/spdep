@@ -63,7 +63,10 @@ export(mstree, nbcosts, nbcost, plot.mst, plot.skater, prunecost, ssw, prunemst,
 
 export(aple, aple.mc, aple.plot, localAple)
 
-export(trW, impacts.sarlm, print.sarlmImpact, summary.sarlmImpact, print.summary.sarlmImpact, plot.sarlmImpact, HPDinterval.sarlmImpact)
+export(trW, impacts
+#, impacts.sarlm, print.lagImpact, summary.lagImpact,
+# print.summary.lagImpact, plot.lagImpact, HPDinterval.lagImpact
+)
 
 import(maptools)
 
@@ -113,6 +116,7 @@ S3method(fitted, sarlm)
 S3method(logLik, sarlm)
 S3method(anova, sarlm)
 S3method(predict, sarlm)
+S3method(impacts, sarlm)
 
 S3method(print, summary.sarlm)
 S3method(print, sarlm.pred)
@@ -147,15 +151,16 @@ S3method(deviance, stsls)
 S3method(coef, stsls)
 S3method(print, stsls)
 S3method(summary, stsls)
+S3method(impacts, stsls)
 
 S3method(print, summary.stsls)
 
 S3method(plot, mst)
 S3method(plot, skater)
 
-S3method(print, sarlmImpact)
-S3method(plot, sarlmImpact)
-S3method(summary, sarlmImpact)
-S3method(HPDinterval, sarlmImpact)
-S3method(print, summary.sarlmImpact)
+S3method(print, lagImpact)
+S3method(plot, lagImpact)
+S3method(summary, lagImpact)
+S3method(HPDinterval, lagImpact)
+S3method(print, summary.lagImpact)
 

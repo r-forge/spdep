@@ -53,6 +53,7 @@ stsls <- function(formula, data = list(), listw, zero.policy=FALSE,
 	result$zero.policy <- zero.policy
 	result$robust <- robust
 	result$legacy <- legacy
+        result$listw_style <- listw$style
 	result$call <- match.call()
 	class(result) <- "stsls"
 	result
