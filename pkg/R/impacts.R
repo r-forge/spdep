@@ -61,6 +61,24 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
     if (is.null(listw) && is.null(tr))
         stop("either tr or listw must be given")
     if (is.null(listw)) {
+
+        lagImpacts <- function(T, g, P) {
+            PT <- P %*% T
+            direct <- apply(apply(PT, 1, function(x) x*g), 2, sum)
+            total <- c(apply(P, 1, sum) * sum(g))
+            indirect <- total - direct
+            names(direct) <- names(total)
+            list(direct=direct, indirect=indirect, total=total)
+        }
+
+        lagDistrImpacts <- function(T, g, P, q=10) {
+            PT <- P %*% T
+            direct <- apply(PT, 1, function(x) x * g)[1:q, ]
+            total <- t(sapply(g, function(x) apply(P, 1, sum)*x))[1:q, ]
+            indirect <- total - direct
+            list(direct=direct, indirect=indirect, total=total)
+        }
+
         q <- length(tr)-1
         g <- rho^(0:q)
         T <- matrix(c(1, tr[-(q+1)]/n), nrow=1)
@@ -136,6 +154,26 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
         }
         attr(res, "method") <- "trace"
     } else {
+        lagImpactsExact <- function(SW, P, n) {
+            direct <- sapply(P, function(x) sum(diag(x*SW))/n)
+            total <- sapply(P, function(x) sum(x*SW)/n)
+            indirect <- total - direct
+            list(direct=direct, indirect=indirect, total=total)
+        }
+
+        mixedImpactsExact <- function(SW, P, n, listw) {
+            p <- dim(P)[1]
+            direct <- numeric(p)
+            total <- numeric(p)
+            W <- listw2mat(listw)
+            for (i in 1:p) {
+                SWr <- SW %*% (P[i,1]*diag(n) + P[i,2]*W)
+                direct[i] <- sum(diag(SWr))/n
+                total[i] <- sum(SWr)/n
+            }
+            indirect <- total - direct
+            list(direct=direct, indirect=indirect, total=total)
+        }
         SW <- invIrW(listw, rho)
         if (type == "lag") res <- lagImpactsExact(SW, P, n)
         else if (type == "mixed") res <- mixedImpactsExact(SW, P, n, listw)
@@ -270,45 +308,6 @@ impacts.sarlm <- function(obj, ..., tr=NULL, R=NULL, listw=NULL, useHESS=NULL,
     attr(res, "insert") <- iNsert
     attr(res, "iClass") <- class(obj)
     res
-}
-
-lagImpacts <- function(T, g, P) {
-    PT <- P %*% T
-    direct <- apply(apply(PT, 1, function(x) x*g), 2, sum)
-    total <- c(apply(P, 1, sum) * sum(g))
-    indirect <- total - direct
-    names(direct) <- names(total)
-    list(direct=direct, indirect=indirect, total=total)
-}
-
-lagDistrImpacts <- function(T, g, P, q=10) {
-    PT <- P %*% T
-    direct <- apply(PT, 1, function(x) x * g)[1:q, ]
-    total <- t(sapply(g, function(x) apply(P, 1, sum)*x))[1:q, ]
-    indirect <- total - direct
-    list(direct=direct, indirect=indirect, total=total)
-}
-
-
-lagImpactsExact <- function(SW, P, n) {
-    direct <- sapply(P, function(x) sum(diag(x*SW))/n)
-    total <- sapply(P, function(x) sum(x*SW)/n)
-    indirect <- total - direct
-    list(direct=direct, indirect=indirect, total=total)
-}
-
-mixedImpactsExact <- function(SW, P, n, listw) {
-    p <- dim(P)[1]
-    direct <- numeric(p)
-    total <- numeric(p)
-    W <- listw2mat(listw)
-    for (i in 1:p) {
-        SWr <- SW %*% (P[i,1]*diag(n) + P[i,2]*W)
-        direct[i] <- sum(diag(SWr))/n
-        total[i] <- sum(SWr)/n
-    }
-    indirect <- total - direct
-    list(direct=direct, indirect=indirect, total=total)
 }
 
 lagImpactMat <- function(x, reportQ=NULL) {
