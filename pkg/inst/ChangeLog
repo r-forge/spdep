@@ -1,3 +1,12 @@
+2009-12-15 17:16  rsbivand
+
+	* R/impacts.R: convert impacts to method, provide sarlm and stsls
+	  methods
+
+2009-12-15 08:40  rsbivand
+
+	* ChangeLog, inst/ChangeLog: adding Hausman test for GMerrorsar
+
 2009-12-15 08:39  rsbivand
 
 	* NAMESPACE, R/kpgm_new.R, R/summary.spsarlm.R, man/GMerrorsar.Rd,
