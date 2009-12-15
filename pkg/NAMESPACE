@@ -41,7 +41,7 @@ export(EBImoran.mc, probmap, choynowski, EBest, EBlocal, LR.sarlm,
 	write.sn2dat, read.dat2listw, nb2blocknb, p.adjustSP,
 #	asMatrixCsrListw, asMatrixCsrI, asMatrixCsrIrW, asListwMatrixCsr, 
 	is.symmetric.glist, similar.listw, nb2lines, listw2lines, df2sn, 
-	plot.listw, aggregate.nb, old.make.sym.nb, Hausman.sarlm)
+	plot.listw, aggregate.nb, old.make.sym.nb, Hausman.test)
 
 export(spautolm, residuals.spautolm, deviance.spautolm, coef.spautolm, 
 	fitted.spautolm, print.spautolm, summary.spautolm, LR1.spautolm, 
@@ -63,10 +63,7 @@ export(mstree, nbcosts, nbcost, plot.mst, plot.skater, prunecost, ssw, prunemst,
 
 export(aple, aple.mc, aple.plot, localAple)
 
-export(trW, impacts
-#, impacts.sarlm, print.lagImpact, summary.lagImpact,
-# print.summary.lagImpact, plot.lagImpact, HPDinterval.lagImpact
-)
+export(trW, impacts)
 
 import(maptools)
 
@@ -117,6 +114,7 @@ S3method(logLik, sarlm)
 S3method(anova, sarlm)
 S3method(predict, sarlm)
 S3method(impacts, sarlm)
+S3method(Hausman.test, sarlm)
 
 S3method(print, summary.sarlm)
 S3method(print, sarlm.pred)
@@ -138,6 +136,7 @@ S3method(fitted, gmsar)
 S3method(print, gmsar)
 S3method(summary, gmsar)
 S3method(logLik, gmsar)
+S3method(Hausman.test, gmsar)
 
 S3method(print, summary.gmsar)
 
