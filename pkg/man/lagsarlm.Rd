@@ -12,8 +12,8 @@ where \eqn{\rho}{rho} is found by \code{optimize()} first, and \eqn{\beta}{beta}
 }
 \usage{
 lagsarlm(formula, data = list(), listw, 
-	na.action, type="lag", method="eigen", quiet=TRUE, 
-	zero.policy=FALSE, interval=c(-1,0.999), tol.solve=1.0e-10, 
+	na.action, type="lag", method="eigen", quiet=NULL, 
+	zero.policy=NULL, interval=c(-1,0.999), tol.solve=1.0e-10, 
 	tol.opt=.Machine$double.eps^0.5, withLL=FALSE, 
         fdHess=NULL, optimHess=FALSE, trs=NULL, 
         searchInterval=FALSE)
@@ -30,8 +30,8 @@ is called.}
   \item{method}{"eigen" (default) - the Jacobian is computed as the product 
 of (1 - rho*eigenvalue) using \code{eigenw}, and "spam" or "Matrix" for strictly symmetric weights lists of styles "B" and "C", or made symmetric by similarity (Ord, 1975, Appendix C) if possible for styles "W" and "S", using code from the spam or Matrix packages to calculate the determinant.
 }
-  \item{quiet}{default=TRUE; if FALSE, reports function values during optimization.}
-  \item{zero.policy}{if TRUE assign zero to the lagged value of zones without 
+  \item{quiet}{default NULL, use !verbose global option value; if FALSE, reports function values during optimization.}
+  \item{zero.policy}{default NULL, use global option value; if TRUE assign zero to the lagged value of zones without 
 neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminate with an error}
   \item{interval}{search interval for autoregressive parameter when not using method="eigen"; default is c(-1,1); method="Matrix" will attempt to search for an appropriate interval}
   \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=1.0e-10). This may be used if necessary to extract coefficient standard errors (for instance lowering to 1e-12), but errors in \code{solve()} may constitute indications of poorly scaled variables: if the variables have scales differing much from the autoregressive coefficient, the values in this matrix may be very different in scale, and inverting such a matrix is analytically possible by definition, but numerically unstable; rescaling the RHS variables alleviates this better than setting tol.solve to a very small value}

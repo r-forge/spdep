@@ -18,9 +18,9 @@
 }
 \usage{
 spautolm(formula, data = list(), listw, weights,
- na.action, verbose = FALSE, tol.opt = .Machine$double.eps^(2/3),
+ na.action, verbose = NULL, tol.opt = .Machine$double.eps^(2/3),
  family = "SAR", method="full", interval=c(-1,0.999),
- zero.policy = FALSE, super=NULL, Matrix_intern=TRUE, %cholAlloc=NULL, 
+ zero.policy = NULL, super=NULL, Matrix_intern=TRUE, %cholAlloc=NULL, 
  tol.solve=.Machine$double.eps, find_interval=FALSE, llprof=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -33,12 +33,12 @@ is called.}
   \item{listw}{a \code{listw} object created for example by \code{nb2listw}}
   \item{na.action}{a function (default \code{options("na.action")}), can also be \code{na.omit} or \code{na.exclude} with consequences for residuals and fitted values - in these cases the weights list will be subsetted to remove NAs in the data. Note that only weights lists created without using the glist argument to \code{nb2listw} may be subsetted.}
   \item{weights}{an optional vector of weights to be used in the fitting process}
-  \item{verbose}{default=FALSE; if TRUE, reports function values during optimization.}
+  \item{verbose}{default NULL, use global option value; if TRUE, reports function values during optimization.}
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()}}
   \item{family}{character string: either \code{"SAR"} or \code{"CAR"} for simultaneous or conditional autoregressions; \code{"SMA"} for spatial moving average added thanks to Jielai Ma - \code{"SMA"} is only implemented for method=\code{"full"} because it necessarily involves dense matrices}
   \item{method}{character string: default \code{"full"} for use of full matrices, \code{"Matrix"} or \code{"spam"} for sparse matrices (restricted to spatial weights symmetric or similar to symmetric) using methods in either the Matrix or spam packages. Note that users should change from spam to Matrix}
   \item{interval}{search interval for autoregressive parameter when not using method="eigen"; default is c(-1,0.999), \code{optimize} will reset NA/NaN to a bound and gives a warning when the interval is poorly set; method="Matrix" will attempt to search for an appropriate interval, if find\_interval=TRUE (fails on some platforms)}
-  \item{zero.policy}{Include list of no-neighbour observations in output if TRUE --- otherwise zero.policy is handled within the listw argument}
+  \item{zero.policy}{default NULL, use global option value; Include list of no-neighbour observations in output if TRUE --- otherwise zero.policy is handled within the listw argument}
   \item{super}{logical argument to \code{\link[Matrix]{Cholesky}}, only used for method="Matrix"; at present only super=FALSE is supported. It should only be used for positive lambda. If NULL, the Cholesky decompisition of the matrix is undertaken at each step.}
   \item{Matrix_intern}{default TRUE, if FALSE, does not use vectorised Matrix internal function.}
 %  \item{cholAlloc}{control arguments for memory allocation in \code{chol} for

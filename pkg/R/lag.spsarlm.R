@@ -2,11 +2,16 @@
 #
 
 lagsarlm <- function(formula, data = list(), listw, 
-	na.action, type="lag", method="eigen", quiet=TRUE, 
-	zero.policy=FALSE, interval=c(-1,0.999), tol.solve=1.0e-10, 
+	na.action, type="lag", method="eigen", quiet=NULL, 
+	zero.policy=NULL, interval=c(-1,0.999), tol.solve=1.0e-10, 
 	tol.opt=.Machine$double.eps^0.5, withLL=FALSE, 
         fdHess=NULL, optimHess=FALSE, trs=NULL, 
         searchInterval=FALSE) {
+        if (is.null(quiet)) quiet <- !get("verbose", env = .spdepOptions)
+        stopifnot(is.logical(quiet))
+        if (is.null(zero.policy))
+            zero.policy <- get("zeroPolicy", env = .spdepOptions)
+        stopifnot(is.logical(zero.policy))
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, na.action=na.action, 
 		method="model.frame")

@@ -1,12 +1,15 @@
 # Copyright 2006 by Luc Anselin and Roger Bivand
 # modified by Gianfranco Piras on December 11, 2009 (added the argument legacy)
-stsls <- function(formula, data = list(), listw, zero.policy=FALSE,
+stsls <- function(formula, data = list(), listw, zero.policy=NULL,
 	na.action=na.fail, robust=FALSE, legacy=FALSE) {
 
 
     	if (!inherits(listw, "listw")) 
         	stop("No neighbourhood list")
 
+        if (is.null(zero.policy))
+            zero.policy <- get("zeroPolicy", env = .spdepOptions)
+        stopifnot(is.logical(zero.policy))
     	mt <- terms(formula, data = data)
     	mf <- lm(formula, data, na.action=na.action, method="model.frame")
     	na.act <- attr(mf, "na.action")

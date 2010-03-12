@@ -1,13 +1,18 @@
 # Copyright 2005-9 by Roger Bivand
 spautolm <- function(formula, data = list(), listw, weights,
-    na.action, verbose=FALSE, tol.opt=.Machine$double.eps^(2/3),
-    family="SAR", method="full", interval=c(-1,0.999), zero.policy=FALSE,
+    na.action, verbose=NULL, tol.opt=.Machine$double.eps^(2/3),
+    family="SAR", method="full", interval=c(-1,0.999), zero.policy=NULL,
 #    cholAlloc=NULL, 
     super=NULL, Matrix_intern=TRUE, tol.solve=.Machine$double.eps,
     find_interval=FALSE, llprof=NULL) 
 {
     if (!inherits(listw, "listw")) 
         stop("No neighbourhood list")
+    if (is.null(verbose)) verbose <- get("verbose", env = .spdepOptions)
+    stopifnot(is.logical(verbose))
+        if (is.null(zero.policy))
+            zero.policy <- get("zeroPolicy", env = .spdepOptions)
+        stopifnot(is.logical(zero.policy))
 
     mf <- match.call(expand.dots = FALSE)
     m <- match(c("formula", "data", "weights", "na.action"), names(mf), 0)

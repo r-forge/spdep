@@ -3,16 +3,24 @@
 \alias{get.spChkOption}
 \alias{chkIDs}
 \alias{spNamedVec}
+\alias{set.VerboseOption}
+\alias{get.VerboseOption}
+\alias{set.ZeroPolicyOption}
+\alias{get.ZeroPolicyOption}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{Control checking of spatial object IDs}
 \description{
-  Provides support for checking the mutual integrity of spatial neighbour weights and spatial data. 
+  Provides support for checking the mutual integrity of spatial neighbour weights and spatial data; similar mechanisms are used for passing global verbose and zero.policy options. 
 }
 \usage{
 set.spChkOption(check)
 get.spChkOption()
 chkIDs(x, listw)
 spNamedVec(var, data)
+set.VerboseOption(check)
+get.VerboseOption()
+set.ZeroPolicyOption(check)
+get.ZeroPolicyOption()
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{

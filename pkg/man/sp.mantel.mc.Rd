@@ -13,7 +13,7 @@ Moran (\eqn{C_{ij} = z_i z_j}{C(i,j) = z(i)*z(j)}), Geary
 permutation test.
 }
 \usage{
-sp.mantel.mc(var, listw, nsim, type = "moran", zero.policy = FALSE,
+sp.mantel.mc(var, listw, nsim, type = "moran", zero.policy = NULL,
  alternative = "greater", spChk=NULL)
 plot.mc.sim(x, xlim, xlab, main, sub, ..., ptype="density")
 }
@@ -23,7 +23,7 @@ plot.mc.sim(x, xlim, xlab, main, sub, ..., ptype="density")
   \item{listw}{a \code{listw} object created for example by \code{nb2listw}}
   \item{nsim}{number of permutations}
   \item{type}{"moran", "geary" or "sokal" criteria for similarity}
-  \item{zero.policy}{if TRUE assign zero to the lagged value of zones without 
+  \item{zero.policy}{default NULL, use global option value; if TRUE assign zero to the lagged value of zones without 
   neighbours, if FALSE assign NA}
   \item{alternative}{a character string specifying the alternative hypothesis, 
   must be one of "greater" (default), or "less".}

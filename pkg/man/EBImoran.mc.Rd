@@ -9,7 +9,7 @@
   An empirical Bayes index modification of Moran's I for testing for spatial autocorrelation in a rate, typically the number of observed cases in a population at risk. The index value is tested by using nsim random permutations of the index for the given spatial weighting scheme, to establish the rank of the observed statistic in relation to the nsim simulated values.
 }
 \usage{
-EBImoran.mc(n, x, listw, nsim, zero.policy = FALSE, 
+EBImoran.mc(n, x, listw, nsim, zero.policy = NULL, 
  alternative = "greater", spChk=NULL)
 }
 %- maybe also `usage' for other objects documented here.
@@ -18,7 +18,7 @@ EBImoran.mc(n, x, listw, nsim, zero.policy = FALSE,
   \item{x}{a numeric vector of populations at risk the same length as the neighbours list in listw}
   \item{listw}{a \code{listw} object created for example by \code{nb2listw}}
   \item{nsim}{number of permutations}
-  \item{zero.policy}{if TRUE assign zero to the lagged value of zones without neighbours, if FALSE assign NA}
+  \item{zero.policy}{default NULL, use global option value; if TRUE assign zero to the lagged value of zones without neighbours, if FALSE assign NA}
   \item{alternative}{a character string specifying the alternative hypothesis, must be one of "greater" (default), or "less"}
   \item{spChk}{should the data vector names be checked against the spatial objects for identity integrity, TRUE, or FALSE, default NULL to use \code{get.spChkOption()}}
 }

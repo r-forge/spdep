@@ -1,8 +1,10 @@
-# Copyright 2001-7 by Roger Bivand 
+# Copyright 2001-10 by Roger Bivand 
 #
 
-.spChkOption <- new.env(FALSE, globalenv())
-assign("spChkID", FALSE, env = .spChkOption)
+.spdepOptions <- new.env(FALSE, globalenv())
+assign("spChkID", FALSE, env = .spdepOptions)
+assign("zeroPolicy", FALSE, env = .spdepOptions)
+assign("verbose", FALSE, env = .spdepOptions)
 .conflicts.OK <- TRUE
 
 .onLoad <- function(lib, pkg) {

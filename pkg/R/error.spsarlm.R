@@ -2,16 +2,22 @@
 #
 
 errorsarlm <- function(formula, data = list(), listw, na.action, 
-	method="eigen", quiet=TRUE, zero.policy=FALSE, interval=c(-1,0.999), 
+	method="eigen", quiet=NULL, zero.policy=NULL, interval=c(-1,0.999), 
 	tol.solve=1.0e-10, tol.opt=.Machine$double.eps^0.5,
         returnHcov=TRUE, pWOrder=250, fdHess=NULL,
-        optimHess=FALSE, trs=NULL) {
+        optimHess=FALSE, trs=NULL, LAPACK=FALSE) {
+        if (is.null(quiet)) quiet <- !get("verbose", env = .spdepOptions)
+        stopifnot(is.logical(quiet))
+        if (is.null(zero.policy))
+            zero.policy <- get("zeroPolicy", env = .spdepOptions)
+        stopifnot(is.logical(zero.policy))
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, na.action=na.action, method="model.frame")
 	na.act <- attr(mf, "na.action")
 	if (!inherits(listw, "listw")) stop("No neighbourhood list")
         if (is.null(fdHess)) fdHess <- method != "eigen"
         stopifnot(is.logical(fdHess))
+        stopifnot(is.logical(LAPACK))
 	can.sim <- as.logical(NA)
 	if (listw$style %in% c("W", "S")) 
 		can.sim <- can.be.simmed(listw)
@@ -99,7 +105,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 			lower=eig.range[1]+.Machine$double.eps, 
 			upper=eig.range[2]-.Machine$double.eps, maximum=TRUE,
 			tol=tol.opt, eig=eig, y=y, wy=wy, x=x, WX=WX, 
-			n=n, quiet=quiet)
+			n=n, quiet=quiet, LAPACK=LAPACK)
 		lambda <- opt$maximum
 		names(lambda) <- "lambda"
 		LL <- opt$objective
@@ -112,7 +118,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
         	I <- diag.spam(1, n, n)
 		opt <- optimize(sar.error.f.sp, interval=interval, 
 			maximum=TRUE, tol=tol.opt, csrw=csrw, I=I, y=y, wy=wy, 
-			x=x, WX=WX, n=n, quiet=quiet)
+			x=x, WX=WX, n=n, quiet=quiet, LAPACK=LAPACK)
 		lambda <- opt$maximum
 		names(lambda) <- "lambda"
 		LL <- opt$objective
@@ -135,7 +141,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 		opt <- optimize(sar.error.f.M, interval=interval, 
 			maximum=TRUE, tol=tol.opt, csrw=csrw, I=I, y=y, wy=wy, 
 			x=x, WX=WX, n=n, nW=nW, nChol=nChol, pChol=pChol,
-                        quiet=quiet)
+                        quiet=quiet, LAPACK=LAPACK)
 		lambda <- opt$maximum
 		names(lambda) <- "lambda"
 		LL <- opt$objective
@@ -268,11 +274,11 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 	ret
 }
 
-sar.error.f <- function(lambda, eig, y, wy, x, WX, n, quiet)
+sar.error.f <- function(lambda, eig, y, wy, x, WX, n, quiet, LAPACK=FALSE)
 {
 	yl <- y - lambda*wy
 	xl <- x - lambda*WX
-	xl.q <- qr.Q(qr(xl))
+	xl.q <- qr.Q(qr(xl, LAPACK=LAPACK))
 	xl.q.yl <- t(xl.q) %*% yl
 	SSE <- t(yl) %*% yl - t(xl.q.yl) %*% xl.q.yl
 	s2 <- SSE/n
@@ -283,10 +289,10 @@ sar.error.f <- function(lambda, eig, y, wy, x, WX, n, quiet)
 	ret
 }
 
-sar.error.f.sp <- function(lambda, csrw, I, y, wy, x, WX, n, quiet) {
+sar.error.f.sp <- function(lambda, csrw, I, y, wy, x, WX, n, quiet, LAPACK=FALSE) {
 	yl <- y - lambda*wy
 	xl <- x - lambda*WX
-	xl.q <- qr.Q(qr(xl))
+	xl.q <- qr.Q(qr(xl, LAPACK=LAPACK))
 	xl.q.yl <- t(xl.q) %*% yl
 	SSE <- t(yl) %*% yl - t(xl.q.yl) %*% xl.q.yl
 	s2 <- SSE/n
@@ -305,10 +311,10 @@ sar.error.f.sp <- function(lambda, csrw, I, y, wy, x, WX, n, quiet) {
 }
 
 sar.error.f.M <- function(lambda, csrw, I, y, wy, x, WX, n, nW, nChol,
-        pChol, quiet) {
+        pChol, quiet, LAPACK=FALSE) {
 	yl <- y - lambda*wy
 	xl <- x - lambda*WX
-	xl.q <- qr.Q(qr(xl))
+	xl.q <- qr.Q(qr(xl, LAPACK=LAPACK))
 	xl.q.yl <- t(xl.q) %*% yl
 	SSE <- t(yl) %*% yl - t(xl.q.yl) %*% xl.q.yl
 	s2 <- SSE/n

@@ -1,8 +1,11 @@
 # Copyright 2002 by Roger Bivand 
 #
 
-sp.mantel.mc <- function(var, listw, nsim, type="moran", zero.policy=FALSE,
+sp.mantel.mc <- function(var, listw, nsim, type="moran", zero.policy=NULL,
 	alternative="greater", spChk=NULL) {
+        if (is.null(zero.policy))
+            zero.policy <- get("zeroPolicy", env = .spdepOptions)
+        stopifnot(is.logical(zero.policy))
 	alternative <- match.arg(alternative, c("greater", "less"))
 	if(!inherits(listw, "listw")) stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))

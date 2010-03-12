@@ -57,7 +57,8 @@ impacts.stsls <- function(obj, ..., tr=NULL, R=NULL, listw=NULL,
 }
 
 intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
-    interval, type, tr, R, listw, tol, empirical, Q, icept, iicept, p) {
+    interval, type, tr, R, listw, tol, empirical, Q, icept, iicept, p,
+    mess=FALSE) {
     if (is.null(listw) && is.null(tr))
         stop("either tr or listw must be given")
     if (is.null(listw)) {
@@ -95,6 +96,7 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
         if (!is.null(R)) {
             samples <- mvrnorm(n=R, mu=mu, Sigma=Sigma, tol=tol,
                 empirical=empirical)
+            if (mess) samples[,irho] <- 1 - exp(samples[,irho])
             if (!is.null(interval)) {
                 check <- ((samples[,irho] > interval[1]) & 
                     (samples[,irho] < interval[2]))
@@ -221,6 +223,11 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
     attr(res, "haveQ") <- !is.null(Q)
     class(res) <- "lagImpact"
     res
+}
+
+impacts.lagmess <- function(obj, ..., tr=NULL, R=NULL, listw=NULL, 
+  tol=1e-6, empirical=FALSE, Q=NULL) {
+    stopifnot(!is.null(obj$mixedHess))
 }
 
 impacts.sarlm <- function(obj, ..., tr=NULL, R=NULL, listw=NULL, useHESS=NULL,

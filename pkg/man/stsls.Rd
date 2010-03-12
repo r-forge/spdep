@@ -12,8 +12,8 @@
   The function fits a spatial lag model by two stage least squares, with the option of adjusting the results for heteroskedasticity.
 }
 \usage{
-stsls(formula, data = list(), listw, zero.policy = FALSE,
- na.action = na.fail, robust = FALSE,legacy=FALSE)
+stsls(formula, data = list(), listw, zero.policy = NULL,
+ na.action = na.fail, robust = FALSE, legacy=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -23,7 +23,7 @@ of model specification are given for \code{lm()}}
 By default the variables are taken from the environment which the function 
 is called.}
   \item{listw}{a \code{listw} object created for example by \code{nb2listw}}
-  \item{zero.policy}{if TRUE assign zero to the lagged value of zones without 
+  \item{zero.policy}{default NULL, use global option value; if TRUE assign zero to the lagged value of zones without 
 neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminate with an error}
   \item{na.action}{a function (default \code{na.fail}), can also be \code{na.omit} or \code{na.exclude} with consequences for residuals and fitted values - in these cases the weights list will be subsetted to remove NAs in the data. It may be necessary to set zero.policy to TRUE because this subsetting may create no-neighbour observations. Note that only weights lists created without using the glist argument to \code{nb2listw} may be subsetted.}
   \item{robust}{default FALSE, if TRUE, apply a heteroskedasticity correction to the coefficients covariances}

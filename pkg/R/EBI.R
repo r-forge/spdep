@@ -2,8 +2,11 @@
 # Addition of Martuzzi and Elliott Copyright 2006 Olaf Berke and Roger Bivand
 #
 
-EBImoran <- function (z, listw, nn, S0, zero.policy = FALSE) 
+EBImoran <- function (z, listw, nn, S0, zero.policy = NULL) 
 {
+        if (is.null(zero.policy))
+            zero.policy <- get("zeroPolicy", env = .spdepOptions)
+        stopifnot(is.logical(zero.policy))
     zm <- mean(z)
     zz <- sum((z - zm)^2)
     lz <- lag.listw(listw, z, zero.policy = zero.policy)
@@ -11,9 +14,12 @@ EBImoran <- function (z, listw, nn, S0, zero.policy = FALSE)
     res <- EBI
     res
 }
-EBImoran.mc <- function (n, x, listw, nsim, zero.policy = FALSE,
+EBImoran.mc <- function (n, x, listw, nsim, zero.policy = NULL,
  alternative = "greater", spChk = NULL) 
 {
+        if (is.null(zero.policy))
+            zero.policy <- get("zeroPolicy", env = .spdepOptions)
+        stopifnot(is.logical(zero.policy))
     alternative <- match.arg(alternative, c("greater", "less"))
     if (!inherits(listw, "listw")) 
         stop(paste(deparse(substitute(listw)), "is not a listw object"))
@@ -155,8 +161,11 @@ EBest <- function(n, x, family="poisson") {
 #result
 #}
 
-EBlocal <- function(ri, ni, nb, zero.policy = FALSE,
+EBlocal <- function(ri, ni, nb, zero.policy = NULL,
     spChk = NULL, geoda = FALSE) {
+        if (is.null(zero.policy))
+            zero.policy <- get("zeroPolicy", env = .spdepOptions)
+        stopifnot(is.logical(zero.policy))
 # class to inherits Jari Oksanen 080603
     if (!inherits(nb, "nb")) 
         stop(paste(deparse(substitute(nb)), "is not an nb object"))
