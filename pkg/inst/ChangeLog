@@ -1,3 +1,17 @@
+2010-03-16 13:46  rsbivand
+
+	* ChangeLog, inst/ChangeLog: timing and other changes to lag, error
+	  and impact calculations
+
+2010-03-16 13:36  rsbivand
+
+	* R/AAA.R, R/error.hessian.R, R/error.spsarlm.R, R/impacts.R,
+	  R/lag.hessian.R, R/lag.spsarlm.R, R/nb2mat.R,
+	  R/summary.spsarlm.R, data/elect80.rda, man/elect80.Rd,
+	  man/errorsarlm.Rd, man/lagsarlm.Rd, man/stsls.Rd, src/Makevars,
+	  src/ml_sse.c: timing and other changes to lag, error and impact
+	  calculations
+
 2010-03-13 11:16  rsbivand
 
 	* ChangeLog, inst/ChangeLog: tidy stsls
