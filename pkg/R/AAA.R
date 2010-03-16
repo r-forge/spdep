@@ -5,7 +5,8 @@
 assign("spChkID", FALSE, env = .spdepOptions)
 assign("zeroPolicy", FALSE, env = .spdepOptions)
 assign("verbose", FALSE, env = .spdepOptions)
-.conflicts.OK <- TRUE
+assign("cl", NULL, env = .spdepOptions)
+#.conflicts.OK <- TRUE
 
 .onLoad <- function(lib, pkg) {
 	require(methods)

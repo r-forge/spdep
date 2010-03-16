@@ -2,6 +2,8 @@
 
 trW <- function(W, m=100, p=50, type="mult") {
 # returns traces
+    timings <- list()
+    .ptime_start <- proc.time()
     n <- dim(W)[1]
     iW <- W
     tr <- numeric(m)
@@ -21,6 +23,9 @@ trW <- function(W, m=100, p=50, type="mult") {
         tr[1] <- 0.0
         tr[2] <- sum(t(W) * W)
     } else stop("unknown type")
+    timings[["make_traces"]] <- proc.time() - .ptime_start
+    attr(tr, "timings") <- do.call("rbind", timings)[, c(1, 3)]
+    attr(tr, "type") <- type
     tr
 }
 
@@ -61,6 +66,8 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
     mess=FALSE) {
     if (is.null(listw) && is.null(tr))
         stop("either tr or listw must be given")
+    timings <- list()
+    .ptime_start <- proc.time()
     if (is.null(listw)) {
 
         lagImpacts <- function(T, g, P) {
@@ -93,6 +100,8 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
             Qres <- lagDistrImpacts(T, g, P, q=as.integer(Q))
             attr(res, "Qres") <- Qres
         }
+        timings[["trace_impacts"]] <- proc.time() - .ptime_start
+        .ptime_start <- proc.time()
         if (!is.null(R)) {
             samples <- mvrnorm(n=R, mu=mu, Sigma=Sigma, tol=tol,
                 empirical=empirical)
@@ -102,6 +111,8 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
                     (samples[,irho] < interval[2]))
                 if (any(!check)) samples <- samples[check,]
             }
+            timings[["impacts_samples"]] <- proc.time() - .ptime_start
+            .ptime_start <- proc.time()
             processSample <- function(x, irho, drop2beta) {
                 g <- x[irho]^(0:q)
                 beta <- x[-drop2beta]
@@ -130,6 +141,8 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
             }
             sres <- apply(samples, 1, processSample, irho=irho,
                 drop2beta=drop2beta)
+            timings[["process_samples"]] <- proc.time() - .ptime_start
+            .ptime_start <- proc.time()
             direct <- as.mcmc(t(sapply(sres, function(x) x$direct)))
             indirect <- as.mcmc(t(sapply(sres, function(x) x$indirect)))
             total <- as.mcmc(t(sapply(sres, function(x) x$total)))
@@ -152,6 +165,7 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
                 Qmcmc <- list(direct=Qdirect, indirect=Qindirect, total=Qtotal)
                 attr(ssres, "Qmcmc") <- Qmcmc
             }
+            timings[["postprocess_samples"]] <- proc.time() - .ptime_start
             res <- list(res=res, sres=ssres)
         }
         attr(res, "method") <- "trace"
@@ -179,6 +193,8 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
         SW <- invIrW(listw, rho)
         if (type == "lag") res <- lagImpactsExact(SW, P, n)
         else if (type == "mixed") res <- mixedImpactsExact(SW, P, n, listw)
+        timings[["weights_impacts"]] <- proc.time() - .ptime_start
+        .ptime_start <- proc.time()
         if (!is.null(R)) {
             samples <- mvrnorm(n=R, mu=mu, Sigma=Sigma, tol=tol,
                 empirical=empirical)
@@ -187,6 +203,8 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
                     (samples[,irho] < interval[2]))
                 if (any(!check)) samples <- samples[check,]
             }
+            timings[["impacts_samples"]] <- proc.time() - .ptime_start
+            .ptime_start <- proc.time()
             processXSample <- function(x, drop2beta) {
                 beta <- x[-drop2beta]
                 if (type == "lag") {
@@ -207,12 +225,15 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
                 }
             }
             sres <- apply(samples, 1, processXSample, drop2beta=drop2beta)
+            timings[["process_samples"]] <- proc.time() - .ptime_start
+            .ptime_start <- proc.time()
             direct <- as.mcmc(t(sapply(sres, function(x) x$direct)))
             indirect <- as.mcmc(t(sapply(sres, function(x) x$indirect)))
             total <- as.mcmc(t(sapply(sres, function(x) x$total)))
             colnames(direct) <- bnames
             colnames(indirect) <- bnames
             colnames(total) <- bnames
+            timings[["postprocess_samples"]] <- proc.time() - .ptime_start
             res <- list(res=res, sres=list(direct=direct,
                 indirect=indirect, total=total))
         }
@@ -221,6 +242,7 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
     attr(res, "type") <- type
     attr(res, "bnames") <- bnames
     attr(res, "haveQ") <- !is.null(Q)
+    attr(res, "timings") <- do.call("rbind", timings)[, c(1,3)]
     class(res) <- "lagImpact"
     res
 }

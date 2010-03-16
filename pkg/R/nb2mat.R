@@ -69,6 +69,8 @@ invIrW <- function(listw, rho, method="solve", feasible=NULL) {
 }
 
 powerWeights <- function(W, rho, order=250, X, tol=.Machine$double.eps^(3/5)) {
+    timings <- list()
+    .ptime_start <- proc.time()
     n <- dim(W)[1]
     dX <- dim(X)
     if (dX[1] == n) side <- "R"
@@ -95,6 +97,8 @@ powerWeights <- function(W, rho, order=250, X, tol=.Machine$double.eps^(3/5)) {
         }
     }
     if (!conv) warning("not converged within order iterations")
+    timings[["make_power_sum"]] <- proc.time() - .ptime_start
+    attr(acc, "timings") <- do.call("rbind", timings)[, c(1, 3)]
     acc
 }
 

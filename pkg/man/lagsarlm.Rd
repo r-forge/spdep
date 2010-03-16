@@ -14,9 +14,8 @@ where \eqn{\rho}{rho} is found by \code{optimize()} first, and \eqn{\beta}{beta}
 lagsarlm(formula, data = list(), listw, 
 	na.action, type="lag", method="eigen", quiet=NULL, 
 	zero.policy=NULL, interval=c(-1,0.999), tol.solve=1.0e-10, 
-	tol.opt=.Machine$double.eps^0.5, withLL=FALSE, 
-        fdHess=NULL, optimHess=FALSE, trs=NULL, 
-        searchInterval=FALSE)
+	tol.opt=.Machine$double.eps^0.5, 
+        fdHess=NULL, optimHess=FALSE, trs=NULL)
 }
 \arguments{
   \item{formula}{a symbolic description of the model to be fit. The details 
@@ -36,11 +35,9 @@ neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminat
   \item{interval}{search interval for autoregressive parameter when not using method="eigen"; default is c(-1,1); method="Matrix" will attempt to search for an appropriate interval}
   \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=1.0e-10). This may be used if necessary to extract coefficient standard errors (for instance lowering to 1e-12), but errors in \code{solve()} may constitute indications of poorly scaled variables: if the variables have scales differing much from the autoregressive coefficient, the values in this matrix may be very different in scale, and inverting such a matrix is analytically possible by definition, but numerically unstable; rescaling the RHS variables alleviates this better than setting tol.solve to a very small value}
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()} (default=square root of double precision machine tolerance)}
-  \item{withLL}{default FALSE; if TRUE, calculate likelihood ratio statistics for right hand side variables when using sparse matrix methods in addition to appriximating the coefficient covariance matrix with a numerical Hessian}
   \item{fdHess}{default NULL, then set to (method != "eigen") internally; use \code{fdHess} to compute an approximate Hessian using finite differences when using sparse matrix methods; may be used to make a coefficient covariance matrix when the number of observations is large; may be turned off to save resources if need be, but required for impact measures}
   \item{optimHess}{default FALSE, use \code{fdHess} from \pkg{nlme}, if TRUE, use \code{optim} to calculate Hessian at optimum}
   \item{trs}{default NULL, if given, a vector of powered spatial weights matrix traces output by \code{trW}; when given, insert the asymptotic analytical values into the numerical Hessian instead of the approximated values; may be used to get around some problems raised when the numerical Hessian is poorly conditioned, generating NaNs in subsequent operations; the use of trs is recommended}
-  \item{searchInterval}{Default FALSE; when the Matrix method is used, a search may be made to approximate the ends of the line search interval.}
 }
 \details{
   The asymptotic standard error of \eqn{\rho}{rho} is only computed when
@@ -51,7 +48,7 @@ while other parts of the matrix can be very large (often many orders
 of magnitude in difference). It often happens that the \code{tol.solve}
 argument needs to be set to a smaller value than the default, or the RHS variables can be centred or reduced in range.
 
-Versions of the package from 0.4-38 include numerical Hessian values where asymptotic standard errors are not available. This change has been introduced to permit the simulation of distributions for impact measures. Likelihood ratio test output for right hand side variables may be obtained in addition by setting withLL=TRUE. The warnings made above with regard to variable scaling also apply in this case.
+Versions of the package from 0.4-38 include numerical Hessian values where asymptotic standard errors are not available. This change has been introduced to permit the simulation of distributions for impact measures. The warnings made above with regard to variable scaling also apply in this case.
 
 Note that the fitted() function for the output object assumes that the response 
 variable may be reconstructed as the sum of the trend, the signal, and the
@@ -79,7 +76,6 @@ variable in making predictions for the fitting data.
   \item{se.fit}{Not used yet}
   \item{formula}{model formula}
   \item{ase}{TRUE if method=eigen}
-  \item{LLs}{if ase=FALSE and withLL=TRUE (for method="spam" or "Matrix"), the log likelihood values of models estimated dropping each of the independent variables in turn, used in the summary function as a substitute for variable coefficient significance tests}
   \item{rho.se}{if ase=TRUE, the asymptotic standard error of \eqn{\rho}{rho}, otherwise approximate numeriacal Hessian-based value}
   \item{LMtest}{if ase=TRUE, the Lagrange Multiplier test for the absence
 of spatial autocorrelation in the lag model residuals}
@@ -133,9 +129,6 @@ system.time(COL.lag.M <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="Matrix", quiet=FALSE))
 summary(COL.lag.M)
 impacts(COL.lag.M, listw=nb2listw(COL.nb))
-system.time(COL.lag.M <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
- nb2listw(COL.nb), method="Matrix", quiet=FALSE, withLL=TRUE))
-summary(COL.lag.M)
 system.time(COL.lag.sp <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="spam", quiet=FALSE))
 summary(COL.lag.sp)

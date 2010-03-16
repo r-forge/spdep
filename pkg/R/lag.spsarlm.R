@@ -4,9 +4,10 @@
 lagsarlm <- function(formula, data = list(), listw, 
 	na.action, type="lag", method="eigen", quiet=NULL, 
 	zero.policy=NULL, interval=c(-1,0.999), tol.solve=1.0e-10, 
-	tol.opt=.Machine$double.eps^0.5, withLL=FALSE, 
-        fdHess=NULL, optimHess=FALSE, trs=NULL, 
-        searchInterval=FALSE) {
+	tol.opt=.Machine$double.eps^0.5, 
+        fdHess=NULL, optimHess=FALSE, trs=NULL) {
+        timings <- list()
+        .ptime_start <- proc.time()
         if (is.null(quiet)) quiet <- !get("verbose", env = .spdepOptions)
         stopifnot(is.logical(quiet))
         if (is.null(zero.policy))
@@ -108,10 +109,33 @@ lagsarlm <- function(formula, data = list(), listw,
 	LL_null_lm <- logLik(lm(y ~ 1))
 	m <- NCOL(x)
 	similar <- FALSE
+	lm.null <- lm(y ~ x - 1)
+	lm.w <- lm.fit(x, wy)
+	e.null <- lm.null$residuals
+	e.w <- lm.w$residuals
+	e.a <- t(e.null) %*% e.null
+	e.b <- t(e.w) %*% e.null
+	e.c <- t(e.w) %*% e.w
+        env <- new.env(parent=globalenv())
+        assign("y", y, envir=env)
+        assign("wy", wy, envir=env)
+        assign("x", x, envir=env)
+        assign("n", n, envir=env)
+        assign("m", m, envir=env)
+        assign("K", K, envir=env)
+        assign("e.a", e.a, envir=env)
+        assign("e.b", e.b, envir=env)
+        assign("e.c", e.c, envir=env)
+        assign("verbose", !quiet, envir=env)
+        timings[["set_up"]] <- proc.time() - .ptime_start
+        .ptime_start <- proc.time()
+
 	if (method == "eigen") {
 		if (!quiet) cat("Computing eigenvalues ...\n")
 		if (listw$style %in% c("W", "S") && can.sim) {
-			eig <- eigenw(similar.listw(listw))
+#			eig <- eigenw(similar.listw(listw))
+                        eig <- eigen(similar.listw_Matrix(listw),
+                            only.values=TRUE)$values
 			similar <- TRUE
 		} else eig <- eigenw(listw)
 		if (!quiet) cat("\n")
@@ -120,34 +144,68 @@ lagsarlm <- function(formula, data = list(), listw,
 		else eig.range <- 1/range(eig)
                 interval <- c(eig.range[1]+.Machine$double.eps,
                     eig.range[2]-.Machine$double.eps)
-		lm.null <- lm(y ~ x - 1)
-		lm.w <- lm.fit(x, wy)
-		e.null <- lm.null$residuals
-		e.w <- lm.w$residuals
-		e.a <- t(e.null) %*% e.null
-		e.b <- t(e.w) %*% e.null
-		e.c <- t(e.w) %*% e.w
+                assign("eig", eig, envir=env)
+                timings[["eigen_set_up"]] <- proc.time() - .ptime_start
+                .ptime_start <- proc.time()
 		opt <- optimize(sar.lag.mixed.f, 
 			lower=eig.range[1]+.Machine$double.eps, 
 			upper=eig.range[2]-.Machine$double.eps, maximum=TRUE,
-			tol=tol.opt, eig=eig, e.a=e.a, e.b=e.b, e.c=e.c,
-			n=n, quiet=quiet)
+			tol=tol.opt, env=env)
+#eig=eig, e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet)
 		rho <- opt$maximum
 		names(rho) <- "rho"
 		LL <- opt$objective
 		optres <- opt
+                timings[["eigen_opt"]] <- proc.time() - .ptime_start
 	} else {
-		opt <- dosparse(listw=listw, y=y, x=x, wy=wy, K=K, quiet=quiet,
-			tol.opt=tol.opt, method=method, interval=interval, 
-			can.sim=can.sim, zero.policy=zero.policy,
-                        withLL=withLL, searchInterval=searchInterval)
-		rho <- c(opt$maximum)
-		names(rho) <- "rho"
-		LL <- c(opt$objective)
-		similar <- opt$similar
-		optres <- opt$opt
-                interval <- opt$interval
+	    if (method == "spam") {
+        	if (listw$style %in% c("W", "S") & can.sim) {
+	    		W <- listw2U_spam(similar.listw_spam(listw))
+	    		similar <- TRUE
+		} else W <- as.spam.listw(listw)
+        	I <- diag.spam(1, n, n)
+                assign("W", W, envir=env)
+                assign("I", I, envir=env)
+                timings[["spam_set_up"]] <- proc.time() - .ptime_start
+                .ptime_start <- proc.time()
+	        opt <- optimize(sar.lag.mix.f.sp,
+		    interval=interval, maximum=TRUE, tol=tol.opt, env=env)
+	        rho <- c(opt$maximum)
+	        names(rho) <- "rho"
+ 	        LL <- c(opt$objective)
+	        optres <- opt
+                timings[["spam_opt"]] <- proc.time() - .ptime_start
+        } else if (method == "Matrix") {
+        	if (listw$style %in% c("W", "S") & can.sim) {
+	    		W <- listw2U_Matrix(similar.listw_Matrix(listw))
+	    		similar <- TRUE
+		} else W <- as_dsTMatrix_listw(listw)
+		W <- as(W, "CsparseMatrix")
+        	I <- as_dsCMatrix_I(n)
+		Imult <- 2
+		if (listw$style == "B") {
+                    Imult <- ceiling((2/3)*max(apply(W, 1, sum)))
+		    interval <- c(-0.5, +0.25)
+		} else interval <- c(-1.2, +1)
+                nW <- - W
+		pChol <- Cholesky(W, super=FALSE, Imult = Imult)
+		nChol <- Cholesky(nW, super=FALSE, Imult = Imult)
+                assign("W", W, envir=env)
+                assign("nW", nW, envir=env)
+                assign("pChol", pChol, envir=env)
+                assign("nChol", nChol, envir=env)
+                timings[["Matrix_set_up"]] <- proc.time() - .ptime_start
+                .ptime_start <- proc.time()
+	        opt <- optimize(sar.lag.mix.f.M,
+		    interval=interval, maximum=TRUE, tol=tol.opt, env=env)
+	        rho <- c(opt$maximum)
+	        names(rho) <- "rho"
+ 	        LL <- c(opt$objective)
+	        optres <- opt
+                timings[["Matrix_opt"]] <- proc.time() - .ptime_start
+	    }
 	}
+        .ptime_start <- proc.time()
 	lm.lag <- lm((y - rho*wy) ~ x - 1)
 	r <- residuals(lm.lag)
 	fit <- y - r
@@ -156,29 +214,14 @@ lagsarlm <- function(formula, data = list(), listw,
 	names(coef.rho) <- colnames(x)
 	SSE <- deviance(lm.lag)
 	s2 <- SSE/n
+        timings[["coefs"]] <- proc.time() - .ptime_start
+        .ptime_start <- proc.time()
 	if (method != "eigen") {
-		LLs <- opt$LLs
-		lm.null <- opt$lm.null
+                coefs <- c(rho, coef.rho)
                 if (fdHess && method == "Matrix") {
-                    coefs <- c(rho, coef.rho)
-        	    if (listw$style %in% c("W", "S") & can.sim) {
-	    		W <- listw2U_Matrix(similar.listw_Matrix(listw))
-	    		similar <- TRUE
-		    } else W <- as_dsTMatrix_listw(listw)
-		    W <- as(W, "CsparseMatrix")
-        	    I <- as_dsCMatrix_I(n)
-		    Imult <- 2
-		    if (listw$style == "B") {
-                        Imult <- ceiling((2/3)*max(apply(W, 1, sum)))
-		        interval <- c(-0.5, +0.25)
-		    } else interval <- c(-1, +1)
-                    nW <- - W
-		    pChol <- Cholesky(W, super=FALSE, Imult = Imult)
-		    nChol <- Cholesky(nW, super=FALSE, Imult = Imult)
-
-                    fdHess <- getVmat_Matrix(coefs, y, x, wy, n, W, I, nW,
-                        nChol, pChol, s2, trs, tol.solve=tol.solve,
-                        optim=optimHess)
+                    fdHess <- getVmat_Matrix(coefs, env,
+#y, x, wy, n, W, I, nW, nChol, pChol, 
+                        s2, trs, tol.solve=tol.solve, optim=optimHess)
                     if (is.null(trs)) {
                         rownames(fdHess) <- colnames(fdHess) <- 
                             c("rho", colnames(x))
@@ -193,15 +236,12 @@ lagsarlm <- function(formula, data = list(), listw,
 		    LMtest <- NULL
 		    varb <- FALSE
 		    ase <- FALSE
+                    timings[["Matrix_fdHess"]] <- proc.time() - .ptime_start
+                    .ptime_start <- proc.time()
                 } else if (fdHess && method == "spam") {
-                    coefs <- c(rho, coef.rho)
-        	    if (listw$style %in% c("W", "S") & can.sim) {
-	    		W <- listw2U_spam(similar.listw_spam(listw))
-	    		similar <- TRUE
-		    } else W <- as.spam.listw(listw)
-        	    I <- diag.spam(1, n, n)
-                    fdHess <- getVmat_spam(coefs, y, x, wy, n, W, I, s2, trs,
-                        tol.solve=1.0e-10, optim=optimHess)
+                    fdHess <- getVmat_spam(coefs, env,
+#y, x, wy, n, W, I, 
+                        s2, trs, tol.solve=1.0e-10, optim=optimHess)
                     if (is.null(trs)) {
                         rownames(fdHess) <- colnames(fdHess) <- 
                             c("rho", colnames(x))
@@ -216,6 +256,8 @@ lagsarlm <- function(formula, data = list(), listw,
 		    LMtest <- NULL
 		    varb <- FALSE
 		    ase <- FALSE
+                    timings[["spam_fdHess"]] <- proc.time() - .ptime_start
+                    .ptime_start <- proc.time()
                } else {
 		    rest.se <- NULL
 		    rho.se <- NULL
@@ -226,8 +268,9 @@ lagsarlm <- function(formula, data = list(), listw,
 	} else {
                 if (fdHess) {
                     coefs <- c(rho, coef.rho)
-                    fdHess <- getVmat_eig(coefs, y, x, wy, n, eig, s2, trs,
-                       tol.solve=tol.solve, optim=optimHess)
+                    fdHess <- getVmat_eig(coefs, env,
+#y, x, wy, n, eig, 
+                       s2, trs, tol.solve=tol.solve, optim=optimHess)
                     if (is.null(trs)) {
                         rownames(fdHess) <- colnames(fdHess) <- 
                             c("rho", colnames(x))
@@ -235,8 +278,9 @@ lagsarlm <- function(formula, data = list(), listw,
                         rownames(fdHess) <- colnames(fdHess) <- 
                             c("sigma2", "rho", colnames(x))
                     }
+                    timings[["eigen_fdHess"]] <- proc.time() - .ptime_start
+                    .ptime_start <- proc.time()
                 }
-		LLs <- NULL
 		tr <- function(A) sum(diag(A))
 # beware of complex eigenvalues!
 		O <- (eig/(1-rho*eig))^2
@@ -266,6 +310,7 @@ lagsarlm <- function(formula, data = list(), listw,
 		LMtest <- ((t(r) %*% W %*% r)/s2)^2
 		LMtest <- LMtest/(T22 - ((T21A^2)*(rho.se^2)))
 		ase <- TRUE
+                timings[["eigen_se"]] <- proc.time() - .ptime_start
 	}
 	call <- match.call()
 	ret <- structure(list(type=type, rho=rho, 
@@ -274,11 +319,12 @@ lagsarlm <- function(formula, data = list(), listw,
 		method=method, call=call, residuals=r, opt=optres,
 		lm.target=lm.lag, fitted.values=fit,
 		se.fit=NULL, formula=formula, similar=similar,
-		ase=ase, LLs=LLs, rho.se=rho.se, LMtest=LMtest, 
+		ase=ase, rho.se=rho.se, LMtest=LMtest, 
 		resvar=varb, zero.policy=zero.policy, aliased=aliased,
                 listw_style=listw$style, interval=interval, fdHess=fdHess,
                 optimHess=optimHess, insert=!is.null(trs),
-                LLNullLlm=LL_null_lm), class=c("sarlm"))
+                LLNullLlm=LL_null_lm,
+                timings=do.call("rbind", timings)[, c(1, 3)]), class=c("sarlm"))
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]
@@ -290,23 +336,36 @@ lagsarlm <- function(formula, data = list(), listw,
 	ret
 }
 
-sar.lag.mixed.f <- function(rho, eig, e.a, e.b, e.c, n, quiet)
+sar.lag.mixed.f <- function(rho, env)
+#eig, e.a, e.b, e.c, n, quiet)
 {
+        e.a <- get("e.a", envir=env)
+        e.b <- get("e.b", envir=env)
+        e.c <- get("e.c", envir=env)
 	SSE <- e.a - 2*rho*e.b + rho*rho*e.c
+        n <- get("n", envir=env)
+        eig <- get("eig", envir=env)
 	s2 <- SSE/n
 	if (is.complex(eig)) det <- Re(prod(1 - rho*eig)) 
 	else det <- prod(1 - rho*eig)
 	ret <- (log(det) - ((n/2)*log(2*pi)) - (n/2)*log(s2)
 		- (1/(2*s2))*SSE)
-	if (!quiet) cat("(eigen) rho:\t", rho, "\tfunction value:\t", ret, "\n")
+	if (get("verbose", envir=env)) cat("(eigen) rho:\t", rho, "\tfunction value:\t", ret, "\n")
 	ret
 }
 
 
 
-sar.lag.mix.f.sp <- function(rho, W, I, e.a, e.b, e.c, n, quiet) {
+sar.lag.mix.f.sp <- function(rho, env) {
+#W, I, e.a, e.b, e.c, n, quiet) {
+        e.a <- get("e.a", envir=env)
+        e.b <- get("e.b", envir=env)
+        e.c <- get("e.c", envir=env)
 	SSE <- e.a - 2*rho*e.b + rho*rho*e.c
+        n <- get("n", envir=env)
 	s2 <- SSE/n
+        W <- get("W", envir=env)
+        I <- get("I", envir=env)
 	J1 <- try(determinant((I - rho * W), logarithm=TRUE)$modulus,
             silent=TRUE)
         if (class(J1) == "try-error") {
@@ -316,17 +375,26 @@ sar.lag.mix.f.sp <- function(rho, W, I, e.a, e.b, e.c, n, quiet) {
         }
 	ret <- (Jacobian
 		- ((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*s2))*SSE)
-	if (!quiet) 
+	if (get("verbose", envir=env)) 
 	    cat("(spam) rho:\t", rho, "\tfunction value:\t", ret, "\n")
 	ret
 }
 
-sar.lag.mix.f.M <- function(rho, W, I, e.a, e.b, e.c, n, nW, nChol, 
-		pChol, quiet) {
+sar.lag.mix.f.M <- function(rho, env) {
+#W, I, e.a, e.b, e.c, n, nW, nChol, 
+#		pChol, quiet) {
+        e.a <- get("e.a", envir=env)
+        e.b <- get("e.b", envir=env)
+        e.c <- get("e.c", envir=env)
 	SSE <- e.a - 2*rho*e.b + rho*rho*e.c
+        n <- get("n", envir=env)
 	s2 <- SSE/n
         .f <- if (package_version(packageDescription("Matrix")$Version) >
            "0.999375-30") 2 else 1
+        W <- get("W", envir=env)
+        nW <- get("nW", envir=env)
+        pChol <- get("pChol", envir=env)
+        nChol <- get("nChol", envir=env)
         if (isTRUE(all.equal(rho, 0))) {
             Jacobian <- rho
         } else if (rho > 0) {
@@ -349,134 +417,9 @@ sar.lag.mix.f.M <- function(rho, W, I, e.a, e.b, e.c, n, nW, nChol,
 #	Jacobian <- determinant(I - rho * W, logarithm=TRUE)$modulus
 	ret <- (Jacobian
 		- ((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*s2))*SSE)
-	if (!quiet) 
+	if (get("verbose", envir=env)) 
 	    cat("(Matrix) rho:\t", rho, "\tfunction value:\t", ret, "\n")
 	ret
 }
 
-dosparse <- function (listw, y, x, wy, K, quiet, tol.opt, method, interval, 
-	can.sim, zero.policy=FALSE, withLL=FALSE, searchInterval=FALSE) {
-	similar <- FALSE
-	m <- ncol(x)
-	n <- nrow(x)
-	if (method == "spam") {
-        	if (listw$style %in% c("W", "S") & can.sim) {
-	    		W <- listw2U_spam(similar.listw_spam(listw))
-	    		similar <- TRUE
-		} else W <- as.spam.listw(listw)
-        	I <- diag.spam(1, n, n)
-	} else if (method == "Matrix") {
-        	if (listw$style %in% c("W", "S") & can.sim) {
-	    		W <- listw2U_Matrix(similar.listw_Matrix(listw))
-	    		similar <- TRUE
-		} else W <- as_dsTMatrix_listw(listw)
-		W <- as(W, "CsparseMatrix")
-        	I <- as_dsCMatrix_I(n)
-		Imult <- 2
-		if (listw$style == "B") {
-                    Imult <- ceiling((2/3)*max(apply(W, 1, sum)))
-		    interval <- c(-0.5, +0.25)
-		} else interval <- c(-1.2, +1)
-                nW <- - W
-		pChol <- Cholesky(W, super=FALSE, Imult = Imult)
-		nChol <- Cholesky(nW, super=FALSE, Imult = Imult)
-                if (searchInterval) {
-		  ns1 <- last <- 10
-		  prho1 <- seq(sqrt(.Machine$double.eps), interval[2],
-                    length.out=ns1)
-		
-		  while (last >= ns1) {
-                   pdet1 <- Matrix:::ldetL2up(nChol, nW, 1/prho1)
-		   wp1 <- which(is.finite(pdet1))
-		   last <- wp1[length(wp1)]
-		   if (last == ns1) prho1 <- seq(interval[2], 
-		       1.5*interval[2], length.out=ns1)
-		  }
-                  lwp1n <- prho1[last]
-                  lwp2n <- prho1[last+1]
-		  prho2 <- seq(lwp2n, lwp1n, length.out=ns1)
-                  pdet2 <- Matrix:::ldetL2up(nChol, nW, 1/prho2)
-		  wp2 <- which(is.finite(pdet2))
-                  lwp2n <- prho2[wp2[length(wp2)]]
-		
-		  nrho1 <- seq(interval[1], -sqrt(.Machine$double.eps),
-                    length.out=ns1)
-		
-		  first <- 1
-		  while (first == 1) {
-                   ndet1 <- Matrix:::ldetL2up(pChol, W, 1/(-nrho1))
-		   wn1 <- which(is.finite(ndet1))
-		   first <- wn1[1]
-		   if (first == 1) prho1 <- seq(1.5*interval[1], 
-			interval[1], length.out=ns1)
-		  }
-
-                  lwn1n <- nrho1[wn1[1]]
-                  lwn2n <- nrho1[wn1[1]-1]
-		  nrho2 <- seq(lwn2n, lwn1n, length.out=ns1)
-                  ndet2 <- Matrix:::ldetL2up(pChol, W, 1/(-nrho2))
-		  wn2 <- which(is.finite(ndet2))
-                  lwn2n <- nrho2[wn2[1]]
-		  interval <- c(lwn2n, lwp2n)
-		  if (!quiet) cat("using interval:", interval, "\n")
-                }
-	}
-	LLs <- NULL
-	# intercept-only bug fix Larry Layne 20060404
-	if (withLL && m > 1) {
-	    LLs <- vector(mode="list", length=length(K:m))
-	    j <- 1
-	    for (i in K:m) {
-		# drop bug found by Gilles Spielvogel 20050128
-		thisx <- x[,-i, drop = FALSE]
-		lm.null <- lm.fit(thisx, y)
-		lm.w <- lm.fit(thisx, wy)
-		e.null <- lm.null$residuals
-		e.w <- lm.w$residuals
-		e.a <- t(e.null) %*% e.null
-		e.b <- t(e.w) %*% e.null
-		e.c <- t(e.w) %*% e.w
-		if (method == "spam") {
-		    LLs[[j]] <- optimize(sar.lag.mix.f.sp,
-			interval=interval, maximum=TRUE, tol=tol.opt, W=W, I=I,
-			e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet)$objective
-		} else if (method == "Matrix") {
-		    LLs[[j]] <- optimize(sar.lag.mix.f.M,
-			interval=interval, maximum=TRUE, tol=tol.opt, W=W, I=I,
-			e.a=e.a, e.b=e.b, e.c=e.c, n=n, nW=nW, nChol=nChol, 
-			pChol=pChol, quiet=quiet)$objective
-		}
-#		gc(FALSE)
-		attr(LLs[[j]], "nall") <- n
-		attr(LLs[[j]], "nobs") <- n
-		attr(LLs[[j]], "df") <- (m+2)-1
-		attr(LLs[[j]], "name") <- colnames(x)[i]
-		class(LLs[[j]]) <- "logLik"
-		j <- j + 1
-	    }
-	}
-	lm.null <- lm(y ~ x - 1)
-	lm.w <- lm.fit(x, wy)
-	e.null <- lm.null$residuals
-	e.w <- lm.w$residuals
-	e.a <- t(e.null) %*% e.null
-	e.b <- t(e.w) %*% e.null
-	e.c <- t(e.w) %*% e.w
-	if (method == "spam") {
-	    opt <- optimize(sar.lag.mix.f.sp,
-		interval=interval, maximum=TRUE, tol=tol.opt, W=W, I=I,
-		e.a=e.a, e.b=e.b, e.c=e.c, n=n, quiet=quiet)
-	} else if (method == "Matrix") {
-	    opt <- optimize(sar.lag.mix.f.M,
-		interval=interval, maximum=TRUE, tol=tol.opt, W=W, I=I,
-		e.a=e.a, e.b=e.b, e.c=e.c, n=n, nW=nW, nChol=nChol, 
-		pChol=pChol, quiet=quiet)
-	}
-	maximum <- opt$maximum
-	objective <- opt$objective
-#	gc(FALSE)
-	res <- list(maximum=maximum, objective=objective, LLs=LLs,
-		lm.null=lm.null, similar=similar, opt=opt, interval=interval)
-	res
-}
 

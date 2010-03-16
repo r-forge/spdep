@@ -17,7 +17,7 @@ errorsarlm(formula, data=list(), listw, na.action,
  method="eigen", quiet=NULL, zero.policy=NULL,
  interval = c(-1, 0.999), tol.solve=1.0e-10,
  tol.opt=.Machine$double.eps^0.5, returnHcov=TRUE, pWOrder=250,
- fdHess=NULL, optimHess=FALSE, trs=NULL, LAPACK=FALSE)
+ fdHess=NULL, optimHess=FALSE, trs=NULL, LAPACK=FALSE, compiled_sse = FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -43,6 +43,7 @@ neighbours, if FALSE (default) assign NA - causing \code{errorsarlm()} to termin
   \item{optimHess}{default FALSE, use \code{fdHess} from \pkg{nlme}, if TRUE, use \code{optim} to calculate Hessian at optimum}
   \item{trs}{default NULL, if given, a vector of powered spatial weights matrix traces output by \code{trW}; when given, insert the asymptotic analytical values into the numerical Hessian instead of the approximated values; may be used to get around some problems raised when the numerical Hessian is poorly conditioned, generating NaNs in subsequent operations. When using the numerical Hessian to get the standard error of lambda, it is very strongly advised that trs be given, as the parts of fdHess corresponding to the regression coefficients are badly approximated, affecting the standard error of lambda; the coefficient correlation matrix is unusable}
   \item{LAPACK}{default FALSE; logical value passed to \code{qr} in the log likelihood function}
+  \item{compiled_sse}{default FALSE; logical value used in the log likelihood function to choose compiled code for computing SSE}
 }
 \details{
 The asymptotic standard error of \eqn{\lambda}{lambda} is only computed when
@@ -134,5 +135,11 @@ COL.err.NA <- errorsarlm(CRIME ~ INC + HOVAL, data=NA.COL.OLD,
 COL.err.NA$na.action
 COL.err.NA
 resid(COL.err.NA)
+system.time(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ nb2listw(COL.nb, style="W"), method="eigen"))
+system.time(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ nb2listw(COL.nb, style="W"), method="eigen", LAPACK=TRUE))
+system.time(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ nb2listw(COL.nb, style="W"), method="eigen", compiled_sse=TRUE))
 }
 \keyword{spatial}

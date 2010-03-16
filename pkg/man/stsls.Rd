@@ -27,8 +27,8 @@ is called.}
 neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminate with an error}
   \item{na.action}{a function (default \code{na.fail}), can also be \code{na.omit} or \code{na.exclude} with consequences for residuals and fitted values - in these cases the weights list will be subsetted to remove NAs in the data. It may be necessary to set zero.policy to TRUE because this subsetting may create no-neighbour observations. Note that only weights lists created without using the glist argument to \code{nb2listw} may be subsetted.}
   \item{robust}{default FALSE, if TRUE, apply a heteroskedasticity correction to the coefficients covariances}
- \item{legacy}{the argument chooses between two implementations of the robustness correction: default FALSE - use the estimate of Omega only in the White consistent estimator of the variance-covariance matrix, if TRUE, use the original implementation which runs a GLS using the estimate of Omega, and yields different coefficient estimates as well}
- \item{W2X}{default TRUE, if FALSE only WX are used as instruments in the spatial two stage least squares; until release 0.4-60, only WX were used }
+ \item{legacy}{the argument chooses between two implementations of the robustness correction: default FALSE - use the estimate of Omega only in the White consistent estimator of the variance-covariance matrix, if TRUE, use the original implementation which runs a GLS using the estimate of Omega, and yields different coefficient estimates as well - see example below}
+ \item{W2X}{default TRUE, if FALSE only WX are used as instruments in the spatial two stage least squares; until release 0.4-60, only WX were used - see example below }
 }
 \details{
   The fitting implementation fits a spatial lag model:
@@ -58,9 +58,14 @@ COL.lag.eig <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD, nb2listw(COL.nb))
 summary(COL.lag.eig, correlation=TRUE)
 COL.lag.stsls <- stsls(CRIME ~ INC + HOVAL, data=COL.OLD, nb2listw(COL.nb))
 summary(COL.lag.stsls, correlation=TRUE)
+COL.lag.stslsW <- stsls(CRIME ~ INC + HOVAL, data=COL.OLD, nb2listw(COL.nb), W2X=FALSE)
+summary(COL.lag.stslsW, correlation=TRUE)
 COL.lag.stslsR <- stsls(CRIME ~ INC + HOVAL, data=COL.OLD, nb2listw(COL.nb),
-robust=TRUE)
+robust=TRUE, W2X=FALSE)
 summary(COL.lag.stslsR, correlation=TRUE)
+COL.lag.stslsRl <- stsls(CRIME ~ INC + HOVAL, data=COL.OLD, nb2listw(COL.nb),
+robust=TRUE, legacy=TRUE, W2X=FALSE)
+summary(COL.lag.stslsRl, correlation=TRUE)
 data(boston)
 gp2a <- stsls(log(CMEDV) ~ CRIM + ZN + INDUS + CHAS + I(NOX^2) + I(RM^2) +
   AGE + log(DIS) + log(RAD) + TAX + PTRATIO + B + log(LSTAT),
