@@ -1,3 +1,7 @@
+2010-03-13 11:16  rsbivand
+
+	* ChangeLog, inst/ChangeLog: tidy stsls
+
 2010-03-13 11:15  rsbivand
 
 	* R/s2sls., R/s2sls.R, man/stsls.Rd: tidy stsls
