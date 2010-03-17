@@ -139,8 +139,38 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
                 }
                 res
             }
-            sres <- apply(samples, 1, processSample, irho=irho,
-                drop2beta=drop2beta)
+            CL <- get("cl", env = .spdepOptions)
+            if (!is.null(CL) && length(CL) > 1) {
+                require(snow)
+                l_sp <- lapply(splitIndices(nrow(samples), length(CL)), 
+		    function(i) samples[i,])
+		clusterExport_l <- function(CL, list) {
+                    gets <- function(n, v) {
+                        assign(n, v, env = .GlobalEnv)
+                        NULL
+                    }
+                    for (name in list) {
+                        clusterCall(CL, gets, name, get(name))
+                    }
+		}
+
+		clusterExport_l(CL, list("processSample", "irho", "drop2beta",
+                    "Q", "T", "lagImpacts", "lagDistrImpacts", "icept",
+                    "iicept", "type"))
+
+                timings[["cluster_setup"]] <- proc.time() - .ptime_start
+                .ptime_start <- proc.time()
+                lsres <- parLapply(CL, l_sp, function(sp) apply(sp, 1, 
+                    processSample, irho=irho, drop2beta=drop2beta))
+		clusterEvalQ(CL, rm(list=c("processSample", "irho", "drop2beta",
+                    "Q", "T", "lagImpacts", "lagDistrImpacts", "icept",
+                    "iicept", "type")))
+                sres <- do.call("c", lsres)
+
+            } else {
+                sres <- apply(samples, 1, processSample, irho=irho,
+                    drop2beta=drop2beta)
+            }
             timings[["process_samples"]] <- proc.time() - .ptime_start
             .ptime_start <- proc.time()
             direct <- as.mcmc(t(sapply(sres, function(x) x$direct)))
@@ -224,7 +254,38 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
                     return(mixedImpactsExact(SW, P, n, listw))
                 }
             }
-            sres <- apply(samples, 1, processXSample, drop2beta=drop2beta)
+            CL <- get("cl", env = .spdepOptions)
+            if (!is.null(CL) && length(CL) > 1) {
+                require(snow)
+                l_sp <- lapply(splitIndices(nrow(samples), length(CL)), 
+		    function(i) samples[i,])
+		clusterExport_l <- function(CL, list) {
+                    gets <- function(n, v) {
+                        assign(n, v, env = .GlobalEnv)
+                        NULL
+                    }
+                    for (name in list) {
+                        clusterCall(CL, gets, name, get(name))
+                    }
+		}
+
+		clusterExport_l(CL, list("processXSample", "irho", "drop2beta",
+                    "SW", "lagImpactsExact", "mixedImpactsExact", "icept",
+                    "iicept", "type", "listw"))
+
+                timings[["cluster_setup"]] <- proc.time() - .ptime_start
+                .ptime_start <- proc.time()
+                lsres <- parLapply(CL, l_sp, function(sp) apply(sp, 1, 
+                    processXSample, drop2beta=drop2beta))
+		clusterEvalQ(CL, rm(list=c("processXSample", "drop2beta",
+                    "SW", "lagImpactsExact", "mixedImpactsExact", "icept",
+                    "iicept", "type", "listw")))
+                sres <- do.call("c", lsres)
+
+            } else {
+                sres <- apply(samples, 1, processXSample,
+                    drop2beta=drop2beta)
+            }
             timings[["process_samples"]] <- proc.time() - .ptime_start
             .ptime_start <- proc.time()
             direct <- as.mcmc(t(sapply(sres, function(x) x$direct)))
@@ -250,6 +311,7 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
 impacts.lagmess <- function(obj, ..., tr=NULL, R=NULL, listw=NULL, 
   tol=1e-6, empirical=FALSE, Q=NULL) {
     stopifnot(!is.null(obj$mixedHess))
+    stop("method not yet available")
 }
 
 impacts.sarlm <- function(obj, ..., tr=NULL, R=NULL, listw=NULL, useHESS=NULL,

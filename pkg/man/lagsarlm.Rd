@@ -15,7 +15,7 @@ lagsarlm(formula, data = list(), listw,
 	na.action, type="lag", method="eigen", quiet=NULL, 
 	zero.policy=NULL, interval=c(-1,0.999), tol.solve=1.0e-10, 
 	tol.opt=.Machine$double.eps^0.5, 
-        fdHess=NULL, optimHess=FALSE, trs=NULL)
+        fdHess=NULL, optimHess=FALSE, trs=NULL, compiled_sse = FALSE)
 }
 \arguments{
   \item{formula}{a symbolic description of the model to be fit. The details 
@@ -38,6 +38,7 @@ neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminat
   \item{fdHess}{default NULL, then set to (method != "eigen") internally; use \code{fdHess} to compute an approximate Hessian using finite differences when using sparse matrix methods; may be used to make a coefficient covariance matrix when the number of observations is large; may be turned off to save resources if need be, but required for impact measures}
   \item{optimHess}{default FALSE, use \code{fdHess} from \pkg{nlme}, if TRUE, use \code{optim} to calculate Hessian at optimum}
   \item{trs}{default NULL, if given, a vector of powered spatial weights matrix traces output by \code{trW}; when given, insert the asymptotic analytical values into the numerical Hessian instead of the approximated values; may be used to get around some problems raised when the numerical Hessian is poorly conditioned, generating NaNs in subsequent operations; the use of trs is recommended}
+  \item{compiled_sse}{default FALSE; logical value used in the log likelihood function to choose compiled code for computing SSE}
 }
 \details{
   The asymptotic standard error of \eqn{\rho}{rho} is only computed when

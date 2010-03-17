@@ -103,6 +103,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
         assign("p", m, envir=env)
         assign("verbose", !quiet, envir=env)
         assign("compiled_sse", compiled_sse, envir=env)
+        assign("first_time", TRUE, envir=env)
         assign("LAPACK", LAPACK, envir=env)
         timings[["set_up"]] <- proc.time() - .ptime_start
         .ptime_start <- proc.time()
@@ -110,18 +111,23 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 	if (method == "eigen") {
 		if (!quiet) cat("Computing eigenvalues ...\n")
 		if (listw$style %in% c("W", "S") & can.sim) {
-#			eig <- eigenw(similar.listw(listw))
                         eig <- eigen(similar.listw_Matrix(listw),
                             only.values=TRUE)$values
 			similar <- TRUE
 		} else eig <- eigenw(listw)
 		if (!quiet) cat("\n")
-# range inverted 031031, email from Salvati Nicola (and Rein Halbersma)
 		if (is.complex(eig)) eig.range <- 1/range(Re(eig))
 		else eig.range <- 1/range(eig)
                 assign("eig", eig, envir=env)
                 timings[["eigen_set_up"]] <- proc.time() - .ptime_start
                 .ptime_start <- proc.time()
+                if (compiled_sse) {
+                    ptr <- .Call("opt_error_init", PACKAGE="spdep")
+#                    cfn <- function(ptr) .Call("opt_error_free",
+#                        ptr, PACKAGE="spdep")
+#                    reg.finalizer(ptr, cfn, onexit=FALSE)
+                    assign("ptr", ptr, envir=env)
+                }
 		opt <- optimize(sar.error.f, 
 			lower=eig.range[1]+.Machine$double.eps, 
 			upper=eig.range[2]-.Machine$double.eps, maximum=TRUE,
@@ -129,6 +135,10 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 		lambda <- opt$maximum
 		names(lambda) <- "lambda"
 		LL <- opt$objective
+                if (compiled_sse) {
+                    .Call("opt_error_free", get("ptr", envir=env),
+                        PACKAGE="spdep")
+                }
                 timings[["eigen_opt"]] <- proc.time() - .ptime_start
 	} else if (method == "spam") {
         	if (listw$style %in% c("W", "S") & can.sim) {
@@ -141,12 +151,22 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
                 assign("I", I, envir=env)
                 timings[["spam_set_up"]] <- proc.time() - .ptime_start
                 .ptime_start <- proc.time()
+                if (compiled_sse) {
+                    ptr <- .Call("opt_error_init", PACKAGE="spdep")
+#                    cfn <- function(ptr) .Call("opt_error_free",
+#                        ptr, PACKAGE="spdep")
+#                    reg.finalizer(ptr, cfn, onexit=FALSE)
+                    assign("ptr", ptr, envir=env)
+                }
 		opt <- optimize(sar.error.f.sp, interval=interval, 
 			maximum=TRUE, tol=tol.opt, env=env)
-# csrw=csrw, I=I, y=y, wy=wy, x=x, WX=WX, n=n, quiet=quiet, LAPACK=LAPACK)
 		lambda <- opt$maximum
 		names(lambda) <- "lambda"
 		LL <- opt$objective
+                if (compiled_sse) {
+                    .Call("opt_error_free", get("ptr", envir=env),
+                        PACKAGE="spdep")
+                }
                 timings[["spam_opt"]] <- proc.time() - .ptime_start
 	} else if (method == "Matrix") {
         	if (listw$style %in% c("W", "S") & can.sim) {
@@ -170,12 +190,22 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
         	I <- as_dsCMatrix_I(n)
                 timings[["Matrix_set_up"]] <- proc.time() - .ptime_start
                 .ptime_start <- proc.time()
+                if (compiled_sse) {
+                    ptr <- .Call("opt_error_init", PACKAGE="spdep")
+#                    cfn <- function(ptr) .Call("opt_error_free",
+#                        ptr, PACKAGE="spdep")
+#                    reg.finalizer(ptr, cfn, onexit=FALSE)
+                    assign("ptr", ptr, envir=env)
+                }
 		opt <- optimize(sar.error.f.M, interval=interval, 
 			maximum=TRUE, tol=tol.opt, env=env)
-# csrw=csrw, I=I, y=y, wy=wy, x=x, WX=WX, n=n, nW=nW, nChol=nChol, pChol=pChol, quiet=quiet, LAPACK=LAPACK)
 		lambda <- opt$maximum
 		names(lambda) <- "lambda"
 		LL <- opt$objective
+                if (compiled_sse) {
+                    .Call("opt_error_free", get("ptr", envir=env),
+                        PACKAGE="spdep")
+                }
                 timings[["Matrix_opt"]] <- proc.time() - .ptime_start
 	}
         .ptime_start <- proc.time()
@@ -196,6 +226,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
         Hcov <- NULL
         timings[["coefs"]] <- proc.time() - .ptime_start
         .ptime_start <- proc.time()
+        assign("first_time", TRUE, envir=env)
 	if (method == "eigen") {
 		tr <- function(A) sum(diag(A))
 		W <- listw2mat(listw)
@@ -230,9 +261,19 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
                 }
                 if (fdHess) {
                     coefs <- c(lambda, coef.lambda)
+                    if (compiled_sse) {
+                        ptr <- .Call("hess_error_init", PACKAGE="spdep")
+#                        cfn <- function(ptr) .Call("hess_error_free",
+#                            ptr, PACKAGE="spdep")
+#                        reg.finalizer(ptr, cfn, onexit=FALSE)
+                        assign("ptr", ptr, envir=env)
+                    }
                     fdHess <- getVmate_eig(coefs, env,
-#y, x, wy, WX, n, eig,
                        s2, trs, tol.solve=tol.solve, optim=optimHess)
+                    if (compiled_sse) {
+                        .Call("hess_error_free", get("ptr", envir=env),
+                            PACKAGE="spdep")
+                    }
                     if (is.null(trs)) {
                         rownames(fdHess) <- colnames(fdHess) <- 
                             c("lambda", colnames(x))
@@ -247,9 +288,19 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 	} else {
                 if (fdHess && method == "Matrix") {
                     coefs <- c(lambda, coef.lambda)
+                    if (compiled_sse) {
+                        ptr <- .Call("hess_error_init", PACKAGE="spdep")
+#                        cfn <- function(ptr) .Call("hess_error_free",
+#                            ptr, PACKAGE="spdep")
+#                        reg.finalizer(ptr, cfn, onexit=FALSE)
+                        assign("ptr", ptr, envir=env)
+                    }
                     fdHess <- getVmate_Matrix(coefs, env,
-#y, x, wy, WX, n, I, csrw, nW, nChol, pChol, 
                         s2, trs, tol.solve=tol.solve, optim=optimHess)
+                    if (compiled_sse) {
+                        .Call("hess_error_free", get("ptr", envir=env),
+                            PACKAGE="spdep")
+                    }
                     if (is.null(trs)) {
                         rownames(fdHess) <- colnames(fdHess) <- 
                             c("lambda", colnames(x))
@@ -265,9 +316,19 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
                     .ptime_start <- proc.time()
                 } else if (fdHess && method == "spam") {
                     coefs <- c(lambda, coef.lambda)
+                    if (compiled_sse) {
+                        ptr <- .Call("hess_error_init", PACKAGE="spdep")
+#                        cfn <- function(ptr) .Call("hess_error_free",
+#                            ptr, PACKAGE="spdep")
+#                        reg.finalizer(ptr, cfn, onexit=FALSE)
+                        assign("ptr", ptr, envir=env)
+                    }
                     fdHess <- getVmate_spam(coefs, env,
-#y, x, wy, WX, n, csrw, I,
                         s2, trs, tol.solve=tol.solve, optim=optimHess)
+                    if (compiled_sse) {
+                        .Call("hess_error_free", get("ptr", envir=env),
+                            PACKAGE="spdep")
+                    }
                     if (is.null(trs)) {
                         rownames(fdHess) <- colnames(fdHess) <- 
                             c("lambda", colnames(x))
@@ -324,13 +385,11 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 	ret
 }
 
-sar.error.f <- function(lambda, env)
-# eig, y, wy, x, WX, n, quiet, LAPACK=FALSE)
-{
-#	yl <- y - lambda*wy
-#	xl <- x - lambda*WX
+sar.error.f <- function(lambda, env) {
     if (get("compiled_sse", envir=env)) {
+        ft <- get("first_time", envir=env)
         SSE <- .Call("R_ml_sse_env", env, lambda, PACKAGE="spdep")
+        if (ft) assign("first_time", FALSE, envir=env)
     } else {
         yl <- get("y", envir=env) - lambda * get("wy", envir=env)
         xl <- get("x", envir=env) - lambda * get("WX", envir=env)
@@ -344,21 +403,16 @@ sar.error.f <- function(lambda, env)
     if (is.complex(eig)) 
         det <- sum(log(1 - lambda * Re(eig)))
     else det <- sum(log(1 - lambda * eig))
-#    if (is.complex(eig)) det <- Re(prod(1 - lambda*eig)) 
-#    else det <- prod(1 - lambda*eig)
-#    ret <- (log(det) - ((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
     ret <- (det - ((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
-    if (get("verbose", envir=env)) cat("lambda:", lambda, " function:", ret, " Jacobian:", log(det), " SSE:", SSE, "\n")
+    if (get("verbose", envir=env)) cat("lambda:", lambda, " function:", ret, " Jacobian:", det, " SSE:", SSE, "\n")
     ret
 }
 
-sar.error.f.sp <- function(lambda, env)
-# csrw, I, y, wy, x, WX, n, quiet, LAPACK=FALSE) 
-{
-#	yl <- y - lambda*wy
-#	xl <- x - lambda*WX
+sar.error.f.sp <- function(lambda, env) {
     if (get("compiled_sse", envir=env)) {
+        ft <- get("first_time", envir=env)
         SSE <- .Call("R_ml_sse_env", env, lambda, PACKAGE="spdep")
+        if (ft) assign("first_time", FALSE, envir=env)
     } else {
         yl <- get("y", envir=env) - lambda * get("wy", envir=env)
         xl <- get("x", envir=env) - lambda * get("WX", envir=env)
@@ -366,8 +420,6 @@ sar.error.f.sp <- function(lambda, env)
 	xl.q.yl <- crossprod(xl.q, yl)
 	SSE <- crossprod(yl) - crossprod(xl.q.yl)
     }
-#	xl.q.yl <- t(xl.q) %*% yl
-#	SSE <- t(yl) %*% yl - t(xl.q.yl) %*% xl.q.yl
     n <- get("n", envir=env)
     s2 <- SSE/n
     csrw <- get("csrw", envir=env)
@@ -379,20 +431,17 @@ sar.error.f.sp <- function(lambda, env)
     } else {
         Jacobian <- J1
     }
-#	gc(FALSE)
     ret <- (Jacobian -
 	((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
 	if (get("verbose", envir=env)) cat("lambda:", lambda, " function:", ret, " Jacobian:", Jacobian, " SSE:", SSE, "\n")
 	ret
 }
 
-sar.error.f.M <- function(lambda, env)
-# I, y, wy, x, WX, n, nW, nChol, pChol, quiet, LAPACK=FALSE) 
-{
-#	yl <- y - lambda*wy
-#	xl <- x - lambda*WX
+sar.error.f.M <- function(lambda, env) {
     if (get("compiled_sse", envir=env)) {
+        ft <- get("first_time", envir=env)
         SSE <- .Call("R_ml_sse_env", env, lambda, PACKAGE="spdep")
+        if (ft) assign("first_time", FALSE, envir=env)
     } else {
         yl <- get("y", envir=env) - lambda * get("wy", envir=env)
         xl <- get("x", envir=env) - lambda * get("WX", envir=env)
@@ -400,9 +449,6 @@ sar.error.f.M <- function(lambda, env)
 	xl.q.yl <- crossprod(xl.q, yl)
 	SSE <- crossprod(yl) - crossprod(xl.q.yl)
     }
-#	xl.q.yl <- t(xl.q) %*% yl
-#	SSE <- t(yl) %*% yl - t(xl.q.yl) %*% xl.q.yl
-#	s2 <- SSE/n
     n <- get("n", envir=env)
     s2 <- SSE/n
     csrw <- get("csrw", envir=env)
@@ -420,7 +466,6 @@ sar.error.f.M <- function(lambda, env)
             (.f * c(determinant(update(pChol, csrw, 1/(-lambda)))$modulus)),
             0.0))
 
-#	Jacobian <- determinant(I - lambda * csrw, logarithm=TRUE)$modulus
     ret <- (Jacobian -
 		((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*(s2)))*SSE)
     if (get("verbose", envir=env)) cat("lambda:", lambda, " function:", ret, " Jacobian:", Jacobian, " SSE:", SSE, "\n")

@@ -1,10 +1,15 @@
 f_laglm_eig <- function(coefs, env) {
-#y, X, yW, n, eig) {
     rho <- coefs[1]
     beta <- coefs[-1]
-    res <- (get("y", envir=env) - rho * get("wy", envir=env)) - 
-        get("x", envir=env) %*% beta
-    SSE <- sum(res^2)
+    if (get("compiled_sse", envir=env)) {
+        ft <- get("first_time", envir=env)
+        SSE <- .Call("R_ml2_sse_env", env, rho, beta, PACKAGE="spdep")
+        if (ft) assign("first_time", FALSE, envir=env)
+    } else {
+        res <- (get("y", envir=env) - rho * get("wy", envir=env)) - 
+            get("x", envir=env) %*% beta
+        SSE <- sum(res^2)
+    }
     n <- get("n", envir=env)
     s2 <- SSE/n
     eig <- get("eig", envir=env)
@@ -18,21 +23,17 @@ f_laglm_eig <- function(coefs, env) {
 }
 
 getVmat_eig <- function(coefs, env,
-#y, X, yW, n, eig, 
     s2, trs, tol.solve=1.0e-10, optim=FALSE) {
     if (optim) {
         opt <- optim(par=coefs, fn=f_laglm_eig, env=env,
-#y=y, X=X, yW=yW, n=n, eig=eig,
             method="BFGS", hessian=TRUE)
         mat <- opt$hessian
     } else {
         fd <- fdHess(coefs, f_laglm_eig, env)
-#y, X, yW, n, eig)
         mat <- fd$Hessian
     }
     if (!is.null(trs)) {
          mat <- insert_asy(coefs, env,
-#y, X, yW, n, 
             s2, mat, trs)
     }
     res <- solve(-(mat), tol.solve=tol.solve)
@@ -40,12 +41,17 @@ getVmat_eig <- function(coefs, env,
 }
 
 f_laglm_Matrix <- function(coefs, env) {
-#y, X, yW, n, W, I, nW, nChol, pChol) {
     rho <- coefs[1]
     beta <- coefs[-1]
-    res <- (get("y", envir=env) - rho * get("wy", envir=env)) - 
-        get("x", envir=env) %*% beta
-    SSE <- sum(res^2)
+    if (get("compiled_sse", envir=env)) {
+        ft <- get("first_time", envir=env)
+        SSE <- .Call("R_ml2_sse_env", env, rho, beta, PACKAGE="spdep")
+        if (ft) assign("first_time", FALSE, envir=env)
+    } else {
+        res <- (get("y", envir=env) - rho * get("wy", envir=env)) - 
+            get("x", envir=env) %*% beta
+        SSE <- sum(res^2)
+    }
     n <- get("n", envir=env)
     s2 <- SSE/n
     a <- -.Machine$double.eps^(1/2)
@@ -68,21 +74,17 @@ f_laglm_Matrix <- function(coefs, env) {
 }
 
 getVmat_Matrix <- function(coefs, env,
-#y, X, yW, n, W, I, nW, nChol, pChol, 
     s2, trs, tol.solve=1.0e-10, optim=FALSE) {
     if (optim) {
         opt <- optim(par=coefs, fn=f_laglm_Matrix, env=env,
-#y=y, X=X, yW=yW, n=n, W=W, I=I, nW=nW, nChol=nChol, pChol=pChol, 
             method="BFGS", hessian=TRUE)
         mat <- opt$hessian
     } else {
         fd <- fdHess(coefs, f_laglm_Matrix, env)
-#y, X, yW, n, W, I, nW, nChol, pChol)
         mat <- fd$Hessian
     }
     if (!is.null(trs)) {
          mat <- insert_asy(coefs, env,
-#y, X, yW, n, 
              s2, mat, trs)
     }
     res <- solve(-(mat), tol.solve=tol.solve)
@@ -90,12 +92,17 @@ getVmat_Matrix <- function(coefs, env,
 }
 
 f_laglm_spam <- function(coefs, env) {
-#y, X, yW, n, W, I) {
     rho <- coefs[1]
     beta <- coefs[-1]
-    res <- (get("y", envir=env) - rho * get("wy", envir=env)) - 
-        get("x", envir=env) %*% beta
-    SSE <- sum(res^2)
+    if (get("compiled_sse", envir=env)) {
+        ft <- get("first_time", envir=env)
+        SSE <- .Call("R_ml2_sse_env", env, rho, beta, PACKAGE="spdep")
+        if (ft) assign("first_time", FALSE, envir=env)
+    } else {
+        res <- (get("y", envir=env) - rho * get("wy", envir=env)) - 
+            get("x", envir=env) %*% beta
+        SSE <- sum(res^2)
+    }
     n <- get("n", envir=env)
     s2 <- SSE/n
     W <- get("W", envir=env)

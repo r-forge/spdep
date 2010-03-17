@@ -1,11 +1,11 @@
-# Copyright 1998-2009 by Roger Bivand and Andrew Bernat
+# Copyright 1998-2010 by Roger Bivand and Andrew Bernat
 #
 
 lagsarlm <- function(formula, data = list(), listw, 
 	na.action, type="lag", method="eigen", quiet=NULL, 
 	zero.policy=NULL, interval=c(-1,0.999), tol.solve=1.0e-10, 
 	tol.opt=.Machine$double.eps^0.5, 
-        fdHess=NULL, optimHess=FALSE, trs=NULL) {
+        fdHess=NULL, optimHess=FALSE, trs=NULL, compiled_sse=FALSE) {
         timings <- list()
         .ptime_start <- proc.time()
         if (is.null(quiet)) quiet <- !get("verbose", env = .spdepOptions)
@@ -127,6 +127,7 @@ lagsarlm <- function(formula, data = list(), listw,
         assign("e.b", e.b, envir=env)
         assign("e.c", e.c, envir=env)
         assign("verbose", !quiet, envir=env)
+        assign("compiled_sse", compiled_sse, envir=env)
         timings[["set_up"]] <- proc.time() - .ptime_start
         .ptime_start <- proc.time()
 
@@ -216,12 +217,23 @@ lagsarlm <- function(formula, data = list(), listw,
 	s2 <- SSE/n
         timings[["coefs"]] <- proc.time() - .ptime_start
         .ptime_start <- proc.time()
+        assign("first_time", TRUE, envir=env)
 	if (method != "eigen") {
                 coefs <- c(rho, coef.rho)
                 if (fdHess && method == "Matrix") {
+                    if (compiled_sse) {
+                        ptr <- .Call("hess_lag_init", PACKAGE="spdep")
+#                        cfn <- function(ptr) .Call("hess_lag_free",
+#                            ptr, PACKAGE="spdep")
+#                        reg.finalizer(ptr, cfn, onexit=FALSE)
+                        assign("ptr", ptr, envir=env)
+                    }
                     fdHess <- getVmat_Matrix(coefs, env,
-#y, x, wy, n, W, I, nW, nChol, pChol, 
                         s2, trs, tol.solve=tol.solve, optim=optimHess)
+                    if (compiled_sse) {
+                        .Call("hess_lag_free", get("ptr", envir=env),
+                            PACKAGE="spdep")
+                    }
                     if (is.null(trs)) {
                         rownames(fdHess) <- colnames(fdHess) <- 
                             c("rho", colnames(x))
@@ -239,9 +251,19 @@ lagsarlm <- function(formula, data = list(), listw,
                     timings[["Matrix_fdHess"]] <- proc.time() - .ptime_start
                     .ptime_start <- proc.time()
                 } else if (fdHess && method == "spam") {
+                    if (compiled_sse) {
+                        ptr <- .Call("hess_lag_init", PACKAGE="spdep")
+#                        cfn <- function(ptr) .Call("hess_lag_free",
+#                            ptr, PACKAGE="spdep")
+#                        reg.finalizer(ptr, cfn, onexit=FALSE)
+                        assign("ptr", ptr, envir=env)
+                    }
                     fdHess <- getVmat_spam(coefs, env,
-#y, x, wy, n, W, I, 
                         s2, trs, tol.solve=1.0e-10, optim=optimHess)
+                    if (compiled_sse) {
+                        .Call("hess_lag_free", get("ptr", envir=env),
+                            PACKAGE="spdep")
+                    }
                     if (is.null(trs)) {
                         rownames(fdHess) <- colnames(fdHess) <- 
                             c("rho", colnames(x))
@@ -268,9 +290,19 @@ lagsarlm <- function(formula, data = list(), listw,
 	} else {
                 if (fdHess) {
                     coefs <- c(rho, coef.rho)
+                    if (compiled_sse) {
+                        ptr <- .Call("hess_lag_init", PACKAGE="spdep")
+#                        cfn <- function(ptr) .Call("hess_lag_free",
+#                            ptr, PACKAGE="spdep")
+#                        reg.finalizer(ptr, cfn, onexit=FALSE)
+                        assign("ptr", ptr, envir=env)
+                    }
                     fdHess <- getVmat_eig(coefs, env,
-#y, x, wy, n, eig, 
                        s2, trs, tol.solve=tol.solve, optim=optimHess)
+                    if (compiled_sse) {
+                        .Call("hess_lag_free", get("ptr", envir=env),
+                            PACKAGE="spdep")
+                    }
                     if (is.null(trs)) {
                         rownames(fdHess) <- colnames(fdHess) <- 
                             c("rho", colnames(x))
@@ -336,9 +368,7 @@ lagsarlm <- function(formula, data = list(), listw,
 	ret
 }
 
-sar.lag.mixed.f <- function(rho, env)
-#eig, e.a, e.b, e.c, n, quiet)
-{
+sar.lag.mixed.f <- function(rho, env) {
         e.a <- get("e.a", envir=env)
         e.b <- get("e.b", envir=env)
         e.c <- get("e.c", envir=env)
@@ -357,7 +387,6 @@ sar.lag.mixed.f <- function(rho, env)
 
 
 sar.lag.mix.f.sp <- function(rho, env) {
-#W, I, e.a, e.b, e.c, n, quiet) {
         e.a <- get("e.a", envir=env)
         e.b <- get("e.b", envir=env)
         e.c <- get("e.c", envir=env)
@@ -381,8 +410,6 @@ sar.lag.mix.f.sp <- function(rho, env) {
 }
 
 sar.lag.mix.f.M <- function(rho, env) {
-#W, I, e.a, e.b, e.c, n, nW, nChol, 
-#		pChol, quiet) {
         e.a <- get("e.a", envir=env)
         e.b <- get("e.b", envir=env)
         e.c <- get("e.c", envir=env)
@@ -414,7 +441,6 @@ sar.lag.mix.f.M <- function(rho, env) {
                Jacobian <- n * log(-(rho)) + (.f * detTRY)
             }
 	}	
-#	Jacobian <- determinant(I - rho * W, logarithm=TRUE)$modulus
 	ret <- (Jacobian
 		- ((n/2)*log(2*pi)) - (n/2)*log(s2) - (1/(2*s2))*SSE)
 	if (get("verbose", envir=env)) 
