@@ -1,3 +1,26 @@
+2010-03-18 19:20  rsbivand
+
+	* DESCRIPTION, R/error.hessian.R, R/error.spsarlm.R, R/jacobian.R,
+	  R/lag.hessian.R, R/lag.spsarlm.R, man/boston.Rd,
+	  man/errorsarlm.Rd, man/lagsarlm.Rd, man/used.cars.Rd, src/init.c:
+	  modularising ML code, adding Jacobian methods
+
+2010-03-17 21:00  rsbivand
+
+	* DESCRIPTION, R/error.hessian.R, R/error.spsarlm.R, R/impacts.R,
+	  R/lag.hessian.R, R/lag.spsarlm.R, man/lagsarlm.Rd, src/card.c,
+	  src/dfs_ncomp.c, src/dnn.c, src/gabriel.c, src/gearyw.c,
+	  src/gsymtest.c, src/init.c, src/insiders.c, src/jc.c, src/knn.c,
+	  src/lagw.c, src/listw2Matrix.c, src/listw2sn.c, src/ml_sse.c,
+	  src/nbdists.c, src/polypoly.c, src/relative.c, src/skater.c,
+	  src/soigraph.c, src/spdep.h, src/symtest.c: sse C code; impacts
+	  cluster
+
+2010-03-16 13:46  rsbivand
+
+	* ChangeLog, inst/ChangeLog: timing and other changes to lag, error
+	  and impact calculations
+
 2010-03-16 13:46  rsbivand
 
 	* ChangeLog, inst/ChangeLog: timing and other changes to lag, error
