@@ -13,9 +13,8 @@ where \eqn{\rho}{rho} is found by \code{optimize()} first, and \eqn{\beta}{beta}
 \usage{
 lagsarlm(formula, data = list(), listw, 
 	na.action, type="lag", method="eigen", quiet=NULL, 
-	zero.policy=NULL, interval=c(-1,0.999), tol.solve=1.0e-10, 
-	tol.opt=.Machine$double.eps^0.5, 
-        fdHess=NULL, optimHess=FALSE, trs=NULL, compiled_sse = FALSE)
+	zero.policy=NULL, interval=NULL, tol.solve=1.0e-10, trs=NULL, 
+	control=list())
 }
 \arguments{
   \item{formula}{a symbolic description of the model to be fit. The details 
@@ -32,13 +31,10 @@ of (1 - rho*eigenvalue) using \code{eigenw}, and "spam" or "Matrix" for strictly
   \item{quiet}{default NULL, use !verbose global option value; if FALSE, reports function values during optimization.}
   \item{zero.policy}{default NULL, use global option value; if TRUE assign zero to the lagged value of zones without 
 neighbours, if FALSE (default) assign NA - causing \code{lagsarlm()} to terminate with an error}
-  \item{interval}{search interval for autoregressive parameter when not using method="eigen"; default is c(-1,1); method="Matrix" will attempt to search for an appropriate interval}
+  \item{interval}{default is NULL, search interval for autoregressive parameter}
   \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=1.0e-10). This may be used if necessary to extract coefficient standard errors (for instance lowering to 1e-12), but errors in \code{solve()} may constitute indications of poorly scaled variables: if the variables have scales differing much from the autoregressive coefficient, the values in this matrix may be very different in scale, and inverting such a matrix is analytically possible by definition, but numerically unstable; rescaling the RHS variables alleviates this better than setting tol.solve to a very small value}
-  \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()} (default=square root of double precision machine tolerance)}
-  \item{fdHess}{default NULL, then set to (method != "eigen") internally; use \code{fdHess} to compute an approximate Hessian using finite differences when using sparse matrix methods; may be used to make a coefficient covariance matrix when the number of observations is large; may be turned off to save resources if need be, but required for impact measures}
-  \item{optimHess}{default FALSE, use \code{fdHess} from \pkg{nlme}, if TRUE, use \code{optim} to calculate Hessian at optimum}
   \item{trs}{default NULL, if given, a vector of powered spatial weights matrix traces output by \code{trW}; when given, insert the asymptotic analytical values into the numerical Hessian instead of the approximated values; may be used to get around some problems raised when the numerical Hessian is poorly conditioned, generating NaNs in subsequent operations; the use of trs is recommended}
-  \item{compiled_sse}{default FALSE; logical value used in the log likelihood function to choose compiled code for computing SSE}
+ \item{control}{list of extra control arguments - see section below}
 }
 \details{
   The asymptotic standard error of \eqn{\rho}{rho} is only computed when
@@ -57,6 +53,19 @@ noise (residuals). Since the values of the response variable are known,
 their spatial lags are used to calculate signal components (Cressie 1993, p. 564). This differs from other software, including GeoDa, which does not use knowledge of the response 
 variable in making predictions for the fitting data.
 }
+
+\section{Control arguments}{
+\itemize{
+  \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()} (default=square root of double precision machine tolerance, a larger root may be used needed, see help(boston) for an example)}
+  \item{fdHess}{default NULL, then set to (method != "eigen") internally; use \code{fdHess} to compute an approximate Hessian using finite differences when using sparse matrix methods; used to make a coefficient covariance matrix when the number of observations is large; may be turned off to save resources if need be}
+  \item{optimHess}{default FALSE, use \code{fdHess} from \pkg{nlme}, if TRUE, use \code{optim} to calculate Hessian at optimum}
+  \item{compiled_sse}{default FALSE; logical value used in the log likelihood function to choose compiled code for computing SSE}
+  \item{Imult}{default 2; used for preparing the Cholesky decompositions for updating in the Jacobian function}
+  \item{super}{default FALSE using a simplicial decomposition for the sparse Cholesky decomposition, if TRUE, use a supernodal decomposition}
+  \item{cheb_q}{default 5; highest power of the approximating polynomial for the Chebyshev approximation}
+  \item{MC_p}{default 16; number of random variates}
+  \item{MC_m}{default 30; number of products of random variates matrix and spatial weights matrix}
+}}
 
 \value{
   A list object of class \code{sarlm}
@@ -124,7 +133,7 @@ COL.lag.eig$resvar
 W <- as(as_dgRMatrix_listw(nb2listw(COL.nb)), "CsparseMatrix")
 trMatc <- trW(W, type="mult")
 COL.lag.eig1 <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
- nb2listw(COL.nb, style="W"), fdHess=TRUE, trs=trMatc)
+ nb2listw(COL.nb, style="W"), control=list(fdHess=TRUE), trs=trMatc)
 COL.lag.eig1$fdHess
 system.time(COL.lag.M <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb), method="Matrix", quiet=FALSE))
@@ -145,7 +154,8 @@ summary(COL.mixed.W, correlation=TRUE)
 NA.COL.OLD <- COL.OLD
 NA.COL.OLD$CRIME[20:25] <- NA
 COL.lag.NA <- lagsarlm(CRIME ~ INC + HOVAL, data=NA.COL.OLD,
- nb2listw(COL.nb), na.action=na.exclude, tol.opt=.Machine$double.eps^0.4)
+ nb2listw(COL.nb), na.action=na.exclude, 
+ control=list(tol.opt=.Machine$double.eps^0.4))
 COL.lag.NA$na.action
 COL.lag.NA
 resid(COL.lag.NA)
