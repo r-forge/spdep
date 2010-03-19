@@ -1,3 +1,11 @@
+2010-03-19 20:57  rsbivand
+
+	* R/impacts.R: adding some cluster awareness
+
+2010-03-19 20:13  rsbivand
+
+	* ChangeLog, inst/ChangeLog: adding some cluster awareness
+
 2010-03-19 20:12  rsbivand
 
 	* DESCRIPTION, NAMESPACE, R/EBI.R, R/aple.mc.R, R/geary.R,
