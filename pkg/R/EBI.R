@@ -14,8 +14,9 @@ EBImoran <- function (z, listw, nn, S0, zero.policy = NULL)
     res <- EBI
     res
 }
+
 EBImoran.mc <- function (n, x, listw, nsim, zero.policy = NULL,
- alternative = "greater", spChk = NULL) 
+ alternative = "greater", spChk = NULL, return_boot=FALSE) 
 {
         if (is.null(zero.policy))
             zero.policy <- get("zeroPolicy", env = .spdepOptions)
@@ -47,6 +48,25 @@ EBImoran.mc <- function (n, x, listw, nsim, zero.policy = NULL,
     v <- a + (b/x)
     v[v < 0] <- b/x
     z <- (p - b)/sqrt(v)
+    if (return_boot) {
+            EBI_boot <- function(var, i, ...) {
+                var <- var[i]
+                return(EBImoran(z=var, ...))
+            }
+            cl <- get("cl", env = .spdepOptions)
+            if (!is.null(cl) && length(cl) > 1) {
+                nnsim <- boot_wrapper_in(cl, nsim)
+                lres <- clusterCall(cl, boot, z, statistic=EBI_boot, R=nnsim,
+                    sim="permutation", listw=listw, nn=m, S0=S0,
+                    zero.policy=zero.policy)
+                res <- boot_wrapper_out(lres, match.call())
+            } else {
+                res <- boot(z, statistic=EBI_boot, R=nsim,
+                    sim="permutation", listw=listw, nn=m, S0=S0, 
+                    zero.policy=zero.policy)
+            }
+            return(res)
+    }
     res <- numeric(length = nsim + 1)
     for (i in 1:nsim) res[i] <- EBImoran(sample(z), listw, m, 
         S0, zero.policy)

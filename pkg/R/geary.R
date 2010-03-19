@@ -93,7 +93,7 @@ geary.test <- function(x, listw, randomisation=TRUE, zero.policy=NULL,
 }
 
 geary.mc <- function(x, listw, nsim, zero.policy=NULL,
-	alternative="less", spChk=NULL, adjust.n=TRUE) {
+	alternative="less", spChk=NULL, adjust.n=TRUE, return_boot=FALSE) {
         if (is.null(zero.policy))
             zero.policy <- get("zeroPolicy", env = .spdepOptions)
         stopifnot(is.logical(zero.policy))
@@ -113,6 +113,25 @@ geary.mc <- function(x, listw, nsim, zero.policy=NULL,
         if (gamres) stop("nsim too large for this number of observations")
 	if (nsim < 1) stop("non-positive nsim")
 	wc <- spweights.constants(listw, zero.policy, adjust.n=adjust.n)
+        if (return_boot) {
+            geary_boot <- function(var, i, ...) {
+                var <- var[i]
+                return(geary(x=var, ...)$C)
+            }
+            cl <- get("cl", env = .spdepOptions)
+            if (!is.null(cl) && length(cl) > 1) {
+                nnsim <- boot_wrapper_in(cl, nsim)
+                lres <- clusterCall(cl, boot, x, statistic=geary_boot,
+                    R=nnsim, sim="permutation", listw=listw, n=n, n1=wc$n1,
+                    S0=wc$S0, zero.policy=zero.policy)
+                res <- boot_wrapper_out(lres, match.call())
+            } else {
+                res <- boot(x, statistic=geary_boot, R=nsim,
+                    sim="permutation", listw=listw, n=n, n1=wc$n1, S0=wc$S0, 
+                    zero.policy=zero.policy)
+            }
+            return(res)
+        }
 	res <- numeric(length=nsim+1)
 	for (i in 1:nsim) res[i] <- geary(sample(x), listw, n, wc$n1, wc$S0,
 	    zero.policy)$C

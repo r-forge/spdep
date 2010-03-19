@@ -10,7 +10,7 @@
 }
 \usage{
 EBImoran.mc(n, x, listw, nsim, zero.policy = NULL, 
- alternative = "greater", spChk=NULL)
+ alternative = "greater", spChk=NULL, return_boot=FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -21,6 +21,7 @@ EBImoran.mc(n, x, listw, nsim, zero.policy = NULL,
   \item{zero.policy}{default NULL, use global option value; if TRUE assign zero to the lagged value of zones without neighbours, if FALSE assign NA}
   \item{alternative}{a character string specifying the alternative hypothesis, must be one of "greater" (default), or "less"}
   \item{spChk}{should the data vector names be checked against the spatial objects for identity integrity, TRUE, or FALSE, default NULL to use \code{get.spChkOption()}}
+  \item{return_boot}{return an object of class \code{boot} from the equivalent permutation bootstrap rather than an object of class \code{htest}}
 }
 \details{
 The statistic used is (m is the number of observations):

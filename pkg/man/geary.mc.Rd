@@ -7,7 +7,7 @@
 }
 \usage{
 geary.mc(x, listw, nsim, zero.policy=NULL, alternative="less",
- spChk=NULL, adjust.n=TRUE)
+ spChk=NULL, adjust.n=TRUE, return_boot=FALSE)
 }
 \arguments{
   \item{x}{a numeric vector the same length as the neighbours list in listw}
@@ -17,6 +17,7 @@ geary.mc(x, listw, nsim, zero.policy=NULL, alternative="less",
   \item{alternative}{a character string specifying the alternative hypothesis, must be one of "less" (default), or "greater".}
   \item{spChk}{should the data vector names be checked against the spatial objects for identity integrity, TRUE, or FALSE, default NULL to use \code{get.spChkOption()}}
   \item{adjust.n}{default TRUE, if FALSE the number of observations is not adjusted for no-neighbour observations, if TRUE, the number of observations is adjusted}
+  \item{return_boot}{return an object of class \code{boot} from the equivalent permutation bootstrap rather than an object of class \code{htest}}
 }
 
 \value{

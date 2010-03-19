@@ -1,8 +1,8 @@
-# Copyright 2002 by Roger Bivand 
+# Copyright 2002-2010 by Roger Bivand 
 #
 
 sp.mantel.mc <- function(var, listw, nsim, type="moran", zero.policy=NULL,
-	alternative="greater", spChk=NULL) {
+	alternative="greater", spChk=NULL, return_boot=FALSE) {
         if (is.null(zero.policy))
             zero.policy <- get("zeroPolicy", env = .spdepOptions)
         stopifnot(is.logical(zero.policy))
@@ -47,6 +47,26 @@ sp.mantel.mc <- function(var, listw, nsim, type="moran", zero.policy=NULL,
 	else if (type == "sokal") f <- mantel.sokal
 	else stop("unknown type")
 	xs <- scale(var)
+        if (return_boot) {
+            mantel_boot <- function(var, i, ...) {
+                var <- var[i]
+                return(f(x=var, ...))
+            }
+            cl <- get("cl", env = .spdepOptions)
+            if (!is.null(cl) && length(cl) > 1) {
+                nnsim <- boot_wrapper_in(cl, nsim)
+                lres <- clusterCall(cl, boot, xs, statistic=mantel_boot,
+                    R=nnsim, sim="permutation", listwU=listw.U,
+                    zero.policy=zero.policy)
+                res <- boot_wrapper_out(lres, match.call())
+            } else {
+                res <- boot(xs, statistic=mantel_boot, R=nsim,
+                    sim="permutation", listwU=listw.U, 
+                    zero.policy=zero.policy)
+            }
+            return(res)
+        }
+
 	res <- numeric(length=nsim+1)
 	for (i in 1:nsim) {
 		y <- sample(xs)

@@ -90,7 +90,8 @@ moran.test <- function(x, listw, randomisation=TRUE, zero.policy=NULL,
 }
 
 moran.mc <- function(x, listw, nsim, zero.policy=NULL,
-	alternative="greater", na.action=na.fail, spChk=NULL) {
+	alternative="greater", na.action=na.fail, spChk=NULL,
+        return_boot=FALSE) {
 	alternative <- match.arg(alternative, c("greater", "less"))
 	if(!inherits(listw, "listw")) stop(paste(deparse(substitute(listw)),
 		"is not a listw object"))
@@ -124,6 +125,25 @@ moran.mc <- function(x, listw, nsim, zero.policy=NULL,
 	if (nsim < 1) stop("nsim too small")
 	
 	S0 <- Szero(listw)
+        if (return_boot) {
+            moran_boot <- function(var, i, ...) {
+                var <- var[i]
+                return(moran(x=var, ...)$I)
+            }
+            cl <- get("cl", env = .spdepOptions)
+            if (!is.null(cl) && length(cl) > 1) {
+                nnsim <- boot_wrapper_in(cl, nsim)
+                lres <- clusterCall(cl, boot, x, statistic=moran_boot,
+                    R=nnsim, sim="permutation", listw=listw, n=n,
+                    S0=S0, zero.policy=zero.policy)
+                res <- boot_wrapper_out(lres, match.call())
+            } else {
+                res <- boot(x, statistic=moran_boot, R=nsim,
+                    sim="permutation", listw=listw, n=n, S0=S0, 
+                    zero.policy=zero.policy)
+            }
+            return(res)
+        }
 	res <- numeric(length=nsim+1)
 	for (i in 1:nsim) res[i] <- moran(sample(x), listw, n, S0,
 	    zero.policy)$I

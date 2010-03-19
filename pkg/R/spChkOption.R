@@ -1,4 +1,4 @@
-# Copyright 2003 by Roger Bivand 
+# Copyright 2003-2010 by Roger Bivand 
 
 set.spChkOption <- function(check) {
 	if (!is.logical(check)) stop ("logical argument required")
@@ -32,6 +32,19 @@ set.ZeroPolicyOption <- function(check) {
 get.ZeroPolicyOption <- function() {
 	get("zero.policy", env = .spdepOptions)
 }
+
+set.ClusterOption <- function(cl) {
+	if (!is.null(cl)) 
+            if (!inherits(cl, "cluster")) 
+                stop ("cluster required")
+	assign("cl", cl, env = .spdepOptions)
+        invisible(NULL)
+}
+
+get.ClusterOption  <- function() {
+	get("cl", env = .spdepOptions)
+}
+
 
 chkIDs <- function (x, listw) 
 {
