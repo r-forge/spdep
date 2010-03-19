@@ -144,6 +144,15 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
                 require(snow)
                 l_sp <- lapply(splitIndices(nrow(samples), length(CL)), 
 		    function(i) samples[i,])
+		clusterExport_l <- function(CL, list) {
+                    gets <- function(n, v) {
+                        assign(n, v, env = .GlobalEnv)
+                        NULL
+                    }
+                    for (name in list) {
+                        clusterCall(CL, gets, name, get(name))
+                    }
+		}
 		clusterExport_l(CL, list("processSample", "irho", "drop2beta",
                     "Q", "T", "lagImpacts", "lagDistrImpacts", "icept",
                     "iicept", "type"))
@@ -561,15 +570,4 @@ HPDinterval.lagImpact <- function(obj, prob = 0.95, ..., choice="direct") {
     res <- HPDinterval(obj$sres[[choice]], prob=prob)
     res
 }
-
-clusterExport_l <- function(CL, list) {
-    gets <- function(n, v) {
-        assign(n, v, env = .GlobalEnv)
-        NULL
-    }
-    for (name in list) {
-        clusterCall(CL, gets, name, get(name))
-    }
-}
-
 
