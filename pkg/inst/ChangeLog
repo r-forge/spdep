@@ -1,3 +1,16 @@
+2010-03-19 20:12  rsbivand
+
+	* DESCRIPTION, NAMESPACE, R/EBI.R, R/aple.mc.R, R/geary.R,
+	  R/impacts.R, R/moran.R, R/sp.mantel.R, R/spChkOption.R,
+	  man/EBImoran.mc.Rd, man/aple.mc.Rd, man/geary.mc.Rd,
+	  man/localmoran.exact.Rd, man/moran.mc.Rd, man/set.spChkOption.Rd,
+	  man/sp.mantel.mc.Rd: adding some cluster awareness
+
+2010-03-18 19:21  rsbivand
+
+	* ChangeLog, inst/ChangeLog: modularising ML code, adding Jacobian
+	  methods
+
 2010-03-18 19:20  rsbivand
 
 	* DESCRIPTION, R/error.hessian.R, R/error.spsarlm.R, R/jacobian.R,
