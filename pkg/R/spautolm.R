@@ -1,11 +1,11 @@
 # Copyright 2005-2010 by Roger Bivand
 spautolm <- function(formula, data = list(), listw, weights,
     na.action, family="SAR", method="full", verbose=NULL,
-    interval=NULL, zero.policy=NULL, tol.solve=.Machine$double.eps,
+    interval=NULL, zero.policy=NULL, tol.solve=.Machine$double.eps, llprof=NULL,
     control=list()) {
     timings <- list()
     .ptime_start <- proc.time()
-    con <- list(tol.opt=.Machine$double.eps^(2/3), llprof=NULL, 
+    con <- list(tol.opt=.Machine$double.eps^(2/3), 
        Imult=2, super=FALSE, cheb_q=5, MC_p=16, MC_m=30)
     nmsC <- names(con)
     con[(namc <- names(control))] <- control
@@ -178,12 +178,12 @@ spautolm <- function(formula, data = list(), listw, weights,
     timings[[nm]] <- proc.time() - .ptime_start
     .ptime_start <- proc.time()
 
-    if (!is.null(con$llprof)) {
-        if (length(con$llprof) == 1)
-            con$llprof <- seq(interval[1], interval[2], length.out=con$llprof)
-        ll_prof <- numeric(length(con$llprof))
-        for (i in seq(along=con$llprof)) 
-            ll_prof[i] <- .opt.fit(con$llprof[i], env=env, tol.solve=tol.solve)
+    if (!is.null(llprof)) {
+        if (length(llprof) == 1)
+            llprof <- seq(interval[1], interval[2], length.out=llprof)
+        ll_prof <- numeric(length(llprof))
+        for (i in seq(along=llprof)) 
+            ll_prof[i] <- .opt.fit(llprof[i], env=env, tol.solve=tol.solve)
         nm <- paste(method, "profile", sep="_")
         timings[[nm]] <- proc.time() - .ptime_start
         .ptime_start <- proc.time()
@@ -217,9 +217,9 @@ spautolm <- function(formula, data = list(), listw, weights,
         timings=do.call("rbind", timings)[, c(1, 3)])
     if (!is.null(na.act))
 	res$na.action <- na.act
-    if (is.null(con$llprof)) res$llprof <- con$llprof
+    if (is.null(llprof)) res$llprof <- llprof
     else {
-        res$llprof <- list(lambda=con$llprof, ll=ll_prof)
+        res$llprof <- list(lambda=llprof, ll=ll_prof)
     }
     if (zero.policy) {
         zero.regs <- attr(listw$neighbours, 

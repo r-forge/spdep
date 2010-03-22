@@ -655,7 +655,7 @@ print(spplot(nc2, "fitIV", cuts=12, col.regions=grey.colors(13, 0.9, 0.3)))
 
 \begin{footnotesize}
 <<echo=TRUE>>= 
-ecarIawll <- spautolm(ft.SID74 ~ 1, data=nc2, listw=sids.nhbr.listw.4, weights=BIR74, family="CAR", control=list(llprof=seq(-0.1, 0.9020532358, length.out=100)))
+ecarIawll <- spautolm(ft.SID74 ~ 1, data=nc2, listw=sids.nhbr.listw.4, weights=BIR74, family="CAR", llprof=seq(-0.1, 0.9020532358, length.out=100))
 @
 <<label=ll_prof,fig=FALSE,echo=TRUE,eval=FALSE>>= 
 plot(ll ~ lambda, ecarIawll$llprof, type="l")

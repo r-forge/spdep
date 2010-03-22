@@ -19,7 +19,7 @@
 \usage{
 spautolm(formula, data = list(), listw, weights,
  na.action, family = "SAR", method="full", verbose = NULL, interval=NULL,
- zero.policy = NULL, tol.solve=.Machine$double.eps, control=list())
+ zero.policy = NULL, tol.solve=.Machine$double.eps, llprof=NULL, control=list())
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -37,6 +37,7 @@ is called.}
   \item{interval}{search interval for autoregressive parameter when not using method="eigen"; default is c(-1,0.999), \code{optimize} will reset NA/NaN to a bound and gives a warning when the interval is poorly set; method="Matrix" will attempt to search for an appropriate interval, if find\_interval=TRUE (fails on some platforms)}
   \item{zero.policy}{default NULL, use global option value; Include list of no-neighbour observations in output if TRUE --- otherwise zero.policy is handled within the listw argument}
   \item{tol.solve}{the tolerance for detecting linear dependencies in the columns of matrices to be inverted - passed to \code{solve()} (default=double precision machine tolerance). Errors in \code{solve()} may constitute indications of poorly scaled variables: if the variables have scales differing much from the autoregressive coefficient, the values in this matrix may be very different in scale, and inverting such a matrix is analytically possible by definition, but numerically unstable; rescaling the RHS variables alleviates this better than setting tol.solve to a very small value}
+  \item{llprof}{default NULL, can either be an integer, to divide the feasible range into llprof points, or a sequence of spatial coefficient values, at which to evaluate the likelihood function}
  \item{control}{list of extra control arguments - see section below}
 }
 
@@ -56,7 +57,6 @@ variable in making predictions for the fitting data.
 \section{Control arguments}{
 \itemize{
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()} (default=\code{.Machine$double.eps^(2/3)}}
-  \item{llprof}{default NULL, can either be an integer, to divide the feasible range into llprof points, or a sequence of spatial coefficient values, at which to evaluate the likelihood function}
   \item{Imult}{default 2; used for preparing the Cholesky decompositions for updating in the Jacobian function}
   \item{super}{default FALSE using a simplicial decomposition for the sparse Cholesky decomposition, if TRUE, use a supernodal decomposition}
   \item{cheb_q}{default 5; highest power of the approximating polynomial for the Chebyshev approximation}
