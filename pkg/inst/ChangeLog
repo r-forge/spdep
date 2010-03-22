@@ -1,3 +1,14 @@
+2010-03-22 10:31  rsbivand
+
+	* DESCRIPTION, R/error.spsarlm.R, R/jacobian.R, R/lag.spsarlm.R,
+	  R/spautolm.R, inst/doc/sids.Rnw, man/errorsarlm.Rd,
+	  man/lagsarlm.Rd, man/spautolm.Rd: spautolm rewritten to use
+	  shared code
+
+2010-03-19 20:58  rsbivand
+
+	* ChangeLog, inst/ChangeLog: adding some cluster awareness
+
 2010-03-19 20:57  rsbivand
 
 	* R/impacts.R: adding some cluster awareness
