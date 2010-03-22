@@ -29,7 +29,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
         stopifnot(is.logical(con$LAPACK))
         stopifnot(is.logical(con$super))
         stopifnot(is.logical(con$compiled_sse))
-	can.sim <- as.logical(NA)
+	can.sim <- FALSE
 	if (listw$style %in% c("W", "S")) 
 		can.sim <- can.be.simmed(listw)
 	if (!is.null(na.act)) {
@@ -89,6 +89,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
         assign("n", n, envir=env)
         assign("p", m, envir=env)
         assign("verbose", !quiet, envir=env)
+        assign("family", "SAR", envir=env)
         assign("compiled_sse", con$compiled_sse, envir=env)
         assign("first_time", TRUE, envir=env)
         assign("LAPACK", con$LAPACK, envir=env)
@@ -117,10 +118,13 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 		        stop("Matrix method requires symmetric weights")
 		    if (!quiet) cat("sparse matrix Cholesky decomposition\n")
 	            Imult <- con$Imult
-	            if (listw$style == "B") {
-                        Imult <- ceiling((2/3)*max(apply(W, 1, sum)))
-	                interval <- c(-0.5, +0.25)
-	            } else interval <- c(-1.2, +1)
+                    if (is.null(interval)) {
+	                if (listw$style == "B") {
+                            Imult <- ceiling((2/3) * max(sapply(listw$weights,
+                                sum)))
+	                    interval <- c(-0.5, +0.25)
+	                } else interval <- c(-1, 0.999)
+                    }
                     Matrix_setup(env, Imult, con$super)
                     W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
         	    I <- as_dsCMatrix_I(n)

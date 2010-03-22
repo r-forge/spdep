@@ -98,6 +98,7 @@ of spatial autocorrelation in the lag model residuals}
   \item{optimHess}{if TRUE and fdHess returned, \code{optim} used to calculate Hessian at optimum}
   \item{insert}{if TRUE and fdHess returned, the asymptotic analytical values are inserted into the numerical Hessian instead of the approximated values, and its size increased to include the first row/column for sigma2}
   \item{LLNullLlm}{Log-likelihood of the null linear model}
+  \item{timings}{processing timings}
   \item{na.action}{(possibly) named vector of excluded or omitted observations if non-default na.action argument used}
 
 The internal sar.lag.mixed.* functions return the value of the log likelihood function at \eqn{\rho}{rho}.

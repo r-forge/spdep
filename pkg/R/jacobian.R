@@ -86,7 +86,7 @@ mcdet_ldet <- function(alpha, env) {
 eigen_setup <- function(env) {
 	if (get("verbose", envir=env))
             cat("Computing eigenvalues ...\n")
-	if (get("listw", envir=env)$style %in% c("W", "S") & 
+	if (get("listw", envir=env)$style %in% c("W", "S") && 
             get("can.sim", envir=env)) {
             eig <- eigen(similar.listw_Matrix(get("listw", envir=env)),
                 only.values=TRUE)$value
@@ -103,7 +103,10 @@ eigen_setup <- function(env) {
 
 do_ldet <- function(coef, env) {
     method <- get("method", envir=env)
-    switch(method,
+    if (get("family", envir=env) == "SMA") {
+        ldet <- eigen_sma_ldet(coef, env)
+    } else {
+        switch(method,
            eigen = {ldet <- eigen_ldet(coef, env)},
            spam = {ldet <- spam_ldet(coef, env)},
            Matrix = {ldet <- Matrix_ldet(coef, env)},
@@ -111,7 +114,15 @@ do_ldet <- function(coef, env) {
            MC = {ldet <- mcdet_ldet(coef, env)},
            LU = {ldet <- LU_ldet(coef, env)},
            stop("...\n\nUnknown method\n"))
+    }
     ldet
+}
+
+eigen_sma_ldet <- function(coef, env) {
+    eig <- get("eig", envir=env)
+    if (is.complex(eig)) det <- sum(log(Re(1/(1 + coef * eig))))
+    else det <- sum(log(1/(1 + coef * eig)))
+    det
 }
 
 eigen_ldet <- function(coef, env) {
@@ -123,7 +134,7 @@ eigen_ldet <- function(coef, env) {
 }
 
 spam_setup <- function(env) {
-        if (get("listw", envir=env)$style %in% c("W", "S") &
+        if (get("listw", envir=env)$style %in% c("W", "S") &&
             get("can.sim", envir=env)) {
 	    csrw <- listw2U_spam(similar.listw_spam(get("listw", envir=env)))
 	    assign("similar", TRUE, envir=env)
@@ -150,7 +161,7 @@ spam_ldet <- function(coef, env) {
 }
 
 Matrix_setup <- function(env, Imult, super) {
-        if (get("listw", envir=env)$style %in% c("W", "S") & 
+        if (get("listw", envir=env)$style %in% c("W", "S") && 
             get("can.sim", envir=env)) {
 	    csrw <- listw2U_Matrix(similar.listw_Matrix(get("listw", 
                 envir=env)))

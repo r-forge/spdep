@@ -26,7 +26,7 @@ lagsarlm <- function(formula, data = list(), listw,
 	if (!inherits(listw, "listw")) stop("No neighbourhood list")
         if (is.null(con$fdHess)) con$fdHess <- method != "eigen"
         stopifnot(is.logical(con$fdHess))
-	can.sim <- as.logical(NA)
+	can.sim <- FALSE
 	if (listw$style %in% c("W", "S")) 
 		can.sim <- can.be.simmed(listw)
 	if (!is.null(na.act)) {
@@ -111,6 +111,7 @@ lagsarlm <- function(formula, data = list(), listw,
         assign("e.a", e.a, envir=env)
         assign("e.b", e.b, envir=env)
         assign("e.c", e.c, envir=env)
+        assign("family", "SAR", envir=env)
         assign("verbose", !quiet, envir=env)
         assign("compiled_sse", con$compiled_sse, envir=env)
         assign("can.sim", can.sim, envir=env)
@@ -137,10 +138,13 @@ lagsarlm <- function(formula, data = list(), listw,
                     if (listw$style == "U") stop("U style not permitted, use C")
 		    if (!quiet) cat("sparse matrix Cholesky decomposition\n")
 	            Imult <- con$Imult
-	            if (listw$style == "B") {
-                        Imult <- ceiling((2/3)*max(apply(W, 1, sum)))
-	                interval <- c(-0.5, +0.25)
-	            } else interval <- c(-1.2, +1)
+                    if (is.null(interval)) {
+	                if (listw$style == "B") {
+                            Imult <- ceiling((2/3)*max(sapply(listw$weights,
+                                sum)))
+	                    interval <- c(-0.5, +0.25)
+	                } else interval <- c(-1, 0.999)
+                    }
                     Matrix_setup(env, Imult, con$super)
                     W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
         	    I <- as_dsCMatrix_I(n)

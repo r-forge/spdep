@@ -100,6 +100,7 @@ standard errors)}
   \item{fdHess}{finite difference Hessian}
   \item{optimHess}{\code{optim} or \code{fdHess} used}
   \item{insert}{logical; is TRUE, asymptotic values inserted in fdHess where feasible}
+  \item{timings}{processing timings}
   \item{zero.policy}{zero.policy for this model}
   \item{na.action}{(possibly) named vector of excluded or omitted observations if non-default na.action argument used}
 
