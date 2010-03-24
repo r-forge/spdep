@@ -56,7 +56,7 @@ variable in making predictions for the fitting data.
 }
 
 \section{Control arguments}{
-\itemize{
+\describe{
   \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()} (default=square root of double precision machine tolerance, a larger root may be used needed, see help(boston) for an example)}
   \item{returnHcov}{default TRUE, return the Vo matrix for a spatial Hausman test}
   \item{pWOrder}{default 250, if returnHcov=TRUE and the method is not \dQuote{eigen}, pass this order to \code{powerWeights} as the power series maximum limit}

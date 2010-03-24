@@ -55,8 +55,8 @@ variable in making predictions for the fitting data.
 
 
 \section{Control arguments}{
-\itemize{
-  \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()} (default=\code{.Machine$double.eps^(2/3)}}
+\describe{
+  \item{tol.opt}{the desired accuracy of the optimization - passed to \code{optimize()} (default=\code{.Machine$double.eps^(2/3)})}
   \item{Imult}{default 2; used for preparing the Cholesky decompositions for updating in the Jacobian function}
   \item{super}{default FALSE using a simplicial decomposition for the sparse Cholesky decomposition, if TRUE, use a supernodal decomposition}
   \item{cheb_q}{default 5; highest power of the approximating polynomial for the Chebyshev approximation}
