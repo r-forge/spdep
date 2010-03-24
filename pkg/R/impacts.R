@@ -141,6 +141,7 @@ processXSample <- function(x, drop2beta, type, iicept, icept, SW, n, listw) {
         } else {
             b1 <- beta
         }
+        p <- length(b1)
         P <- cbind(b1[1:(p/2)], b1[((p/2)+1):p])
         return(spdep:::mixedImpactsExact(SW, P, n, listw))
     }
@@ -187,7 +188,7 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
                 require(snow)
                 l_sp <- lapply(splitIndices(nrow(samples), length(CL)), 
 		    function(i) samples[i,])
-                clusterEvalQ(cl, library(spdep))
+                clusterEvalQ(CL, library(spdep))
 		clusterExport_l <- function(CL, list) {
                     gets <- function(n, v) {
                         assign(n, v, env = .GlobalEnv)
@@ -206,7 +207,7 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
                     type=type, iicept=iicept, icept=icept, T=T, Q=Q, q=q))
 		clusterEvalQ(CL, rm(list=c("irho", "drop2beta",
                     "Q", "T", "icept", "iicept", "type", "q")))
-                clusterEvalQ(cl, detach(package:spdep))
+                clusterEvalQ(CL, detach(package:spdep))
                 sres <- do.call("c", lsres)
 
             } else {
@@ -265,7 +266,7 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
                 require(snow)
                 l_sp <- lapply(splitIndices(nrow(samples), length(CL)), 
 		    function(i) samples[i,])
-                clusterEvalQ(cl, library(spdep))
+                clusterEvalQ(CL, library(spdep))
 		clusterExport_l <- function(CL, list) {
                     gets <- function(n, v) {
                         assign(n, v, env = .GlobalEnv)
@@ -286,7 +287,7 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
                     iicept=iicept, icept=icept, SW=SW, n=n, listw=listw))
 		clusterEvalQ(CL, rm(list=c("drop2beta",
                     "SW", "icept", "iicept", "type", "listw")))
-                clusterEvalQ(cl, detach(package:spdep))
+                clusterEvalQ(CL, detach(package:spdep))
                 sres <- do.call("c", lsres)
 
             } else {
