@@ -142,6 +142,7 @@ processXSample <- function(x, drop2beta, type, iicept, icept, SW, n, listw) {
             b1 <- beta
         }
         p <- length(b1)
+        if (p %% 2 != 0) stop("non-matched coefficient pairs")
         P <- cbind(b1[1:(p/2)], b1[((p/2)+1):p])
         return(spdep:::mixedImpactsExact(SW, P, n, listw))
     }
