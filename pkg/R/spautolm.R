@@ -123,6 +123,7 @@ spautolm <- function(formula, data = list(), listw, weights,
         assign("Sweights", Sweights, envir=env)
 
     }  else if (method == "spam") {
+        if (!require(spam)) stop("spam not available")
         if (listw$style %in% c("W", "S") && !can.sim)
         stop("spam method requires symmetric weights")
         if (listw$style %in% c("B", "C", "U") && 

@@ -14,9 +14,9 @@ importFrom(coda, as.mcmc, HPDinterval)
 
 import(Matrix)
 
-importClassesFrom(spam, spam)
-importMethodsFrom(spam, Math, Math2)
-importFrom(spam, validspamobject)
+#importClassesFrom(spam, spam)
+#importMethodsFrom(spam, Math, Math2)
+#importFrom(spam, validspamobject)
 
 export(EBImoran.mc, probmap, choynowski, EBest, EBlocal, LR.sarlm, 
 	LR1.sarlm, Wald1.sarlm, airdist, card, rookcell, 

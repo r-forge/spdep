@@ -150,6 +150,7 @@ lagsarlm <- function(formula, data = list(), listw,
         	    I <- as_dsCMatrix_I(n)
 		},
 	        spam = {
+                    if (!require(spam)) stop("spam not available")
 		    if (listw$style %in% c("W", "S") && !can.sim)
 		    stop("spam method requires symmetric weights")
 		    if (listw$style %in% c("B", "C", "U") && 

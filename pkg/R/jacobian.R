@@ -134,6 +134,7 @@ eigen_ldet <- function(coef, env) {
 }
 
 spam_setup <- function(env) {
+        if (!require(spam)) stop("spam not available")
         if (get("listw", envir=env)$style %in% c("W", "S") &&
             get("can.sim", envir=env)) {
 	    csrw <- listw2U_spam(similar.listw_spam(get("listw", envir=env)))
@@ -148,6 +149,7 @@ spam_setup <- function(env) {
 }
 
 spam_ldet <- function(coef, env) {
+    if (!require(spam)) stop("spam not available")
     csrw <- get("csrw", envir=env)
     I <- get("I", envir=env)
     J1 <- try(determinant((I - coef * csrw), logarithm=TRUE)$modulus,
