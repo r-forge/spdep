@@ -48,7 +48,8 @@ export(EBImoran.mc, probmap, choynowski, EBest, EBlocal, LR.sarlm,
 	plot.listw, aggregate.nb, old.make.sym.nb, Hausman.test)
 
 export(set.VerboseOption, get.VerboseOption, set.ZeroPolicyOption, 
-        get.ZeroPolicyOption, set.ClusterOption, get.ClusterOption)
+        get.ZeroPolicyOption, set.ClusterOption, get.ClusterOption,
+        get.rlecuyerSeedOption, set.rlecuyerSeedOption)
 
 export(spautolm, residuals.spautolm, deviance.spautolm, coef.spautolm, 
 	fitted.spautolm, print.spautolm, summary.spautolm, LR1.spautolm, 
