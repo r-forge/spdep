@@ -33,6 +33,7 @@ SEXP jcintern(SEXP nb, SEXP weights, SEXP dum, SEXP card);
 SEXP lagw(SEXP nb, SEXP weights, SEXP x, SEXP card, SEXP zeropolicy, SEXP naok);
 SEXP nbdists(SEXP nb, SEXP x, SEXP np, SEXP dim, SEXP lonlat);
 SEXP polypoly(SEXP p1, SEXP n01, SEXP p2, SEXP n02, SEXP snap);
+SEXP spOverlap(SEXP bbbi, SEXP bbbj);
 SEXP symtest(SEXP nb, SEXP card, SEXP verbose);
 SEXP g_components(SEXP nblst, SEXP cmpnm);
 
