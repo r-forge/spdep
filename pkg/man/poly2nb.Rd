@@ -7,7 +7,7 @@ The function builds a neighbours list based on regions with contiguous boundarie
 }
 \usage{
 poly2nb(pl, row.names = NULL, snap=sqrt(.Machine$double.eps),
- queen=TRUE)
+ queen=TRUE, nn=NULL)
 }
 
 \arguments{
@@ -15,6 +15,7 @@ poly2nb(pl, row.names = NULL, snap=sqrt(.Machine$double.eps),
   \item{row.names}{character vector of region ids to be added to the neighbours list as attribute \code{region.id}, default \code{seq(1, nrow(x))}; if \code{polys} has a \code{region.id} attribute, it is copied to the neighbours list.}
   \item{snap}{boundary points less than \code{snap} distance apart are considered to indicate contiguity}
   \item{queen}{if TRUE, a single shared boundary point meets the contiguity condition, if FALSE, more than one shared point is required}
+  \item{nn}{if given, an integer matrix with the number of rows equal to the number of Polygons objects in \code{pl}, and the number of columns the number, k, of nearest neighbours found; instead of searching \code{(n*(n-1))/2} bounding box intersections, the function will search approximately \code{n*(k/2)} such intersections. Bounding box intersections are used after expanding the box by \code{snap} in all directions. If \code{k} is too small, some contiguities will be omitted}
 }
 \value{
 A neighbours list with class \code{nb}

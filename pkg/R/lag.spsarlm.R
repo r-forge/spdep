@@ -17,7 +17,7 @@ lagsarlm <- function(formula, data = list(), listw,
         if (is.null(quiet)) quiet <- !get("verbose", env = .spdepOptions)
         stopifnot(is.logical(quiet))
         if (is.null(zero.policy))
-            zero.policy <- get("zeroPolicy", env = .spdepOptions)
+            zero.policy <- get.ZeroPolicyOption()
         stopifnot(is.logical(zero.policy))
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, na.action=na.action, 
