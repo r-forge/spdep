@@ -41,6 +41,9 @@ sn2listw <- function(sn) {
 	n <- attr(sn, "n")
 	if (n < 1) stop("non-positive n")
 	region.id <- attr(sn, "region.id")
+        stopifnot(all(!is.na(sn[,1])))
+        stopifnot(all(!is.na(sn[,2])))
+        stopifnot(all(!is.na(sn[,3])))
 	nlist <- vector(mode="list", length=n)
 	class(nlist) <- "nb"
 	attr(nlist, "region.id") <- region.id
