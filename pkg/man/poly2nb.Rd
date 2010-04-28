@@ -50,8 +50,14 @@ fg[xx[[maxconts]]] <- "green"
 plot(columbus, col=fg)
 title(main="Region with largest number of contiguities")
 example(nc.sids)
-xxnb <- poly2nb(nc.sids)
+system.time(xxnb <- poly2nb(nc.sids))
 plot(nc.sids)
 plot(xxnb, coordinates(nc.sids), add=TRUE, col="blue")
+if (require(RANN, quietly=TRUE)) {
+  xy <- cbind(coordinates(nc.sids), rep(0, dim(nc.sids)[1]))
+  nns <- as.matrix(nn(xy, p=12)$nn.idx)
+  print(system.time(xxnbnn <- poly2nb(nc.sids, nn=nns)))
+  print(all.equal(xxnb, xxnbnn, check.attributes=FALSE))
+}
 }
 \keyword{spatial}

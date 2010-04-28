@@ -177,8 +177,8 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
         } else {
             for (i in 1:(n-1)) {
                 jj <- nn[i,]
-                jj <- jj[jj>i]
 		for (j in jj) {
+                    if (j > i) {
 			jhit <- .Call("spOverlap", bb[i,], 
 				bb[j,], PACKAGE="spdep")
 			if (jhit > 0) {
@@ -191,6 +191,7 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
 				ans[[j]] <- c(ans[[j]], i)
 			    }
 			}
+                    }
 		}
 	    }
         }
