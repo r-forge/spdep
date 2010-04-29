@@ -73,6 +73,9 @@ export(aple, aple.mc, aple.plot, localAple)
 
 export(trW, impacts, lagmess)
 
+export(do_ldet, eigen_setup, mcdet_setup, cheb_setup, spam_setup,
+        Matrix_setup, LU_setup)
+
 import(maptools)
 
 S3method(print, nb)
