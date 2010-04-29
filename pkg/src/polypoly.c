@@ -27,7 +27,7 @@ SEXP polypoly(SEXP p1, SEXP n01, SEXP p2, SEXP n02, SEXP snap)
 			yd = y1-y2;
 			if (fabs(yd)>sn) { continue; }
 			dist = xd*xd + yd*yd;
-			if (dist < sn2) k++;
+			if (dist <= sn2) k++;
 		}
 	}
 	

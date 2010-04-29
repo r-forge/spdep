@@ -6,7 +6,7 @@
 
 
 poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
-	queen=TRUE, nn=NULL) {
+	queen=TRUE) {
 	if (!inherits(pl, "polylist")) {
 		if (extends(class(pl), "SpatialPolygons"))
 			pl <- maptools:::.SpP2polylist(pl)
@@ -27,8 +27,14 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
 			else regid <- row.names
 		}
 	}
+        if (snap < 0) snap <- abs(snap)
+        if (snap < .Machine$double.eps) {
+            bsnap <- .Machine$double.eps
+        } else { 
+            bsnap <- snap
+        }
 
-        genBBIndex<-function(pl,snap=sqrt(.Machine$double.eps)) { 
+        genBBIndex<-function(pl,snap=bsnap) { 
             poly2bbs <- function(pl) {
                 n <- length(pl)
                 if (n < 1) stop("non-positive number of entities")
@@ -56,25 +62,10 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
             return(list(bb=bb, bxv=bxv, byv=byv, obxv=obxv, obyv=obyv, 
                 mbxv=mbxv, mbyv=mbyv, rbyv=rbyv, rbxv=rbxv))
         }
-	dsnap <- as.double(snap)
-        if (is.null(nn)) {
-	    BBindex <- genBBIndex(pl)
-	    bb <- BBindex$bb
-        } else {
-	    poly2bbs0 <- function(pl) {
-		n <- length(pl)
-		if (n < 1) stop("non-positive number of entities")
-		res <- matrix(0, nrow=n, ncol=4)
-		for (i in 1:n) res[i,] <- attr(pl[[i]], "bbox")
-		res
-	    }
-	    bb <- poly2bbs0(pl)
-	    if (storage.mode(bb) != "double") storage.mode(bb) <- "double"
-	    bb[,1] <- bb[,1] - dsnap
-	    bb[,2] <- bb[,2] - dsnap
-	    bb[,3] <- bb[,3] + dsnap
-	    bb[,4] <- bb[,4] + dsnap
-        }
+	dbsnap <- as.double(bsnap)
+        dsnap <- as.double(snap)
+	BBindex <- genBBIndex(pl)
+	bb <- BBindex$bb
 
 	nrs <- integer(n)
 	for (i in 1:n) {
@@ -156,8 +147,7 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
 	ans <- vector(mode="list", length=n)
 	for (i in 1:n) ans[[i]] <- integer(0)
 	criterion <- ifelse(queen, 0, 1)
-        if (is.null(nn)) {
-	    for (i in 1:(n-1)) {
+	for (i in 1:(n-1)) {
 		#for (j in (i+1):n) {
 		for (j in findInBox(i,BBindex)) {
 			jhit <- .Call("spOverlap", bb[i,], 
@@ -165,7 +155,7 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
 			if (jhit > 0) {
 			    khit <- 0
 			    khit <- polypoly2(pl[[i]], nrs[i], pl[[j]], 
-				nrs[j],dsnap)
+				nrs[j], dsnap)
 
 			    if (khit > criterion) {
 				ans[[i]] <- c(ans[[i]], j)
@@ -173,28 +163,7 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
 			    }
 			}
 		}
-	    }
-        } else {
-            for (i in 1:(n-1)) {
-                jj <- nn[i,]
-		for (j in jj) {
-                    if (j > i) {
-			jhit <- .Call("spOverlap", bb[i,], 
-				bb[j,], PACKAGE="spdep")
-			if (jhit > 0) {
-			    khit <- 0
-			    khit <- polypoly2(pl[[i]], nrs[i], pl[[j]], 
-				nrs[j],dsnap)
-
-			    if (khit > criterion) {
-				ans[[i]] <- c(ans[[i]], j)
-				ans[[j]] <- c(ans[[j]], i)
-			    }
-			}
-                    }
-		}
-	    }
-        }
+	}
 	for (i in 1:n) ans[[i]] <- sort(ans[[i]])
 	class(ans) <- "nb"
 	attr(ans, "region.id") <- regid

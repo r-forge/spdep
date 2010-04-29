@@ -1,26 +1,25 @@
-% Copyright 2001-4 by Roger S. Bivand
+% Copyright 2001-10 by Roger S. Bivand
 \name{poly2nb}
 \alias{poly2nb}
 \title{Construct neighbours list from polygon list}
 \description{
-The function builds a neighbours list based on regions with contiguous boundaries, that is sharing one or more boundary point. The current function is in part interpreted and may run slowly for many regions or detailed boundaries, but from 0.2-16 should not fail because of lack of memory when single polygons are built of very many border coordinates.
+The function builds a neighbours list based on regions with contiguous boundaries, that is sharing one or more boundary point. The current function is in part interpreted and may run slowly for many regions or detailed boundaries, but from 0.2-16 should not fail because of lack of memory when single polygons are built of very many border coordinates. From 0.5-8, the function includes faster bounding box indexing contributed by Micah Altman.
 }
 \usage{
 poly2nb(pl, row.names = NULL, snap=sqrt(.Machine$double.eps),
- queen=TRUE, nn=NULL)
+ queen=TRUE)
 }
 
 \arguments{
   \item{pl}{list of polygons of class \code{polylist}, or an object of a class extending \code{SpatialPolygons}}
   \item{row.names}{character vector of region ids to be added to the neighbours list as attribute \code{region.id}, default \code{seq(1, nrow(x))}; if \code{polys} has a \code{region.id} attribute, it is copied to the neighbours list.}
   \item{snap}{boundary points less than \code{snap} distance apart are considered to indicate contiguity}
-  \item{queen}{if TRUE, a single shared boundary point meets the contiguity condition, if FALSE, more than one shared point is required}
-  \item{nn}{if given, an integer matrix with the number of rows equal to the number of Polygons objects in \code{pl}, and the number of columns the number, k, of nearest neighbours found; instead of searching \code{(n*(n-1))/2} bounding box intersections, the function will search approximately \code{n*(k/2)} such intersections. Bounding box intersections are used after expanding the box by \code{snap} in all directions. If \code{k} is too small, some contiguities will be omitted}
+  \item{queen}{if TRUE, a single shared boundary point meets the contiguity condition, if FALSE, more than one shared point is required; note that more than one shared boundary point does not necessarily mean a shared boundary line}
 }
 \value{
 A neighbours list with class \code{nb}
 }
-\author{Roger Bivand \email{Roger.Bivand@nhh.no}}
+\author{Roger Bivand \email{Roger.Bivand@nhh.no} with contributions from Micah Altman}
 
 \seealso{\code{\link{summary.nb}}}
 
@@ -53,11 +52,5 @@ example(nc.sids)
 system.time(xxnb <- poly2nb(nc.sids))
 plot(nc.sids)
 plot(xxnb, coordinates(nc.sids), add=TRUE, col="blue")
-if (require(RANN, quietly=TRUE)) {
-  xy <- cbind(coordinates(nc.sids), rep(0, dim(nc.sids)[1]))
-  nns <- as.matrix(nn(xy, p=12)$nn.idx)
-  print(system.time(xxnbnn <- poly2nb(nc.sids, nn=nns)))
-  print(all.equal(xxnb, xxnbnn, check.attributes=FALSE))
-}
 }
 \keyword{spatial}
