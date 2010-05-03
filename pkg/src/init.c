@@ -38,6 +38,8 @@ static R_CallMethodDef CallEntries[] = {
     {"nbdists", (DL_FUNC) &nbdists, 5},
     {"polypoly", (DL_FUNC) &polypoly, 5},
     {"spOverlap", (DL_FUNC) &spOverlap, 2},
+/*    {"poly_loop", (DL_FUNC) &poly_loop, 8},*/
+    {"poly_loop2", (DL_FUNC) &poly_loop2, 8},
     {"symtest", (DL_FUNC) &symtest, 3},
     {"g_components", (DL_FUNC) &g_components, 2},
     {NULL, NULL, 0}

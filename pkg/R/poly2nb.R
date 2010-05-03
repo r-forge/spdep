@@ -6,12 +6,17 @@
 
 
 poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
-	queen=TRUE) {
+	queen=TRUE, useC=TRUE) {
+        verbose <- get("verbose", env = .spdepOptions)
+        .ptime_start <- proc.time()
 	if (!inherits(pl, "polylist")) {
 		if (extends(class(pl), "SpatialPolygons"))
 			pl <- maptools:::.SpP2polylist(pl)
 		else stop("Not a polygon list")
 	}
+        if (verbose)
+            cat("convert to polylist:", (proc.time() - .ptime_start)[3], "\n")
+        .ptime_start <- proc.time()
 	if (inherits(pl, "multiparts")) stop("Convert to newer polylist format")
 	n <- length(pl)
 	if (n < 1) stop("non-positive number of entities")
@@ -33,6 +38,9 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
         } else { 
             bsnap <- snap
         }
+        if (verbose)
+            cat("handle IDs:", (proc.time() - .ptime_start)[3], "\n")
+        .ptime_start <- proc.time()
 
         genBBIndex<-function(pl,snap=bsnap) { 
             poly2bbs <- function(pl) {
@@ -66,6 +74,9 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
         dsnap <- as.double(snap)
 	BBindex <- genBBIndex(pl)
 	bb <- BBindex$bb
+        if (verbose)
+            cat("generate BBs:", (proc.time() - .ptime_start)[3], "\n")
+        .ptime_start <- proc.time()
 
 	nrs <- integer(n)
 	for (i in 1:n) {
@@ -73,6 +84,9 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
 		nrs[i] <- as.integer(nrow(pl[[i]]))
 		pl[[i]] <- as.double(pl[[i]])
 	}
+        if (verbose)
+            cat("massage polygons:", (proc.time() - .ptime_start)[3], "\n")
+        .ptime_start <- proc.time()
 	
 #        findInBox <- function(i, sp, bigger=TRUE) {
 #	    n <- dim(sp$bb)[1]
@@ -96,47 +110,6 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
 #	    return(sort(result))
 #        }
 
-# faster findInBox
-       qintersect<-function(x,y) {
-	    # streamlined intersect function for unique vectors
-	    y[match(x, y, 0L)]
-       }
-        findInBox<-function(i,sp,bigger=TRUE) {
-            n<-dim(sp$bb)[1]
-
-# use index structure to identify which other BB's fall in i's BB
-# by getting id's of polygons with BBmin_j < BBmax_i, BBmax_j > BBmin_i for x and y 
-# then taking the intersection of these four lists of id's
-
-	    tmp<-vector(mode="list", length=4)
-        # ! i1 > j3 --> i1 <= j3
-            tmp[[1]] <- sp$rbxv[sp$mbxv[i]:(n*2)]
-            tmp[[1]]<- tmp[[1]][which(tmp[[1]]>n)] - n
-        # ! i2 > j4 --> i2 <= bj4
-            tmp[[2]] <- sp$rbyv[sp$mbyv[i]:(n*2)]
-            tmp[[2]]<- tmp[[2]][which(tmp[[2]]>n)] - n
-        # ! i3 < j1 -> i3 >= j1
-            tmp[[3]] <- sp$rbxv[1:sp$mbxv[i+n]]
-            tmp[[3]] <- tmp[[3]][which(tmp[[3]]<=n)]
-        # ! i4 < j2 -> i4 >= j2
-            tmp[[4]] <- sp$rbyv[1:sp$mbyv[i+n]]
-            tmp[[4]]<- tmp[[4]][which(tmp[[4]]<=n)]
-
-	# for performance, order the comparison of the lists
-
-	    lentmp <- order(sapply(tmp,length))
-
-	# use qintersect, since these are already vectors and unique 
-	    result <- qintersect(tmp[[lentmp[2]]],tmp[[lentmp[1]]])
-	    result <- qintersect(tmp[[lentmp[3]]],result)
-	    result <- qintersect(tmp[[lentmp[4]]],result)
-
-            if (bigger) {
-                result<-result[which(result>i)]
-            }
-            return(sort(result))
-        }
-
 	polypoly2 <- function(poly1, nrs1, poly2, nrs2, snap) {
 		if (any(nrs1 == 0 || nrs2 == 0)) return(as.integer(0))
 		res <- .Call("polypoly", poly1, nrs1, poly2, 
@@ -144,12 +117,59 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
 		res
 	}
 
-	ans <- vector(mode="list", length=n)
-	for (i in 1:n) ans[[i]] <- integer(0)
+        CL <- get("cl", env = .spdepOptions)
+        if (!is.null(CL) && length(CL) > 1) {
+            require(snow)
+            idx <- clusterSplit(CL, 1:(n-1))
+            clusterExport_l <- function(CL, list) {
+               gets <- function(n, v) {
+                    assign(n, v, env = .GlobalEnv)
+                    NULL
+                }
+                for (name in list) {
+                    clusterCall(CL, gets, name, get(name))
+                }
+	    }
+	    clusterExport_l(CL, list("findInBox", "qintersect", "BBindex"))
+            if (verbose) {
+                cat("cluster findInBox setup:", 
+                    (proc.time() - .ptime_start)[3], "\n")
+            }
+            .ptime_start <- proc.time()
+            l_fIB <- parLapply(CL, idx, function(ii) 
+                lapply(ii, function(i) findInBox(i, BBindex)))
+            i_findInBox <- do.call("c", l_fIB)
+            if (verbose) {
+                cat("cluster findInBox:", (proc.time() - .ptime_start)[3])
+            }
+        } else {
+            i_findInBox <- lapply(1:(n-1), function(i) findInBox(i, BBindex))
+            if (verbose) {
+                cat("findInBox:", (proc.time() - .ptime_start)[3])
+            }
+        }
+        nfIBB <- sum(sapply(i_findInBox, length))
+        if (verbose) cat(" list size", nfIBB, "\n")
+
+        .ptime_start <- proc.time()
 	criterion <- ifelse(queen, 0, 1)
-	for (i in 1:(n-1)) {
+        if (useC) {
+#            if (justC) {
+              ans <- .Call("poly_loop2", as.integer(n), i_findInBox, bb, pl, 
+                nrs, as.double(dsnap), as.integer(criterion), as.integer(nfIBB),
+                PACKAGE="spdep")
+#            } else {
+#              ans <- .Call("poly_loop", as.integer(n), i_findInBox, bb, pl, 
+#                nrs, as.double(dsnap), as.integer(criterion), as.integer(10),
+#                PACKAGE="spdep")
+#            }
+        } else {
+	    ans <- vector(mode="list", length=n)
+	    for (i in 1:n) ans[[i]] <- integer(0)
+	    for (i in 1:(n-1)) {
 		#for (j in (i+1):n) {
-		for (j in findInBox(i,BBindex)) {
+#		for (j in findInBox(i,BBindex)) {
+		for (j in i_findInBox[[i]]) {
 			jhit <- .Call("spOverlap", bb[i,], 
 				bb[j,], PACKAGE="spdep")
 			if (jhit > 0) {
@@ -163,16 +183,70 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
 			    }
 			}
 		}
-	}
-	for (i in 1:n) ans[[i]] <- sort(ans[[i]])
+	    }
+	    for (i in 1:n) {
+                if (length(ans[[i]]) == 0) ans[[i]] <- as.integer(0)
+                if (length(ans[[i]]) > 1) ans[[i]] <- sort(ans[[i]])
+            }
+        }
+        if (verbose)
+            cat("work loop:", (proc.time() - .ptime_start)[3], "\n")
+        .ptime_start <- proc.time()
 	class(ans) <- "nb"
 	attr(ans, "region.id") <- regid
 	attr(ans, "call") <- match.call()
 	if (queen) attr(ans, "type") <- "queen"
 	else attr(ans, "type") <- "rook"
 	ans <- sym.attr.nb(ans)
+        if (verbose)
+            cat("done:", (proc.time() - .ptime_start)[3], "\n")
+        .ptime_start <- proc.time()
 	ans
 }	
+
+
+# faster findInBox
+
+qintersect<-function(x,y) {
+	    # streamlined intersect function for unique vectors
+    as.integer(y[match(x, y, 0L)])
+}
+
+findInBox<-function(i, sp, bigger=TRUE) {
+    n <- dim(sp$bb)[1]
+
+# use index structure to identify which other BB's fall in i's BB
+# by getting id's of polygons with BBmin_j < BBmax_i, BBmax_j > BBmin_i for x and y 
+# then taking the intersection of these four lists of id's
+
+    tmp<-vector(mode="list", length=4)
+        # ! i1 > j3 --> i1 <= j3
+    tmp[[1]] <- sp$rbxv[sp$mbxv[i]:(n*2)]
+    tmp[[1]]<- tmp[[1]][which(tmp[[1]]>n)] - n
+        # ! i2 > j4 --> i2 <= bj4
+    tmp[[2]] <- sp$rbyv[sp$mbyv[i]:(n*2)]
+    tmp[[2]]<- tmp[[2]][which(tmp[[2]]>n)] - n
+        # ! i3 < j1 -> i3 >= j1
+    tmp[[3]] <- sp$rbxv[1:sp$mbxv[i+n]]
+    tmp[[3]] <- tmp[[3]][which(tmp[[3]]<=n)]
+        # ! i4 < j2 -> i4 >= j2
+    tmp[[4]] <- sp$rbyv[1:sp$mbyv[i+n]]
+    tmp[[4]]<- tmp[[4]][which(tmp[[4]]<=n)]
+
+	# for performance, order the comparison of the lists
+
+    lentmp <- order(sapply(tmp,length))
+
+	# use qintersect, since these are already vectors and unique 
+    result <- qintersect(tmp[[lentmp[2]]],tmp[[lentmp[1]]])
+    result <- qintersect(tmp[[lentmp[3]]],result)
+    result <- qintersect(tmp[[lentmp[4]]],result)
+
+    if (bigger) {
+        result<-result[which(result>i)]
+    }
+    return(sort(result))
+}
 
 
 #poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
