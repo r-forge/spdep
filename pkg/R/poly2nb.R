@@ -6,7 +6,7 @@
 
 
 poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
-	queen=TRUE, useC=TRUE) {
+	queen=TRUE, useC=TRUE, foundInBox=NULL) {
         verbose <- get("verbose", env = .spdepOptions)
         .ptime_start <- proc.time()
 	if (!inherits(pl, "polylist")) {
@@ -72,8 +72,25 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
         }
 	dbsnap <- as.double(bsnap)
         dsnap <- as.double(snap)
-	BBindex <- genBBIndex(pl)
-	bb <- BBindex$bb
+        if (is.null(foundInBox)) {
+	    BBindex <- genBBIndex(pl)
+	    bb <- BBindex$bb
+        } else {
+            stopifnot(is.list(foundInBox))
+            stopifnot(length(foundInBox) == (n-1))
+            stopifnot(all(unlist(sapply(foundInBox,
+                function(x) {if(!is.null(x)) is.integer(x)}))))
+            nfIBB <- sum(sapply(foundInBox, length))
+
+            poly2bbs <- function(pl) {
+                n <- length(pl)
+                if (n < 1) stop("non-positive number of entities")
+                res <- matrix(0, nrow = n, ncol = 4)
+                for (i in 1:n) res[i, ] <- attr(pl[[i]], "bbox")
+                res
+            }
+            bb <- poly2bbs(pl)
+        }
         if (verbose)
             cat("generate BBs:", (proc.time() - .ptime_start)[3], "\n")
         .ptime_start <- proc.time()
@@ -117,8 +134,9 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
 		res
 	}
 
-        CL <- get("cl", env = .spdepOptions)
-        if (!is.null(CL) && length(CL) > 1) {
+        if (is.null(foundInBox)) {
+          CL <- get("cl", env = .spdepOptions)
+          if (!is.null(CL) && length(CL) > 1) {
             require(snow)
             idx <- clusterSplit(CL, 1:(n-1))
             clusterExport_l <- function(CL, list) {
@@ -138,24 +156,25 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
             .ptime_start <- proc.time()
             l_fIB <- parLapply(CL, idx, function(ii) 
                 lapply(ii, function(i) findInBox(i, BBindex)))
-            i_findInBox <- do.call("c", l_fIB)
+            foundInBox <- do.call("c", l_fIB)
             if (verbose) {
                 cat("cluster findInBox:", (proc.time() - .ptime_start)[3])
             }
-        } else {
-            i_findInBox <- lapply(1:(n-1), function(i) findInBox(i, BBindex))
+          } else {
+            foundInBox <- lapply(1:(n-1), function(i) findInBox(i, BBindex))
             if (verbose) {
                 cat("findInBox:", (proc.time() - .ptime_start)[3])
             }
-        }
-        nfIBB <- sum(sapply(i_findInBox, length))
-        if (verbose) cat(" list size", nfIBB, "\n")
+          }
+          nfIBB <- sum(sapply(foundInBox, length))
+          if (verbose) cat(" list size", nfIBB, "\n")
 
-        .ptime_start <- proc.time()
+          .ptime_start <- proc.time()
+        }
 	criterion <- ifelse(queen, 0, 1)
         if (useC) {
 #            if (justC) {
-              ans <- .Call("poly_loop2", as.integer(n), i_findInBox, bb, pl, 
+              ans <- .Call("poly_loop2", as.integer(n), foundInBox, bb, pl, 
                 nrs, as.double(dsnap), as.integer(criterion), as.integer(nfIBB),
                 PACKAGE="spdep")
 #            } else {
@@ -169,7 +188,7 @@ poly2nb <- function(pl, row.names=NULL, snap=sqrt(.Machine$double.eps),
 	    for (i in 1:(n-1)) {
 		#for (j in (i+1):n) {
 #		for (j in findInBox(i,BBindex)) {
-		for (j in i_findInBox[[i]]) {
+		for (j in foundInBox[[i]]) {
 			jhit <- .Call("spOverlap", bb[i,], 
 				bb[j,], PACKAGE="spdep")
 			if (jhit > 0) {
