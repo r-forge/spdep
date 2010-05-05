@@ -1,3 +1,20 @@
+2010-05-05 08:43  rsbivand
+
+	* R/poly2nb.R, man/poly2nb.Rd: pass foundInBox to poly2nb
+
+2010-05-03 11:27  rsbivand
+
+	* R/poly2nb.R, man/poly2nb.Rd, src/init.c, src/polypoly.c,
+	  src/spdep.h: more poly2nb speedups
+
+2010-04-30 07:06  rsbivand
+
+	* man/do_ldet.Rd: examples for do_ldet
+
+2010-04-29 18:54  rsbivand
+
+	* ChangeLog, inst/ChangeLog: documenting do_ldet
+
 2010-04-29 18:52  rsbivand
 
 	* man/do_ldet.Rd: documenting do_ldet
