@@ -1,3 +1,17 @@
+2010-05-06 10:32  rsbivand
+
+	* DESCRIPTION: poly2nb: use SpatialPolygons instead of polylist by
+	  default
+
+2010-05-06 10:22  rsbivand
+
+	* R/poly2nb.R, man/poly2nb.Rd: poly2nb: use SpatialPolygons instead
+	  of polylist by default
+
+2010-05-05 08:44  rsbivand
+
+	* ChangeLog, inst/ChangeLog: pass foundInBox to poly2nb
+
 2010-05-05 08:43  rsbivand
 
 	* R/poly2nb.R, man/poly2nb.Rd: pass foundInBox to poly2nb
