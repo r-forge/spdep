@@ -21,8 +21,8 @@ spautolm(formula, data = list(), listw, weights,
  na.action, family = "SAR", method="full", verbose = NULL, interval=NULL,
  zero.policy = NULL, tol.solve=.Machine$double.eps, llprof=NULL,
  control=list())
-\method{summary}{spautolm}{object, correlation = FALSE, adj.se=FALSE,
- Nagelkerke=FALSE, ...}
+\method{summary}{spautolm}(object, correlation = FALSE, adj.se=FALSE,
+ Nagelkerke=FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -46,6 +46,7 @@ is called.}
   \item{correlation}{logical; if 'TRUE', the correlation matrix of the estimated parameters is returned and printed (default=FALSE)}
   \item{adj.se}{if TRUE, adjust the coefficient standard errors for the number of fitted coefficients}
   \item{Nagelkerke}{if TRUE, the Nagelkerke pseudo R-squared is reported}
+  \item{\dots}{further arguments passed to or from other methods}
 }
 
 
