@@ -1,3 +1,16 @@
+2010-05-11 17:50  rsbivand
+
+	* man/spautolm.Rd: Nagelkerke in spautolm summary
+
+2010-05-11 17:32  rsbivand
+
+	* R/spautolm.R, man/spautolm.Rd: Nagelkerke in spautolm summary
+
+2010-05-06 10:34  rsbivand
+
+	* ChangeLog, inst/ChangeLog: poly2nb: use SpatialPolygons instead
+	  of polylist by default
+
 2010-05-06 10:32  rsbivand
 
 	* DESCRIPTION: poly2nb: use SpatialPolygons instead of polylist by
