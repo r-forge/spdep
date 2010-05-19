@@ -1,3 +1,14 @@
+2010-05-19 09:46  rsbivand
+
+	* DESCRIPTION, NAMESPACE, R/impacts.R, R/jacobian.R, R/sacsarlm.R,
+	  R/sarlm.R, R/summary.spsarlm.R, man/do_ldet.Rd,
+	  man/errorsarlm.Rd, man/lagsarlm.Rd, man/sacsarlm.Rd, src/lagw.c:
+	  adding SAC/SARAR ML model
+
+2010-05-11 17:51  rsbivand
+
+	* ChangeLog, inst/ChangeLog: Nagelkerke in spautolm summary
+
 2010-05-11 17:50  rsbivand
 
 	* man/spautolm.Rd: Nagelkerke in spautolm summary
