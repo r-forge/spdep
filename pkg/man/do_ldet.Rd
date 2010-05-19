@@ -12,18 +12,19 @@
 \description{These functions are made available in the package namespace for other developers, and are not intended for users. They provide a shared infrastructure for setting up data for Jacobian computation, and then for caclulating the Jacobian, either exactly or approximately, in maximum likelihood fitting of spatial regression models. The techniques used are the exact eigenvalue, Cholesky decompositions (Matrix, spam), and LU ones, with Chebyshev and Monte Carlo approximations.}
 
 \usage{
-do_ldet(coef, env)
-cheb_setup(env, q=5)
-mcdet_setup(env, p=16, m=30)
-eigen_setup(env)
-spam_setup(env)
-Matrix_setup(env, Imult, super)
-LU_setup(env)
+do_ldet(coef, env, which=1)
+cheb_setup(env, q=5, which=1)
+mcdet_setup(env, p=16, m=30, which=1)
+eigen_setup(env, which=1)
+spam_setup(env, which=1)
+Matrix_setup(env, Imult, super, which=1)
+LU_setup(env, which=1)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{coef}{spatial coefficient value}
   \item{env}{environment containing pre-computed objects, fixed after assignment in setup functions}
+  \item{which}{default 1; if 2, use second listw object}
   \item{q}{Chebyshev approximation order; default in calling spdep functions is 5, here it cannot be missing and does not have a default}
   \item{p}{Monte Carlo approximation number of random normal variables; default calling spdep functions is 16, here it cannot be missing and does not have a default}
   \item{m}{Monte Carlo approximation number of series terms; default in calling spdep functions is 30, here it cannot be missing and does not have a default}

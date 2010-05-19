@@ -71,7 +71,7 @@ export(mstree, nbcosts, nbcost, plot.mst, plot.skater, prunecost, ssw, prunemst,
 
 export(aple, aple.mc, aple.plot, localAple)
 
-export(trW, impacts, lagmess)
+export(trW, impacts, lagmess, sacsarlm)
 
 export(do_ldet, eigen_setup, mcdet_setup, cheb_setup, spam_setup,
         Matrix_setup, LU_setup)
