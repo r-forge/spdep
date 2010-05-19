@@ -23,6 +23,7 @@ choynowski              Choynowski probability map values
 columbus                Columbus OH spatial analysis data set
 diffnb                  Differences between neighbours lists
 dnearneigh              Neighbourhood contiguity by distance
+do_ldet                 Spatial regression model Jacobian computations
 droplinks               Drop links in a neighbours list
 EBest                   Global Empirical Bayes estimator
 EBImoran.mc             Permutation test for empirical Bayes index
@@ -111,6 +112,8 @@ read.gal                Read a GAL lattice file into a neighbours list
 read.gwt2nb             Read and write spatial neighbour files
 residuals.sarlm         Access functions for spatial simultaneous
                         autoregressive linear model objects
+sacsarlm                Spatial simultaneous autoregressive SAC model
+                        estimation
 set.spChkOption         Control checking of spatial object IDs
 similar.listw           Create symmetric similar weights lists
 skater                  Spatial 'K'luster Analysis by Tree Edge Removal
