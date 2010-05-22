@@ -226,7 +226,7 @@ sacsarlm <- function(formula, data = list(), listw, listw2=NULL, na.action,
                 llprof <- as.matrix(expand.grid(llrho, lllambda))
             }
             ll_prof <- numeric(nrow(llprof))
-            for (i in seq(along=llprof)) 
+            for (i in 1:nrow(llprof)) 
                 ll_prof[i] <- sacsar.f(llprof[i,], env=env)
             nm <- paste(method, "profile", sep="_")
             timings[[nm]] <- proc.time() - .ptime_start
