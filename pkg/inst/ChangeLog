@@ -1,3 +1,11 @@
+2010-06-01 09:27  rsbivand
+
+	* R/kpgm_new.R: tidy
+
+2010-05-30 10:06  rsbivand
+
+	* ChangeLog, inst/ChangeLog: correct errorsarlm analytical SE
+
 2010-05-30 10:06  rsbivand
 
 	* DESCRIPTION, R/error.hessian.R, R/error.spsarlm.R,
