@@ -1,5 +1,9 @@
 2010-06-04 16:16  rsbivand
 
+	* ChangeLog, inst/ChangeLog: sphet hooks
+
+2010-06-04 16:16  rsbivand
+
 	* DESCRIPTION, R/impacts.R: sphet hooks
 
 2010-06-01 09:29  rsbivand
