@@ -506,16 +506,20 @@ summary.lagImpact <- function(object, ..., zstats=FALSE, short=FALSE, reportQ=NU
     attr(res, "short") <- short
     attr(res, "reportQ") <- reportQ
     tp <- NULL
-    if ("sarlm" %in% attr(object, "iClass")) tp <- ifelse(attr(object,
-       "useHESS"), ifelse(attr(object, "insert"),
-       "mixed Hessian approximation", "numerical Hessian approximation"),
-       "asymptotic")
-    else if ("stsls" %in% attr(object, "iClass")) {
+    if ("sarlm" %in% attr(object, "iClass")) {
+       tp <- ifelse(attr(object,
+           "useHESS"), ifelse(attr(object, "insert"),
+           "mixed Hessian approximation", "numerical Hessian approximation"),
+           "asymptotic")
+    } else if ("stsls" %in% attr(object, "iClass")) {
         tp <- "asymptotic IV"
         if (!is.null(attr(object, "robust")) && attr(object, "robust"))
             tp <- "robust IV"
-        if ("sphet" %in% attr(object, "iClass"))
+    }
+    if ("sphet" %in% attr(object, "iClass")) {
             tp <- "IV HAC"
+            if ("gstsls" %in% attr(object, "iClass")) 
+                tp <- "GSTSLS"
     }
     attr(res, "tp") <- tp
     class(res) <- "summary.lagImpact"
