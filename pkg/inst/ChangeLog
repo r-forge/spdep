@@ -1,3 +1,11 @@
+2010-06-04 16:16  rsbivand
+
+	* DESCRIPTION, R/impacts.R: sphet hooks
+
+2010-06-01 09:29  rsbivand
+
+	* ChangeLog, inst/ChangeLog: tidy
+
 2010-06-01 09:27  rsbivand
 
 	* R/kpgm_new.R: tidy
