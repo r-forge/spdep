@@ -1,3 +1,13 @@
+2010-06-22 08:40  rsbivand
+
+	* DESCRIPTION, R/EBI.R, R/choynowski.R, man/choynowski.Rd,
+	  man/probmap.Rd: probmap and choynowski clarification, thanks to
+	  Michael Hoehle
+
+2010-06-17 12:07  rsbivand
+
+	* ChangeLog, inst/ChangeLog: trap 2-column sparse neighbour file
+
 2010-06-17 12:07  rsbivand
 
 	* ChangeLog, inst/ChangeLog: trap 2-column sparse neighbour file
