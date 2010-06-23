@@ -1,4 +1,4 @@
-# Copyright 2004-2010 by Roger Bivand, vectorisation Michael Hoehle
+# Copyright 2004-2010 by Roger Bivand
 #
 
 choynowski <- function(n, x, row.names=NULL, tol=.Machine$double.eps^0.5, legacy=FALSE) {
@@ -29,7 +29,7 @@ choynowski <- function(n, x, row.names=NULL, tol=.Machine$double.eps^0.5, legacy
     }
    }
   } else {
-    res <- ifelse(type, ppois(n, E), 1-ppois( pmax(n-1,0), E))
+    res <- ifelse(type, ppois(n, E), 1 - ppois(n-1, E))
   }
   if (is.null(row.names)) 
     res <- data.frame(pmap=res, type=type)

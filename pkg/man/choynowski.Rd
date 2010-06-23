@@ -14,7 +14,7 @@ choynowski(n, x, row.names=NULL, tol = .Machine$double.eps^0.5, legacy=FALSE)
   \item{x}{a numeric vector of populations at risk}
   \item{row.names}{row names passed through to output data frame}
   \item{tol}{accumulate values for observed counts >= expected until value less than tol}
-  \item{legacy}{default FALSE using vectorised alternating side \code{ppois} version by Michael Hoehle, if true use original version written from sources and iterating down to \code{tol}}
+  \item{legacy}{default FALSE using vectorised alternating side \code{ppois} version, if true use original version written from sources and iterating down to \code{tol}}
 }
 
 \value{

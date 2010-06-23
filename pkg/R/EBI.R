@@ -116,7 +116,13 @@ probmap <- function(n, x, row.names=NULL, alternative="less") {
     b <- nsum/xsum
     expCount <- x*b
     relRisk <- 100*(n/expCount)
-    pmap <- ppois(n, expCount, lower.tail=(alternative=="less"))
+#    pmap <- ppois(n, expCount, lower.tail=(alternative=="less"))
+    if (alternative == "less") {
+        pmap <- ppois(n, expCount)
+    } else {
+        pmap <- 1 - ppois(n-1, expCount)
+    }
+
     if (is.null(row.names)) 
 	res <- data.frame(raw=p, expCount=expCount, relRisk=relRisk, 
 	pmap=pmap)
