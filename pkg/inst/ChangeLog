@@ -1,3 +1,13 @@
+2010-06-23 08:54  rsbivand
+
+	* DESCRIPTION, R/EBI.R, R/choynowski.R, man/choynowski.Rd:
+	  probmap/choynowski clarification
+
+2010-06-22 08:41  rsbivand
+
+	* ChangeLog, inst/ChangeLog: probmap and choynowski clarification,
+	  thanks to Michael Hoehle
+
 2010-06-22 08:40  rsbivand
 
 	* DESCRIPTION, R/EBI.R, R/choynowski.R, man/choynowski.Rd,
