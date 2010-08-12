@@ -146,6 +146,7 @@ do_ldet <- function(coef, env, which=1) {
            eigen = {ldet <- eigen_ldet(coef, env, which=which)},
            spam = {ldet <- spam_ldet(coef, env, which=which)},
            Matrix = {ldet <- Matrix_ldet(coef, env, which=which)},
+           Matrix_J = {ldet <- Matrix_J_ldet(coef, env, which=which)},
            Chebyshev = {ldet <- cheb_ldet(coef, env, which=which)},
            MC = {ldet <- mcdet_ldet(coef, env, which=which)},
            LU = {ldet <- LU_ldet(coef, env, which=which)},
@@ -247,6 +248,9 @@ Matrix_setup <- function(env, Imult, super, which=1) {
         assign("pChol2", pChol, envir=env)
         assign("nChol2", nChol, envir=env)
     }
+    .f <- if (package_version(packageDescription("Matrix")$Version) >
+           "0.999375-30") 2 else 1
+    assign(".f", .f, envir=env)
     assign("method", "Matrix", envir=env)
     invisible(NULL)
 }
@@ -266,8 +270,7 @@ Matrix_ldet <- function(coef, env, which=1) {
     a <- -.Machine$double.eps^(1/2)
     b <- .Machine$double.eps^(1/2)
     n <- get("n", envir=env)
-    .f <- if (package_version(packageDescription("Matrix")$Version) >
-           "0.999375-30") 2 else 1
+    .f <- get(".f", envir=env)
 
     Jacobian <- ifelse(coef > b, n * log(coef) +
             (.f * c(determinant(update(nChol, nW, 1/coef))$modulus)),
@@ -302,5 +305,42 @@ LU_ldet <- function(coef, env, which=1) {
     dU <- abs(diag(slot(LU, "U")))
     ldet <- sum(log(dU))
     ldet
+}
+
+Matrix_J_setup <- function(env, which=1) {
+    if (which == 1) {
+        if (get("listw", envir=env)$style %in% c("W", "S") && 
+            get("can.sim", envir=env)) {
+            csrw <- listw2U_Matrix(similar.listw_Matrix(get("listw", 
+                envir=env)))
+	    assign("similar", TRUE, envir=env)
+        } else csrw <- as_dsTMatrix_listw(get("listw", envir=env))
+        csrw <- as(csrw, "CsparseMatrix")
+        assign("csrw", csrw, envir=env)
+    } else {
+        if (get("listw2", envir=env)$style %in% c("W", "S") && 
+            get("can.sim2", envir=env)) {
+	    csrw <- listw2U_Matrix(similar.listw_Matrix(get("listw2", 
+                envir=env)))
+	    assign("similar2", TRUE, envir=env)
+	} else csrw <- as_dsTMatrix_listw(get("listw2", envir=env))
+	csrw <- as(csrw, "CsparseMatrix")
+        assign("csrw2", csrw, envir=env)
+    }
+    I <- as_dsCMatrix_I(get("n", envir=env))
+    assign("I", I, envir=env)
+    assign("method", "Matrix_J", envir=env)
+    invisible(NULL)
+}
+
+Matrix_J_ldet <- function(coef, env, which=1) {
+    I <- get("I", envir=env)
+    if (which == 1) {
+        csrw <- get("csrw", envir=env)
+    } else {
+        csrw <- get("csrw2", envir=env)
+    }
+    Jacobian <- determinant(I - coef * csrw, logarithm = TRUE)$modulus
+    Jacobian
 }
 

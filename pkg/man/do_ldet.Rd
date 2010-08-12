@@ -5,6 +5,7 @@
 \alias{cheb_setup}
 \alias{spam_setup}
 \alias{Matrix_setup}
+\alias{Matrix_J_setup}
 \alias{LU_setup}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Spatial regression model Jacobian computations}
@@ -18,6 +19,7 @@ mcdet_setup(env, p=16, m=30, which=1)
 eigen_setup(env, which=1)
 spam_setup(env, which=1)
 Matrix_setup(env, Imult, super, which=1)
+Matrix_J_setup(env, which=1)
 LU_setup(env, which=1)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -70,6 +72,18 @@ LU_setup(env, which=1)
     \item{csrw}{sparse spatial weights matrix}
     \item{I}{sparse identity matrix}
     \item{method}{string: \dQuote{spam}}
+  }
+}
+  \item{Matrix_J}{Standard Cholesky decomposition without updating:
+  \describe{
+    \item{listw}{A listw spatial weights object}
+    \item{can.sim}{logical scalar: can the spatial weights be made symmetric by similarity}
+    \item{n}{number of spatial objects}
+  } and assigns to the environment:
+  \describe{
+    \item{csrw}{sparse spatial weights matrix}
+    \item{I}{sparse identity matrix}
+    \item{method}{string: \dQuote{Matrix_J}}
   }
 }
   \item{LU}{Standard LU decomposition without updating:
