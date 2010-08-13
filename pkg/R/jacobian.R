@@ -181,7 +181,7 @@ spam_setup <- function(env, which=1) {
             get("can.sim", envir=env)) {
             if (any(card(get("listw", envir=env)$neighbours) == 0)) {
                 spam.options("safemode"=c(TRUE,FALSE,FALSE))
-                warning("spam safemode option changed, no-neighbour observations")
+                warning("spam safemode option changed, no-neighbour cases")
             }
 	    csrw <- listw2U_spam(similar.listw_spam(get("listw", envir=env)))
 	    assign("similar", TRUE, envir=env)
@@ -192,7 +192,7 @@ spam_setup <- function(env, which=1) {
             get("can.sim2", envir=env)) {
             if (any(card(get("listw2", envir=env)$neighbours) == 0)) {
                 spam.options("safemode"=c(TRUE,FALSE,FALSE))
-                warning("spam safemode option changed, no-neighbour observations")
+                warning("spam safemode option changed, no-neighbour cases")
             }
 	    csrw <- listw2U_spam(similar.listw_spam(get("listw2", envir=env)))
 	    assign("similar2", TRUE, envir=env)
