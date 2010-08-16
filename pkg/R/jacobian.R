@@ -145,6 +145,7 @@ do_ldet <- function(coef, env, which=1) {
         switch(method,
            eigen = {ldet <- eigen_ldet(coef, env, which=which)},
            spam = {ldet <- spam_ldet(coef, env, which=which)},
+           spam_update = {ldet <- spam_update_ldet(coef, env, which=which)},
            Matrix = {ldet <- Matrix_ldet(coef, env, which=which)},
            Matrix_J = {ldet <- Matrix_J_ldet(coef, env, which=which)},
            Chebyshev = {ldet <- cheb_ldet(coef, env, which=which)},
@@ -174,7 +175,7 @@ eigen_ldet <- function(coef, env, which=1) {
     det
 }
 
-spam_setup <- function(env, which=1) {
+spam_setup <- function(env, pivot="MMD", which=1) {
     if (!require(spam)) stop("spam not available")
     if (which == 1) {
         if (get("listw", envir=env)$style %in% c("W", "S") &&
@@ -194,6 +195,7 @@ spam_setup <- function(env, which=1) {
     n <- get("n", envir=env)
     I <- diag.spam(1, n, n)
     assign("I", I, envir=env)
+    assign("pivot", pivot, envir=env)
     assign("method", "spam", envir=env)
     invisible(NULL)
 }
@@ -206,12 +208,67 @@ spam_ldet <- function(coef, env, which=1) {
         csrw <- get("csrw2", envir=env)
     }
     I <- get("I", envir=env)
-    J1 <- try(determinant((I - coef * csrw), logarithm=TRUE)$modulus,
-        silent=TRUE)
+    pivot <- get("pivot", envir=env)
+    J1 <- try(determinant(chol((I - coef * csrw), pivot=pivot),
+        logarithm=TRUE)$modulus, silent=TRUE)
     if (class(J1) == "try-error") {
         Jacobian <- NA
     } else {
-        Jacobian <- J1
+        Jacobian <- 2*J1
+    }
+    Jacobian
+}
+
+spam_update_setup <- function(env, in_coef=0.1, pivot="MMD", which=1) {
+    if (!require(spam)) stop("spam not available")
+    if (which == 1) {
+        if (get("listw", envir=env)$style %in% c("W", "S") &&
+            get("can.sim", envir=env)) {
+	      csrw <- listw2U_spam(similar.listw_spam(get("listw", envir=env)))
+	      assign("similar", TRUE, envir=env)
+	} else csrw <- as.spam.listw(get("listw", envir=env))
+        assign("csrw", csrw, envir=env)
+    } else {
+        if (get("listw2", envir=env)$style %in% c("W", "S") &&
+            get("can.sim2", envir=env)) {
+	      csrw <- listw2U_spam(similar.listw_spam(get("listw2", envir=env)))
+	      assign("similar2", TRUE, envir=env)
+	} else csrw <- as.spam.listw(get("listw2", envir=env))
+        assign("csrw2", csrw, envir=env)
+    }
+    n <- get("n", envir=env)
+    I <- diag.spam(1, n, n)
+    assign("I", I, envir=env)
+    csrwchol <- chol((I - in_coef * csrw), pivot=pivot)
+    if (which == 1) {
+        assign("csrwchol", csrwchol, envir=env)
+    } else {
+        assign("csrwchol2", csrwchol, envir=env)
+    }
+    assign("method", "spam_update", envir=env)
+    invisible(NULL)
+}
+
+spam_update_ldet <- function(coef, env, which=1) {
+    if (!require(spam)) stop("spam not available")
+    if (which == 1) {
+        csrw <- get("csrw", envir=env)
+        cchol <- get("csrwchol", envir=env)
+    } else {
+        csrw <- get("csrw2", envir=env)
+        cchol <- get("csrwchol2", envir=env)
+    }
+    I <- get("I", envir=env)
+    if (abs(coef) < .Machine$double.eps^(0.5)) {
+        Jacobian <- 0.0
+    } else {
+        J1 <- try(determinant(update(cchol, (I - coef * csrw)),
+            logarithm=TRUE)$modulus, silent=TRUE)
+        if (class(J1) == "try-error") {
+            Jacobian <- NA
+        } else {
+            Jacobian <- 2*J1
+        }
     }
     Jacobian
 }
