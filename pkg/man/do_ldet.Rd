@@ -20,8 +20,8 @@ mcdet_setup(env, p=16, m=30, which=1)
 eigen_setup(env, which=1)
 spam_setup(env, pivot="MMD", which=1)
 spam_update_setup(env, in_coef=0.1, pivot="MMD", which=1)
-Matrix_setup(env, Imult, super, which=1)
-Matrix_J_setup(env, which=1)
+Matrix_setup(env, Imult, super=as.logical(NA), which=1)
+Matrix_J_setup(env, super=FALSE, which=1)
 LU_setup(env, which=1)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -35,7 +35,7 @@ LU_setup(env, which=1)
   \item{pivot}{default \dQuote{MMD}, may also be \dQuote{RCM} for Cholesky decompisition using spam}
   \item{in_coef}{fill-in initiation coefficient value, default 0.1}
   \item{Imult}{see \code{\link[Matrix]{Cholesky}}; numeric scalar which defaults to zero. The matrix that is decomposed is A+m*I where m is the value of Imult and I is the identity matrix of order ncol(A). Default in calling spdep functions is 2, here it cannot be missing and does not have a default, but is rescaled for binary weights matrices in proportion to the maximim row sum in those calling functions}
-  \item{super}{see \code{\link[Matrix]{Cholesky}}; logical scalar indicating is a supernodal decomposition should be created.  The alternative is a simplicial decomposition. Default in calling spdep functions is FALSE, here it cannot be missing and does not have a default.  Setting it to NA leaves the choice to a CHOLMOD-internal heuristic}
+  \item{super}{see \code{\link[Matrix]{Cholesky}}; logical scalar indicating is a supernodal decomposition should be created.  The alternative is a simplicial decomposition. Default in calling spdep functions is FALSE for \dQuote{Matrix_J} and \code{as.logical(NA)} for \dQuote{Matrix}.  Setting it to NA leaves the choice to a CHOLMOD-internal heuristic}
 }
 
 \details{Since environments are containers in the R workspace passed by reference rather than by value, they are useful for passing objects to functions called in numerical optimisation, here for the maximum likelihood estimation of spatial regression models. This technique can save a little time on each function call, balanced against the need to access the objects in the environment inside the function. The environment should contain a \code{family} string object either \dQuote{SAR}, \dQuote{CAR} or \dQuote{SMA} (used in \code{do_ldet} to choose spatial moving average in \code{spautolm}, and these specific objects before calling the set-up functions:
@@ -75,6 +75,7 @@ LU_setup(env, which=1)
   \describe{
     \item{csrw}{sparse spatial weights matrix}
     \item{I}{sparse identity matrix}
+    \item{super}{the value of the \code{super} argument}
     \item{method}{string: \dQuote{Matrix_J}}
   }
 }
@@ -137,7 +138,7 @@ LU_setup(env, which=1)
 }
 }
 
-Some set-up functions may also assign \code{similar} to the environment of the weights were made symmetric by similarity.
+Some set-up functions may also assign \code{similar} to the environment if the weights were made symmetric by similarity.
 }
 
 \value{\code{do_ldet} returns the value of the Jacobian for the calculation method recorded in the environment argument; the remaining functions modify the environment in place as a side effect and return nothing.}

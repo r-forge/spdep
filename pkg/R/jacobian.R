@@ -273,7 +273,7 @@ spam_update_ldet <- function(coef, env, which=1) {
     Jacobian
 }
 
-Matrix_setup <- function(env, Imult, super, which=1) {
+Matrix_setup <- function(env, Imult, super=as.logical(NA), which=1) {
     if (which == 1) {
         if (get("listw", envir=env)$style %in% c("W", "S") && 
             get("can.sim", envir=env)) {
@@ -364,7 +364,7 @@ LU_ldet <- function(coef, env, which=1) {
     ldet
 }
 
-Matrix_J_setup <- function(env, which=1) {
+Matrix_J_setup <- function(env, super=FALSE, which=1) {
     if (which == 1) {
         if (get("listw", envir=env)$style %in% c("W", "S") && 
             get("can.sim", envir=env)) {
@@ -386,18 +386,25 @@ Matrix_J_setup <- function(env, which=1) {
     }
     I <- as_dsCMatrix_I(get("n", envir=env))
     assign("I", I, envir=env)
+    .f <- if (package_version(packageDescription("Matrix")$Version) >
+           "0.999375-30") 2 else 1
+    assign(".f", .f, envir=env)
+    assign("super", super, envir=env)
     assign("method", "Matrix_J", envir=env)
     invisible(NULL)
 }
 
 Matrix_J_ldet <- function(coef, env, which=1) {
     I <- get("I", envir=env)
+    super <- get("super", envir=env)
     if (which == 1) {
         csrw <- get("csrw", envir=env)
     } else {
         csrw <- get("csrw2", envir=env)
     }
-    Jacobian <- determinant(I - coef * csrw, logarithm = TRUE)$modulus
+    .f <- get(".f", envir=env)
+    cch <- Cholesky((I - coef * csrw), super=super)
+    Jacobian <- .f * determinant(cch, logarithm = TRUE)$modulus
     Jacobian
 }
 
