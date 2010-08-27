@@ -151,6 +151,7 @@ do_ldet <- function(coef, env, which=1) {
            Chebyshev = {ldet <- cheb_ldet(coef, env, which=which)},
            MC = {ldet <- mcdet_ldet(coef, env, which=which)},
            LU = {ldet <- LU_ldet(coef, env, which=which)},
+           moments = {ldet <- moments_ldet(coef, env, which=which)},
            stop("...\n\nUnknown method\n"))
     }
     ldet
@@ -407,4 +408,90 @@ Matrix_J_ldet <- function(coef, env, which=1) {
     Jacobian <- .f * determinant(cch, logarithm = TRUE)$modulus
     Jacobian
 }
+
+
+Rmrho <- function(Omega, m, rho, n, trunc=FALSE) {
+    Om <- Omega[m]
+    Om1 <- Omega[m-1]
+    Om_e <- Omega[m]/Omega[m-2]
+    Om_o <- Omega[m-1]/Omega[m-3]
+    res <- 0
+    rhoj <- rho^m
+    Om_ej <- Om_e^m
+    Om_oj <- Om_o^m
+    for (j in m:n) {
+        if ((j %% 2) == 0) {
+            inc <- ((1/j)*rhoj)*Om*(Om_ej)
+        } else { 
+            inc <- ((1/j)*rhoj)*Om1*(Om_oj)
+        }
+        if (!is.finite(inc)) break
+        if (abs(inc) < .Machine$double.eps && trunc) break
+        res <- res + inc
+        rhoj <- rhoj*rho
+        Om_ej <- Om_ej*Om_e
+        Om_oj <- Om_oj*Om_o
+    }
+    res
+}
+
+ldetMoments <- function(Omega, rho, n, correct=TRUE, trunc=FALSE) {
+    m <- length(Omega)
+    Rm <- ifelse(correct, Rmrho(Omega, m, rho, n, trunc), 0)
+    res <- 0
+    rhoj <- rho
+    for (j in seq(along=Omega)) {
+        res <- res + (1/j)*rhoj*Omega[j]
+        rhoj <- rhoj*rho
+    }
+    res <- - res - Rm
+    res
+}
+
+moments_setup <- function(env, trs, m, p, type="MC", correct=TRUE,
+    trunc=FALSE, which=1) {
+    if (which == 1) {
+        if (missing(trs)) {
+            if (get("listw", envir=env)$style %in% c("W", "S") && 
+                get("can.sim", envir=env)) {
+                csrw <- listw2U_Matrix(similar.listw_Matrix(get("listw",
+                    envir=env)))
+	        assign("similar", TRUE, envir=env)
+            } else csrw <- as_dsTMatrix_listw(get("listw", envir=env))
+            csrw <- as(csrw, "CsparseMatrix")
+            trs <- trW(csrw, m=m, p=p, type=type)
+        }
+        assign("trs1", trs, envir=env)
+    } else {
+        if (missing(trs)) {
+            if (get("listw2", envir=env)$style %in% c("W", "S") && 
+                get("can.sim2", envir=env)) {
+                csrw <- listw2U_Matrix(similar.listw_Matrix(get("listw2",
+                    envir=env)))
+	        assign("similar2", TRUE, envir=env)
+            } else csrw <- as_dsTMatrix_listw(get("listw2", envir=env))
+            csrw <- as(csrw, "CsparseMatrix")
+            trs <- trW(csrw, m=m, p=p, type=type)
+        }
+        assign("trs2", trs, envir=env)
+    }
+    assign("correct", correct, envir=env)
+    assign("trunc", trunc, envir=env)
+    assign("method", "moments", envir=env)
+    invisible(NULL)
+}
+
+moments_ldet <- function(x, env, which=1) {
+    n <- get("n", envir=env)
+    if (which == 1) {
+        trs <- get("trs1", envir=env)
+    } else {
+        trs <- get("trs2", envir=env)
+    }
+    correct <- get("correct", envir=env)
+    trunc <- get("trunc", envir=env)
+    Jacobian <- ldetMoments(trs, x, n, correct, trunc)
+    Jacobian
+}
+
 

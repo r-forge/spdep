@@ -1,4 +1,4 @@
-# Copyright 2009 by Roger Bivand
+# Copyright 2009-2010 by Roger Bivand
 
 trW <- function(W, m=100, p=50, type="mult") {
 # returns traces
@@ -22,11 +22,60 @@ trW <- function(W, m=100, p=50, type="mult") {
         }
         tr[1] <- 0.0
         tr[2] <- sum(t(W) * W)
+    } else if (type == "moments") {
+        if (!is(W, "symmetricMatrix")) stop("moments require symmetric W")
+        tr <- mom_calc(W, m)
     } else stop("unknown type")
     timings[["make_traces"]] <- proc.time() - .ptime_start
     attr(tr, "timings") <- do.call("rbind", timings)[, c(1, 3)]
     attr(tr, "type") <- type
     tr
+}
+
+mom_calc <- function(W, m) {
+    stopifnot((m %% 2) == 0)
+    n <- dim(W)[1]
+    eta0 <- rep(0, n)
+     
+    CL <- get("cl", env = .spdepOptions)
+    if (!is.null(CL) && length(CL) > 1) {
+        require(snow)
+        lis <- splitIndices(n, length(CL))
+        clusterEvalQ(CL, library(Matrix))
+	clusterExport_l <- function(CL, list) {
+            gets <- function(n, v) {
+                assign(n, v, env = .GlobalEnv)
+                NULL
+            }
+            for (name in list) {
+                clusterCall(CL, gets, name, get(name))
+            }
+	}
+	clusterExport_l(CL, list("m", "W", "eta0"))
+        lOmega <- parLapply(CL, lis, function(is) mom_calc_int(is=is, m=m,
+            W=W, eta0=eta0))
+        clusterEvalQ(CL, rm(list=c("m", "W", "eta0")))
+        clusterEvalQ(CL, detach(package:Matrix))
+        Omega <- apply(do.call("cbind", lOmega), 1, sum)
+    } else {
+        Omega <- mom_calc_int(is=1:n, m=m, W=W, eta0=eta0)
+    }
+    Omega
+}
+
+mom_calc_int <- function(is, m, W, eta0) {
+    Omega <- rep(0.0, m)
+    for (i in is) {
+        eta <- eta0
+        eta[i] <- 1
+        for (j in seq(2, m, 2)) {
+            zeta <- W %*% eta
+            Omega[j-1] <- Omega[j-1] + crossprod(zeta, eta)[1,1]
+            Omega[j] <- Omega[j] + crossprod(zeta, zeta)[1,1]
+            eta <- zeta
+        }
+    }
+    Omega
 }
 
 impacts <- function(obj, ...)
