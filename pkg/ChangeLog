@@ -1,3 +1,20 @@
+2010-08-27 19:23  rsbivand
+
+	* DESCRIPTION, NAMESPACE, R/edit.nb.R, R/impacts.R, R/jacobian.R,
+	  data/elect80.rda, man/do_ldet.Rd, man/edit.nb.Rd, man/elect80.Rd,
+	  man/trW.Rd: adding moments trace
+
+2010-08-17 14:05  rsbivand
+
+	* DESCRIPTION, R/error.spsarlm.R, R/jacobian.R, R/lag.spsarlm.R,
+	  R/spautolm.R, man/do_ldet.Rd, man/errorsarlm.Rd, man/lagsarlm.Rd,
+	  man/spautolm.Rd: folding spam_update and Matrix_J into fit
+	  functions
+
+2010-08-16 16:29  rsbivand
+
+	* ChangeLog, inst/ChangeLog: adding spam_update method
+
 2010-08-16 16:27  rsbivand
 
 	* DESCRIPTION, NAMESPACE, R/jacobian.R, man/do_ldet.Rd: adding
