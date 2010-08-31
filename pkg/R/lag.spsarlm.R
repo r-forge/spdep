@@ -323,6 +323,8 @@ lagsarlm <- function(formula, data = list(), listw,
                 timings[["eigen_se"]] <- proc.time() - .ptime_start
 	}
 	call <- match.call()
+        rm(env)
+        GC <- gc()
 	ret <- structure(list(type=type, rho=rho, 
 		coefficients=coef.rho, rest.se=rest.se, 
 		LL=LL, s2=s2, SSE=SSE, parameters=(m+2), lm.model=lm.null,

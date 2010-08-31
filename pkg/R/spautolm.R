@@ -258,6 +258,8 @@ spautolm <- function(formula, data = list(), listw, weights,
     LLNullLlm <- logLik(lm(Y ~ 1, weights=weights))
     nm <- paste(method, "output", sep="_")
     timings[[nm]] <- proc.time() - .ptime_start
+    rm(env)
+    GC <- gc()
     res <- list(fit=fit, lambda=lambda, LL=LL, LL0=LL0, call=match.call(),
         parameters=(ncol(X)+2), aliased=aliased, method=method,
         zero.policy=zero.policy, weights=weights, interval=interval,

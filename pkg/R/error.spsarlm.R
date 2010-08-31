@@ -336,6 +336,8 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
                 optimHess=con$optimHess, insert=!is.null(trs),
                 timings=do.call("rbind", timings)[, c(1, 3)]),
                 class=c("sarlm"))
+        rm(env)
+        GC <- gc()
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]
