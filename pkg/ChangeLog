@@ -1,3 +1,20 @@
+2010-09-03 07:04  rsbivand
+
+	* DESCRIPTION, R/impacts.R: tidy
+
+2010-09-03 06:47  rsbivand
+
+	* R/impacts.R: mom_int export to cl
+
+2010-08-31 07:50  rsbivand
+
+	* R/error.spsarlm.R, R/lag.spsarlm.R, R/sacsarlm.R, R/spautolm.R:
+	  tidy
+
+2010-08-28 14:43  rsbivand
+
+	* ChangeLog, inst/ChangeLog: as.double to storage.mode
+
 2010-08-28 14:42  rsbivand
 
 	* R/dnearneigh.R, R/gabrielneigh.R, R/knearneigh.R, R/relneigh.R,
