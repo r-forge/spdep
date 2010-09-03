@@ -176,7 +176,10 @@ mixedImpactsExact <- function(SW, P, n, listw) {
     list(direct=direct, indirect=indirect, total=total)
 }
 
-processXSample <- function(x, drop2beta, type, iicept, icept, SW, n, listw) {
+processXSample <- function(x, drop2beta, type, iicept, icept, n, listw,
+    irho) {
+    rho <- x[irho]
+    SW <- invIrW(listw, rho)
     beta <- x[-drop2beta]
     if (type == "lag" || type == "sac") {
         if (iicept) {
@@ -328,14 +331,15 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
                     }
 		}
 
-		clusterExport_l(CL, list("irho", "drop2beta", "SW", "icept",
+		clusterExport_l(CL, list("irho", "drop2beta", "icept",
                     "iicept", "type", "listw"))
 
                 timings[["cluster_setup"]] <- proc.time() - .ptime_start
                 .ptime_start <- proc.time()
                 lsres <- parLapply(CL, l_sp, function(sp) apply(sp, 1, 
                     spdep:::processXSample, drop2beta=drop2beta, type=type,
-                    iicept=iicept, icept=icept, SW=SW, n=n, listw=listw))
+                    iicept=iicept, icept=icept, n=n, listw=listw,
+                    irho=irho))
 		clusterEvalQ(CL, rm(list=c("drop2beta",
                     "SW", "icept", "iicept", "type", "listw")))
                 clusterEvalQ(CL, detach(package:spdep))
@@ -344,7 +348,7 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
             } else {
                 sres <- apply(samples, 1, processXSample,
                     drop2beta=drop2beta, type=type, iicept=iicept,
-                    icept=icept, SW=SW, n=n, listw=listw)
+                    icept=icept, n=n, listw=listw, irho=irho)
             }
             timings[["process_samples"]] <- proc.time() - .ptime_start
             .ptime_start <- proc.time()
