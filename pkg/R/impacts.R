@@ -32,12 +32,27 @@ trW <- function(W, m=100, p=50, type="mult") {
     tr
 }
 
+mom_calc_int <- function(is, m, W, eta0) {
+    Omega <- rep(0.0, m)
+    for (i in is) {
+        eta <- eta0
+        eta[i] <- 1
+        for (j in seq(2, m, 2)) {
+            zeta <- W %*% eta
+            Omega[j-1] <- Omega[j-1] + crossprod(zeta, eta)[1,1]
+            Omega[j] <- Omega[j] + crossprod(zeta, zeta)[1,1]
+            eta <- zeta
+        }
+    }
+    Omega
+}
+
 mom_calc <- function(W, m) {
     stopifnot((m %% 2) == 0)
     n <- dim(W)[1]
     eta0 <- rep(0, n)
      
-    CL <- get("cl", env = .spdepOptions)
+    CL <- get.ClusterOption()
     if (!is.null(CL) && length(CL) > 1) {
         require(snow)
         lis <- splitIndices(n, length(CL))
@@ -51,29 +66,14 @@ mom_calc <- function(W, m) {
                 clusterCall(CL, gets, name, get(name))
             }
 	}
-	clusterExport_l(CL, list("m", "W", "eta0"))
+	clusterExport_l(CL, list("m", "W", "eta0", "mom_calc_int"))
         lOmega <- parLapply(CL, lis, function(is) mom_calc_int(is=is, m=m,
             W=W, eta0=eta0))
-        clusterEvalQ(CL, rm(list=c("m", "W", "eta0")))
+        clusterEvalQ(CL, rm(list=c("m", "W", "eta0", "mom_calc_int")))
         clusterEvalQ(CL, detach(package:Matrix))
         Omega <- apply(do.call("cbind", lOmega), 1, sum)
     } else {
         Omega <- mom_calc_int(is=1:n, m=m, W=W, eta0=eta0)
-    }
-    Omega
-}
-
-mom_calc_int <- function(is, m, W, eta0) {
-    Omega <- rep(0.0, m)
-    for (i in is) {
-        eta <- eta0
-        eta[i] <- 1
-        for (j in seq(2, m, 2)) {
-            zeta <- W %*% eta
-            Omega[j-1] <- Omega[j-1] + crossprod(zeta, eta)[1,1]
-            Omega[j] <- Omega[j] + crossprod(zeta, zeta)[1,1]
-            eta <- zeta
-        }
     }
     Omega
 }
