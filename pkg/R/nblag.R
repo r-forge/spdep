@@ -60,7 +60,9 @@ nblag_cumul <- function (nblags) {
     for (i in neigh) {
         res <- nblags[[1]][[i]]
 	for (j in 2:maxlag) res <- c(res, nblags[[j]][[i]])
-        lags[[i]] <- as.integer(res[order(unique(res))])
+        res <- as.integer(res[order(unique(res))])
+        if (any(res == 0)) res <- res[-which(res == 0)]
+        lags[[i]] <- res
     }
     attr(lags, "region.id") <- attr(nblags[[1]], "region.id")
     attr(lags, "call") <- match.call()
