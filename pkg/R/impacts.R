@@ -276,14 +276,18 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
             }
             timings[["process_samples"]] <- proc.time() - .ptime_start
             .ptime_start <- proc.time()
-            direct <- as.mcmc(t(sapply(sres, function(x) x$direct)))
-            indirect <- as.mcmc(t(sapply(sres, function(x) x$indirect)))
-            total <- as.mcmc(t(sapply(sres, function(x) x$total)))
 # 100928 Eelke Folmer
             if (length(bnames) == 1) {
-                direct <- t(direct)
-                indirect <- t(indirect)
-                total <- t(total)
+                direct <- as.mcmc(t(matrix(sapply(sres, function(x) x$direct),
+                    nrow=1)))
+                indirect <- as.mcmc(t(matrix(sapply(sres,
+                    function(x) x$indirect), nrow=1)))
+                total <- as.mcmc(t(matrix(sapply(sres, function(x) x$total),
+                    nrow=1)))
+            } else {
+                direct <- as.mcmc(t(sapply(sres, function(x) x$direct)))
+                indirect <- as.mcmc(t(sapply(sres, function(x) x$indirect)))
+                total <- as.mcmc(t(sapply(sres, function(x) x$total)))
             }
             colnames(direct) <- bnames
             colnames(indirect) <- bnames
@@ -367,13 +371,17 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
             }
             timings[["process_samples"]] <- proc.time() - .ptime_start
             .ptime_start <- proc.time()
-            direct <- as.mcmc(t(sapply(sres, function(x) x$direct)))
-            indirect <- as.mcmc(t(sapply(sres, function(x) x$indirect)))
-            total <- as.mcmc(t(sapply(sres, function(x) x$total)))
             if (length(bnames) == 1) {
-                direct <- t(direct)
-                indirect <- t(indirect)
-                total <- t(total)
+                direct <- as.mcmc(t(matrix(sapply(sres, function(x) x$direct),
+                    nrow=1)))
+                indirect <- as.mcmc(t(matrix(sapply(sres,
+                    function(x) x$indirect), nrow=1)))
+                total <- as.mcmc(t(matrix(sapply(sres, function(x) x$total),
+                    nrow=1)))
+            } else {
+                direct <- as.mcmc(t(sapply(sres, function(x) x$direct)))
+                indirect <- as.mcmc(t(sapply(sres, function(x) x$indirect)))
+                total <- as.mcmc(t(sapply(sres, function(x) x$total)))
             }
             colnames(direct) <- bnames
             colnames(indirect) <- bnames
