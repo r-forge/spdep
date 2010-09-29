@@ -512,9 +512,18 @@ lagImpactMat <- function(x, reportQ=NULL) {
         }
         if (is.null(Qobj)) warning("No impact components to report")
         else {
+# 100928 Eelke Folmer
+            if (length(attr(x, "bnames")) == 1) {
+                Qobj$direct <- matrix(Qobj$direct, ncol=1)
+                Qobj$indirect <- matrix(Qobj$indirect, ncol=1)
+                Qobj$total <- matrix(Qobj$total, ncol=1)
+            }
             colnames(Qobj$direct) <- attr(x, "bnames")
             colnames(Qobj$indirect) <- attr(x, "bnames")
             colnames(Qobj$total) <- attr(x, "bnames")
+            rownames(Qobj$direct) <- paste("Q", 1:nrow(Qobj$direct), sep="")
+            rownames(Qobj$indirect) <- paste("Q", 1:nrow(Qobj$indirect), sep="")
+            rownames(Qobj$total) <- paste("Q", 1:nrow(Qobj$total), sep="")
             attr(mat, "Qobj") <- Qobj
         }
     }
@@ -567,24 +576,19 @@ summary.lagImpact <- function(object, ..., zstats=FALSE, short=FALSE, reportQ=NU
         pzmat <- 2*(1-pnorm(abs(zmat)))
         res <- c(res, list(zmat=zmat, pzmat=pzmat))
         if (!is.null(Qmcmc) && !is.null(reportQ) && reportQ) {
-# 100928 Eelke Folmer
-            if (length(attr(object, "bnames")) == 1) {
-              Qzmats <- lapply(Qmcmc, function(x) {
-                Qm <- matrix(x$statistics[1]/x$statistics[2],
-                    ncol=length(attr(object, "bnames")))
-                colnames(Qm) <- attr(object, "bnames")
-                Qm
-              })
-            } else {
-              Qzmats <- lapply(Qmcmc, function(x) {
+            Qzmats <- lapply(Qmcmc, function(x) {
                 Qm <- matrix(x$statistics[,1]/x$statistics[,2],
                     ncol=length(attr(object, "bnames")))
                 colnames(Qm) <- attr(object, "bnames")
+                rownames(Qm) <- paste("Q", 1:nrow(Qm), sep="")
                 Qm
-              })
-            }
+            })
             names(Qzmats) <- c("Direct", "Indirect", "Total")
-            Qpzmats <- lapply(Qzmats, function(x) 2*(1-pnorm(abs(x))))
+            Qpzmats <- lapply(Qzmats, function(x) {
+                xo <- 2*(1-pnorm(abs(x)))
+                rownames(xo) <- paste("Q", 1:nrow(xo), sep="")
+                xo
+            })
             res <- c(res, list(Qzmats=Qzmats, Qpzmats=Qpzmats))
         }
     }
@@ -675,7 +679,11 @@ print.summary.lagImpact <- function(x, ...) {
             cat("Simulated impact components z-values:\n")
             print(x$Qzmats)
             cat("\nSimulated impact components p-values:\n")
-            xx <- lapply(x$Qpzmats, function(y) apply(y, 2, format.pval))
+            xx <- lapply(x$Qpzmats, function(y) {
+                xo <- apply(y, 2, format.pval)
+                rownames(xo) <- paste("Q", 1:nrow(xo), sep="")
+                xo
+            })
             print(xx, quote=FALSE)
         }
     }
