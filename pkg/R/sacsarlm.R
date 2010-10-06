@@ -237,10 +237,14 @@ sacsarlm <- function(formula, data = list(), listw, listw2=NULL, na.action,
             optres <- nlminb(pars, sacsar.f, env=env,
                control=con$opt_control, lower=lower, upper=upper)
 	       LL <- -optres$objective
-        } else {
+        } else if (con$opt_method == "L-BFGS-B"){
 	    optres <- optim(pars, sacsar.f, env=env,
                 method="L-BFGS-B", control=con$opt_control,
                 lower=lower, upper=upper)
+	        LL <- -optres$value
+        } else {
+	    optres <- optim(pars, sacsar.f, env=env,
+                method=con$opt_method, control=con$opt_control)
 	        LL <- -optres$value
         }
         if (optres$convergence != 0)

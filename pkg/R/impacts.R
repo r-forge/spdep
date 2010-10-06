@@ -557,14 +557,15 @@ print.lagImpact <- function(x, ..., reportQ=NULL) {
 
 summary.lagImpact <- function(object, ..., zstats=FALSE, short=FALSE, reportQ=NULL) {
     if (is.null(object$sres)) stop("summary method unavailable")
-    direct_sum <- summary(object$sres$direct)
-    indirect_sum <- summary(object$sres$indirect)
-    total_sum <- summary(object$sres$total)
+# pass coda arguments 101006
+    direct_sum <- summary(object$sres$direct, ...)
+    indirect_sum <- summary(object$sres$indirect, ...)
+    total_sum <- summary(object$sres$total, ...)
     Qmcmc <- NULL
     if (!is.null(attr(object$sres, "Qmcmc")) && !is.null(reportQ) && reportQ) {
-        Qdirect_sum <- summary(attr(object$sres, "Qmcmc")$direct)
-        Qindirect_sum <- summary(attr(object$sres, "Qmcmc")$indirect)
-        Qtotal_sum <- summary(attr(object$sres, "Qmcmc")$total)
+        Qdirect_sum <- summary(attr(object$sres, "Qmcmc")$direct, ...)
+        Qindirect_sum <- summary(attr(object$sres, "Qmcmc")$indirect, ...)
+        Qtotal_sum <- summary(attr(object$sres, "Qmcmc")$total, ...)
         Qmcmc <- list(Qdirect_sum=Qdirect_sum, Qindirect_sum=Qindirect_sum,
            Qtotal_sum=Qtotal_sum)
     }
