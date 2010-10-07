@@ -47,7 +47,8 @@ neighbours, if FALSE (default) assign NA - causing \code{sacsarlm()} to terminat
   \item{MC_m:}{default 30; number of products of random variates matrix and spatial weights matrix}
   \item{opt_method:}{default \dQuote{nlminb}, may be set to \dQuote{L-BFGS-B} to use box-constrained optimisation in \code{optim}}
   \item{opt_control:}{default \code{list()}, a control list to pass to \code{nlminb} or \code{optim}}
-  \item{pars:}{default \code{c(0.0, 0.0)}, starting values of \eqn{\rho}{rho} and \eqn{\lambda}{lambda}}
+  \item{pars:}{default \code{NULL}, for which five trial starting values spanning the lower/upper range are tried and the best selected, starting values of \eqn{\rho}{rho} and \eqn{\lambda}{lambda}}
+  \item{npars}{default integer \code{4L}, four trial points; if not default value, nine trial points}
   \item{lower:}{default \code{c(-1.0, -1.0)}, lower bounds on \eqn{\rho}{rho} and \eqn{\lambda}{lambda}}
   \item{upper:}{default \code{c(1.0, 1.0)}, upper bounds on \eqn{\rho}{rho} and \eqn{\lambda}{lambda}}
 }}
@@ -71,6 +72,8 @@ neighbours, if FALSE (default) assign NA - causing \code{sacsarlm()} to terminat
   \item{residuals}{GLS residuals}
   \item{lm.target}{the \code{lm} object returned for the GLS fit}
   \item{opt}{object returned from numerical optimisation}
+  \item{pars}{starting parameter values for final optimization, either given or found by trial point evaluation}
+  \item{mxs}{if default input pars, optimal objective function values at trial points}
   \item{fitted.values}{Difference between residuals and response variable}
   \item{se.fit}{Not used yet}
   \item{formula}{model formula}
