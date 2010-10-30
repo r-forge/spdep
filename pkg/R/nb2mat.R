@@ -1,4 +1,4 @@
-# Copyright 2001-9 by Roger Bivand, Markus Reder and Werner Mueller
+# Copyright 2001-10 by Roger Bivand, Markus Reder and Werner Mueller
 #
 
 
@@ -103,7 +103,7 @@ powerWeights <- function(W, rho, order=250, X, tol=.Machine$double.eps^(3/5)) {
 }
 
 
-mat2listw <- function(x, row.names=NULL) {
+mat2listw <- function(x, row.names=NULL, style="M") {
 	if (!is.matrix(x)) stop("x is not a matrix")
 	n <- nrow(x)
 	if (n < 1) stop("non-positive number of entities")
@@ -124,7 +124,7 @@ mat2listw <- function(x, row.names=NULL) {
 			row.names <- as.character(1:n)
 		}
 	}
-	style <- "M"
+#	style <- "M"
 	neighbours <- vector(mode="list", length=n)
 	weights <- vector(mode="list", length=n)
 	for (i in 1:n) {
@@ -146,5 +146,9 @@ mat2listw <- function(x, row.names=NULL) {
 	class(res) <- c("listw", "nb")
 	attr(res, "region.id") <- attr(neighbours, "region.id")
 	attr(res, "call") <- match.call()
+        if (style != "M") {
+            res <- nb2listw(res$neighbours, glist=res$weights, style=style,
+                zero.policy=TRUE)
+        }
 	res
 }

@@ -9,18 +9,19 @@ object, optionally adding region IDs from the row names of the matrix, as a
 sequence of numbers 1:nrow(x), or as given as an argument.
 }
 \usage{
-mat2listw(x, row.names = NULL)
+mat2listw(x, row.names = NULL, style="M")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{A square non-negative matrix with no NAs representing spatial 
 weights}
   \item{row.names}{row names to use for region IDs}
+  \item{style}{default "M", unknown style; if not "M", passed to \code{\link{nb2listw}} to re-build the object}
 }
 
 \value{
 A \code{listw} object with the following members:
-  \item{style}{"M", meaning matrix style, underlying style unknown}
+  \item{style}{"M", meaning matrix style, underlying style unknown, or assigned style argument in rebuilt object}
   \item{neighbours}{the derived neighbours list}
   \item{weights}{the weights for the neighbours derived from the matrix}
 }
