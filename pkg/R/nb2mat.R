@@ -104,7 +104,7 @@ powerWeights <- function(W, rho, order=250, X, tol=.Machine$double.eps^(3/5)) {
 
 
 mat2listw <- function(x, row.names=NULL, style="M") {
-	if (!is.matrix(x)) stop("x is not a matrix")
+	if (!(is.matrix(x) || is(x, "sparseMatrix"))) stop("x is not a matrix")
 	n <- nrow(x)
 	if (n < 1) stop("non-positive number of entities")
 	m <- ncol(x)
@@ -125,9 +125,25 @@ mat2listw <- function(x, row.names=NULL, style="M") {
 		}
 	}
 #	style <- "M"
-	neighbours <- vector(mode="list", length=n)
-	weights <- vector(mode="list", length=n)
-	for (i in 1:n) {
+        if (is(x, "sparseMatrix")) {
+            xC <- as(x, "CsparseMatrix")
+            i <- slot(xC, "i")+1
+            p <- slot(xC, "p")
+            dp <- diff(p)
+            rp <- rep(seq_along(dp), dp)
+            df0 <- data.frame(from=i, to=rp, weights=slot(xC, "x"))
+            o <- order(df0$from, df0$to)
+            df <- df0[o,]
+            class(df) <- c(class(df), "spatial.neighbour")
+            attr(df, "region.id") <- as.character(1:dim(xC)[1])
+            attr(df, "n") <- dim(xC)[1]
+            res <- sn2listw(df)
+            neighbours <- res$neighbours
+            weights <- res$weights
+        } else {
+	    neighbours <- vector(mode="list", length=n)
+	    weights <- vector(mode="list", length=n)
+	    for (i in 1:n) {
 		nbs  <- which(x[i,] > 0.0)
 		if (length(nbs) > 0) {
 			neighbours[[i]] <- nbs
@@ -135,7 +151,8 @@ mat2listw <- function(x, row.names=NULL, style="M") {
 		} else {
 			neighbours[[i]] <- as.integer(0)
 		}
-	}
+	    }
+        }
 	attr(weights, "mode") <- "unknown" # Brian Rubineau
 	class(neighbours) <- "nb"
 	attr(neighbours, "region.id") <- row.names
