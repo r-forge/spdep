@@ -126,7 +126,7 @@ mat2listw <- function(x, row.names=NULL, style="M") {
 	}
 #	style <- "M"
         if (is(x, "sparseMatrix")) {
-            xC <- as(x, "CsparseMatrix")
+            xC <- as(x, "dgCMatrix")
             i <- slot(xC, "i")+1
             p <- slot(xC, "p")
             dp <- diff(p)
