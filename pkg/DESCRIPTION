@@ -1,13 +1,13 @@
 Package: spdep
-Version: 0.5-25
-Date: 2010-10-30
+Version: 0.5-26
+Date: 2010-11-10
 Title: Spatial dependence: weighting schemes, statistics and models
 Encoding: latin1
 Author: Roger Bivand <Roger.Bivand@nhh.no>, with contributions by
   Micah Altman, Luc Anselin, Renato Assunção, Olaf Berke, Andrew Bernat,
-  Eric Blankmeyer, Marilia Carvalho, Yongwan Chun, Bjarke Christensen,
-  Carsten Dormann, Stéphane Dray, Rein Halbersma, Elias Krainski,
-  Nicholas Lewin-Koh, Hongfei Li, Jielai Ma, Giovanni Millo,
+  Guillaume Blanchet, Eric Blankmeyer, Marilia Carvalho, Yongwan Chun,
+  Bjarke Christensen, Carsten Dormann, Stéphane Dray, Rein Halbersma,
+  Elias Krainski, Nicholas Lewin-Koh, Hongfei Li, Jielai Ma, Giovanni Millo,
   Werner Mueller, Hisaji Ono, Pedro Peres-Neto, Gianfranco Piras,
   Markus Reder, Michael Tiefelsdorf, and Danlin Yu.
 Maintainer: Roger Bivand <Roger.Bivand@nhh.no>

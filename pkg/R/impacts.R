@@ -561,6 +561,29 @@ summary.lagImpact <- function(object, ..., zstats=FALSE, short=FALSE, reportQ=NU
     direct_sum <- summary(object$sres$direct, ...)
     indirect_sum <- summary(object$sres$indirect, ...)
     total_sum <- summary(object$sres$total, ...)
+# 101109 Eelke Folmer
+    if (length(attr(object, "bnames")) == 1) {
+        scnames <- names(direct_sum$statistics)
+        qcnames <- names(direct_sum$quantiles)
+        direct_sum$statistics <- matrix(direct_sum$statistics, nrow=1)
+        rownames(direct_sum$statistics) <- attr(object, "bnames")[1]
+        colnames(direct_sum$statistics) <- scnames
+        direct_sum$quantiles <- matrix(direct_sum$quantiles, nrow=1)
+        rownames(direct_sum$quantiles) <- attr(object, "bnames")[1]
+        colnames(direct_sum$quantiles) <- qcnames
+        indirect_sum$statistics <- matrix(indirect_sum$statistics, nrow=1)
+        rownames(indirect_sum$statistics) <- attr(object, "bnames")[1]
+        colnames(indirect_sum$statistics) <- scnames
+        indirect_sum$quantiles <- matrix(indirect_sum$quantiles, nrow=1)
+        rownames(indirect_sum$quantiles) <- attr(object, "bnames")[1]
+        colnames(indirect_sum$quantiles) <- qcnames
+        total_sum$statistics <- matrix(total_sum$statistics, nrow=1)
+        rownames(total_sum$statistics) <- attr(object, "bnames")[1]
+        colnames(total_sum$statistics) <- scnames
+        total_sum$quantiles <- matrix(total_sum$quantiles, nrow=1)
+        rownames(total_sum$quantiles) <- attr(object, "bnames")[1]
+        colnames(total_sum$quantiles) <- qcnames
+    }
     Qmcmc <- NULL
     if (!is.null(attr(object$sres, "Qmcmc")) && !is.null(reportQ) && reportQ) {
         Qdirect_sum <- summary(attr(object$sres, "Qmcmc")$direct, ...)

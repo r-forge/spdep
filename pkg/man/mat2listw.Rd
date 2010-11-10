@@ -1,4 +1,4 @@
-% Copyright 2003 by Roger S. Bivand
+% Copyright 2003-2010 by Roger S. Bivand
 \name{mat2listw}
 \alias{mat2listw}
 
