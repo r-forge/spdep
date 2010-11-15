@@ -4,6 +4,7 @@
 #include <Rmath.h>
 #include <Rdefines.h>
 #include <Rinternals.h>
+#include <R_ext/BLAS.h>
 #include <R_ext/Applic.h>
 #define ROFFSET 1
 
@@ -16,6 +17,7 @@ SEXP hess_lag_init();
 SEXP R_ml_sse_env(SEXP env, SEXP coef);
 SEXP R_ml1_sse_env(SEXP env, SEXP lambda, SEXP beta);
 SEXP R_ml2_sse_env(SEXP env, SEXP rho, SEXP beta);
+SEXP mom_calc_int2(SEXP is, SEXP m, SEXP nb, SEXP weights, SEXP card);
 
 void opt_error_set(SEXP env);
 void hess_error_set(SEXP env);

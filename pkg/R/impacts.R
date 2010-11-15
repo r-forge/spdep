@@ -47,6 +47,25 @@ mom_calc_int <- function(is, m, W, eta0) {
     Omega
 }
 
+mom_calc_int2 <- function(is, m, W, eta0) {
+    lw <- mat2listw(W)
+    nb <- lw$neighbours
+    weights <- lw$weights
+    card <- card(nb)
+#    for (i in is) {
+#        eta <- eta0
+#        eta[i] <- 1
+#        for (j in seq(2, m, 2)) {
+#            zeta <- W %*% eta
+#            Omega[j-1] <- Omega[j-1] + crossprod(zeta, eta)[1,1]
+#            Omega[j] <- Omega[j] + crossprod(zeta, zeta)[1,1]
+#            eta <- zeta
+#        }
+#    }
+#    Omega <- .Call("mom_calc_int2", is, m, nb, weights, card, PACKAGE="spdep")
+    Omega
+}
+
 mom_calc <- function(W, m) {
     stopifnot((m %% 2) == 0)
     n <- dim(W)[1]
