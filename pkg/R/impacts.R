@@ -62,7 +62,7 @@ mom_calc_int2 <- function(is, m, W, eta0) {
 #            eta <- zeta
 #        }
 #    }
-#    Omega <- .Call("mom_calc_int2", is, m, nb, weights, card, PACKAGE="spdep")
+    Omega <- .Call("mom_calc_int2", is, m, nb, weights, card, PACKAGE="spdep")
     Omega
 }
 

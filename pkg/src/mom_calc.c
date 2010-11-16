@@ -8,7 +8,7 @@ SEXP mom_calc_int2(SEXP is, SEXP m, SEXP nb, SEXP weights, SEXP card) {
     SEXP Omega;
     int hm = INTEGER_POINTER(m)[0];
     int n = length(card);
-    double *eta, *zeta, *omega, tmp, sum, wt;
+    double *eta, *zeta, *omega, sum;
     int i, ii, j, k1, k2, k3;
     int iis = length(is);
 
@@ -17,20 +17,20 @@ SEXP mom_calc_int2(SEXP is, SEXP m, SEXP nb, SEXP weights, SEXP card) {
     zeta = (double *) R_alloc(n, sizeof(double));
 
     for (ii=0; ii<iis; ii++) {
-        i = INTEGER_POINTER(is)[i];
+        i = INTEGER_POINTER(is)[ii]-ROFFSET;
         for (j=0; j<n; j++) eta[j] = 0.0;
         eta[i] = 1.0;
-        for (j=1; j<m; j=j+2) {
+        for (j=1; j<hm; j=j+2) {
             for (k1=0; k1<n; k1++) {
-                if (INTEGER_POINTER(card)[k1] == 0) {
+                k3 = INTEGER_POINTER(card)[k1];
+                if (k3 == 0) {
                     zeta[k1] = 0.0;
                 } else {
                     sum = 0.0;
-                    for (k2=0; k2<INTEGER_POINTER(card)[i]; k2++) {
-                        k3 = INTEGER_POINTER(VECTOR_ELT(nb, k1))[k2];
-                        wt = NUMERIC_POINTER(VECTOR_ELT(weights, k1))[k2];
-                        tmp = eta[k3];
-                        sum += tmp * wt;
+                    for (k2=0; k2<k3; k2++) {
+                        sum += eta[INTEGER_POINTER(VECTOR_ELT(nb, k1))[k2]
+                            - ROFFSET] * NUMERIC_POINTER(VECTOR_ELT(weights,
+                            k1))[k2];
                     }
                     zeta[k1] = sum;
                 }
