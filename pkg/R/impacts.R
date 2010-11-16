@@ -1,18 +1,20 @@
 # Copyright 2009-2010 by Roger Bivand
 
-trW <- function(W, m=100, p=50, type="mult") {
+trW <- function(W=NULL, m=100, p=50, type="mult", listw=NULL) {
 # returns traces
     timings <- list()
     .ptime_start <- proc.time()
-    n <- dim(W)[1]
-    iW <- W
-    tr <- numeric(m)
     if (type == "mult") {
+        n <- dim(W)[1]
+        iW <- W
+        tr <- numeric(m)
         for (i in 1:m) {
             tr[i] <- sum(diag(iW))
             iW <- W %*% iW
         }
     } else if (type == "MC") {
+        n <- dim(W)[1]
+        tr <- numeric(m)
         x <- matrix(rnorm(n*p), nrow=n, ncol=p)
         xx <- x
         for (i in 1:m) {
@@ -23,8 +25,11 @@ trW <- function(W, m=100, p=50, type="mult") {
         tr[1] <- 0.0
         tr[2] <- sum(t(W) * W)
     } else if (type == "moments") {
-        if (!is(W, "symmetricMatrix")) stop("moments require symmetric W")
-        tr <- mom_calc(W, m)
+        if (!is.null(W) && is.null(listw)) {
+            if (!is(W, "symmetricMatrix")) stop("moments require symmetric W")
+            listw <- mat2listw(W)
+        }
+        tr <- mom_calc(listw, m)
     } else stop("unknown type")
     timings[["make_traces"]] <- proc.time() - .ptime_start
     attr(tr, "timings") <- do.call("rbind", timings)[, c(1, 3)]
@@ -47,35 +52,23 @@ mom_calc_int <- function(is, m, W, eta0) {
     Omega
 }
 
-mom_calc_int2 <- function(is, m, W, eta0) {
-    lw <- mat2listw(W)
-    nb <- lw$neighbours
-    weights <- lw$weights
-    card <- card(nb)
-#    for (i in is) {
-#        eta <- eta0
-#        eta[i] <- 1
-#        for (j in seq(2, m, 2)) {
-#            zeta <- W %*% eta
-#            Omega[j-1] <- Omega[j-1] + crossprod(zeta, eta)[1,1]
-#            Omega[j] <- Omega[j] + crossprod(zeta, zeta)[1,1]
-#            eta <- zeta
-#        }
-#    }
-    Omega <- .Call("mom_calc_int2", is, m, nb, weights, card, PACKAGE="spdep")
+mom_calc_int2 <- function(is, m, nb, weights, Card) {
+    Omega <- .Call("mom_calc_int2", is, as.integer(m), nb, weights, Card, PACKAGE="spdep")
     Omega
 }
 
-mom_calc <- function(W, m) {
+mom_calc <- function(lw, m) {
     stopifnot((m %% 2) == 0)
-    n <- dim(W)[1]
-    eta0 <- rep(0, n)
+    nb <- lw$neighbours
+    n <- length(nb)
+    weights <- lw$weights
+    Card <- card(nb)
      
     CL <- get.ClusterOption()
     if (!is.null(CL) && length(CL) > 1) {
         require(snow)
         lis <- splitIndices(n, length(CL))
-        clusterEvalQ(CL, library(Matrix))
+        clusterEvalQ(CL, library(spdep))
 	clusterExport_l <- function(CL, list) {
             gets <- function(n, v) {
                 assign(n, v, env = .GlobalEnv)
@@ -85,14 +78,23 @@ mom_calc <- function(W, m) {
                 clusterCall(CL, gets, name, get(name))
             }
 	}
-	clusterExport_l(CL, list("m", "W", "eta0", "mom_calc_int"))
-        lOmega <- parLapply(CL, lis, function(is) mom_calc_int(is=is, m=m,
-            W=W, eta0=eta0))
-        clusterEvalQ(CL, rm(list=c("m", "W", "eta0", "mom_calc_int")))
+	clusterExport_l(CL, list("m", "nb", "weights", "card", "mom_calc_int2"))
+        lOmega <- parLapply(CL, lis, function(is) mom_calc_int2(is=is, m=m, nb=nb, weights=weights, Card=Card))
+        clusterEvalQ(CL, rm(list=c("m", "nb", "weights", "card", "mom_calc_int2")))
+        clusterEvalQ(CL, detach(package:spdep))
+        clusterEvalQ(CL, detach(package:maptools))
+        clusterEvalQ(CL, detach(package:sp))
         clusterEvalQ(CL, detach(package:Matrix))
+        clusterEvalQ(CL, detach(package:coda))
+        clusterEvalQ(CL, detach(package:MASS))
+        clusterEvalQ(CL, detach(package:nlme))
+        clusterEvalQ(CL, detach(package:deldir))
+        clusterEvalQ(CL, detach(package:foreign))
+        clusterEvalQ(CL, detach(package:lattice))
+        clusterEvalQ(CL, detach(package:boot))
         Omega <- apply(do.call("cbind", lOmega), 1, sum)
     } else {
-        Omega <- mom_calc_int(is=1:n, m=m, W=W, eta0=eta0)
+        Omega <- mom_calc_int2(is=1:n, m=m, nb=nb, weights=weights, Card=Card)
     }
     Omega
 }
