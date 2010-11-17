@@ -1,10 +1,12 @@
 # Copyright 2009-2010 by Roger Bivand
 
-trW <- function(W=NULL, m=100, p=50, type="mult", listw=NULL) {
+trW <- function(W=NULL, m=30, p=16, type="mult", listw=NULL) {
 # returns traces
     timings <- list()
     .ptime_start <- proc.time()
     if (type == "mult") {
+        stopifnot(!is.null(W))
+        stopifnot(inherits(W, "sparseMatrix"))
         n <- dim(W)[1]
         iW <- W
         tr <- numeric(m)
@@ -13,6 +15,8 @@ trW <- function(W=NULL, m=100, p=50, type="mult", listw=NULL) {
             iW <- W %*% iW
         }
     } else if (type == "MC") {
+        stopifnot(!is.null(W))
+        stopifnot(inherits(W, "sparseMatrix"))
         n <- dim(W)[1]
         tr <- numeric(m)
         x <- matrix(rnorm(n*p), nrow=n, ncol=p)
