@@ -78,9 +78,9 @@ mom_calc <- function(lw, m) {
                 clusterCall(CL, gets, name, get(name))
             }
 	}
-	clusterExport_l(CL, list("m", "nb", "weights", "card", "mom_calc_int2"))
+	clusterExport_l(CL, list("m", "nb", "weights", "Card", "mom_calc_int2"))
         lOmega <- parLapply(CL, lis, function(is) mom_calc_int2(is=is, m=m, nb=nb, weights=weights, Card=Card))
-        clusterEvalQ(CL, rm(list=c("m", "nb", "weights", "card", "mom_calc_int2")))
+        clusterEvalQ(CL, rm(list=c("m", "nb", "weights", "Card", "mom_calc_int2")))
         clusterEvalQ(CL, detach(package:spdep))
         clusterEvalQ(CL, detach(package:maptools))
         clusterEvalQ(CL, detach(package:sp))
