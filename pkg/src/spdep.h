@@ -6,6 +6,7 @@
 #include <Rinternals.h>
 #include <R_ext/BLAS.h>
 #include <R_ext/Applic.h>
+#include <R_ext/Utils.h>
 #define ROFFSET 1
 
 SEXP opt_error_free(SEXP ptr);

@@ -68,30 +68,9 @@ mom_calc <- function(lw, m) {
     if (!is.null(CL) && length(CL) > 1) {
         require(snow)
         lis <- splitIndices(n, length(CL))
-        clusterEvalQ(CL, library(spdep))
-	clusterExport_l <- function(CL, list) {
-            gets <- function(n, v) {
-                assign(n, v, env = .GlobalEnv)
-                NULL
-            }
-            for (name in list) {
-                clusterCall(CL, gets, name, get(name))
-            }
-	}
-	clusterExport_l(CL, list("m", "nb", "weights", "Card", "mom_calc_int2"))
-        lOmega <- parLapply(CL, lis, function(is) mom_calc_int2(is=is, m=m, nb=nb, weights=weights, Card=Card))
-        clusterEvalQ(CL, rm(list=c("m", "nb", "weights", "Card", "mom_calc_int2")))
-        clusterEvalQ(CL, detach(package:spdep))
-        clusterEvalQ(CL, detach(package:maptools))
-        clusterEvalQ(CL, detach(package:sp))
-        clusterEvalQ(CL, detach(package:Matrix))
-        clusterEvalQ(CL, detach(package:coda))
-        clusterEvalQ(CL, detach(package:MASS))
-        clusterEvalQ(CL, detach(package:nlme))
-        clusterEvalQ(CL, detach(package:deldir))
-        clusterEvalQ(CL, detach(package:foreign))
-        clusterEvalQ(CL, detach(package:lattice))
-        clusterEvalQ(CL, detach(package:boot))
+        lOmega <- clusterApply(CL, lis, spdep:::mom_calc_int2, m, nb,
+           weights, Card)
+
         Omega <- apply(do.call("cbind", lOmega), 1, sum)
     } else {
         Omega <- mom_calc_int2(is=1:n, m=m, nb=nb, weights=weights, Card=Card)

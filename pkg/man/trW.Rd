@@ -10,9 +10,9 @@ trW(W=NULL, m = 100, p = 50, type = "mult", listw=NULL)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{W}{A spatial weights matrix in CsparseMatrix form}
-  \item{m}{The number of powers}
+  \item{m}{The number of powers; must be an even number for \sQuote{type}=\dQuote{moments}}
   \item{p}{The number of samples used in Monte Carlo simulation of the traces if type is MC}
-  \item{type}{Either \dQuote{mult} (default) for powering a sparse matrix (with moderate or larger N, the matrix becomes dense, and may lead to swapping), or \dQuote{MC} for Monte Carlo simulation of the traces, or \dQuote{moments} to use the looping space saving algorithm proposed by Smirnov and Anselin (2009) - for \dQuote{moments}, \code{W} must be symmetric, for row-standardised weights through a similarity transformation; if a \pkg{snow} cluster is available, it will be used to speed up computation}
+  \item{type}{Either \dQuote{mult} (default) for powering a sparse matrix (with moderate or larger N, the matrix becomes dense, and may lead to swapping), or \dQuote{MC} for Monte Carlo simulation of the traces, or \dQuote{moments} to use the looping space saving algorithm proposed by Smirnov and Anselin (2009) - for \dQuote{moments}, \code{W} must be symmetric, for row-standardised weights through a similarity transformation}
   \item{listw}{a listw object, which should either be fully symmetric, or be constructed as similar to symmetric from intrinsically symmetric neighbours using \code{\link{similar.listw}}, used with \sQuote{type}=\dQuote{moments}}
 }
 

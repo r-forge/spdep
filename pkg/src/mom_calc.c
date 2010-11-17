@@ -17,6 +17,7 @@ SEXP mom_calc_int2(SEXP is, SEXP m, SEXP nb, SEXP weights, SEXP card) {
     zeta = (double *) R_alloc(n, sizeof(double));
 
     for (ii=0; ii<iis; ii++) {
+        R_CheckUserInterrupt();
         i = INTEGER_POINTER(is)[ii]-ROFFSET;
         for (j=0; j<n; j++) eta[j] = 0.0;
         eta[i] = 1.0;
