@@ -32,8 +32,9 @@ lm.morantest <- function(model, listw, zero.policy=NULL,
 	S0 <- sum(unlist(listw.U$weights))
 	S1 <- 0.5 * sum((2*unlist(listw.U$weights))^2)
 	lu <- lag.listw(listw.U, u, zero.policy=zero.policy)
+# 101125 Aleksandr Andreev
 	if (zero.policy)
-            N <- as.double(length(which(card(listw$neighbours)) > 0))
+            N <- as.double(length(which(card(listw$neighbours) > 0)))
 	I <- (N/S0) * ((t(u) %*% lu) / (t(u) %*% u))
 	p <- model$rank
 	p1 <- 1:p
