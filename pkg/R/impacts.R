@@ -145,7 +145,7 @@ processSample <- function(x, irho, drop2beta, type, iicept, icept, T, Q, q) {
       } else {
         P <- matrix(beta, ncol=1)
       }
-    } else if (type == "mixed") {
+    } else if (type == "mixed" || type == "sacmixed") {
         if (iicept) {
           b1 <- beta[-icept]
         } else {
@@ -196,7 +196,7 @@ processXSample <- function(x, drop2beta, type, iicept, icept, n, listw,
           P <- matrix(beta, ncol=1)
         }
         return(spdep:::lagImpactsExact(SW, P, n))
-    } else if (type == "mixed") {
+    } else if (type == "mixed" || type == "sacmixed") {
         if (iicept) {
             b1 <- beta[-icept]
         } else {
@@ -222,7 +222,7 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
         q <- length(tr)-1
         g <- rho^(0:q)
         T <- matrix(c(1, tr[-(q+1)]/n), nrow=1)
-        if (type == "mixed") {
+        if (type == "mixed" || type == "sacmixed") {
             T <- rbind(T, tr/n)
         }
         res <- lagImpacts(T, g, P)
@@ -324,7 +324,8 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
     } else {
         SW <- invIrW(listw, rho)
         if (type == "lag") res <- lagImpactsExact(SW, P, n)
-        else if (type == "mixed") res <- mixedImpactsExact(SW, P, n, listw)
+        else if (type == "mixed" || type == "sacmixed")
+            res <- mixedImpactsExact(SW, P, n, listw)
         timings[["weights_impacts"]] <- proc.time() - .ptime_start
         .ptime_start <- proc.time()
         if (!is.null(R)) {
@@ -419,7 +420,7 @@ impacts.sarlm <- function(obj, ..., tr=NULL, R=NULL, listw=NULL, useHESS=NULL,
     rho <- obj$rho
     beta <- obj$coefficients
     s2 <- obj$s2
-    if (obj$type == "sac") lambda <- obj$lambda
+    if (obj$type == "sac" || obj$type == "sacmixed") lambda <- obj$lambda
     usingHESS <- NULL
     iNsert <- obj$insert
     if (!is.null(R)) {
@@ -427,7 +428,8 @@ impacts.sarlm <- function(obj, ..., tr=NULL, R=NULL, listw=NULL, useHESS=NULL,
         usingHESS <- FALSE
         irho <- 2
         drop2beta <- 1:2
-        if (obj$type == "sac") drop2beta <- c(drop2beta, 3)
+        if (obj$type == "sac" || obj$type == "sacmixed")
+            drop2beta <- c(drop2beta, 3)
         if (is.logical(resvar)) {
             fdHess <- obj$fdHess
             if (is.logical(fdHess)) 
@@ -436,7 +438,8 @@ impacts.sarlm <- function(obj, ..., tr=NULL, R=NULL, listw=NULL, useHESS=NULL,
             if (!iNsert) {
                 irho <- 1
                 drop2beta <- 1
-                if (obj$type == "sac") drop2beta <- c(drop2beta, 2)
+                if (obj$type == "sac" || obj$type == "sacmixed")
+                    drop2beta <- c(drop2beta, 2)
             }
         }
         if (!is.null(useHESS) && useHESS) {
@@ -447,7 +450,8 @@ impacts.sarlm <- function(obj, ..., tr=NULL, R=NULL, listw=NULL, useHESS=NULL,
             if (!iNsert) {
                 irho <- 1
                 drop2beta <- 1
-                if (obj$type == "sac") drop2beta <- c(drop2beta, 2)
+                if (obj$type == "sac" || obj$type == "sacmixed")
+                    drop2beta <- c(drop2beta, 2)
             }
         }
         interval <- obj$interval
@@ -464,7 +468,7 @@ impacts.sarlm <- function(obj, ..., tr=NULL, R=NULL, listw=NULL, useHESS=NULL,
         bnames <- names(beta)
       }
       p <- length(beta)
-    } else if (obj$type == "mixed") {
+    } else if (obj$type == "mixed" || obj$type == "sacmixed") {
       if (iicept) {
         b1 <- beta[-icept]
       } else {
@@ -481,11 +485,13 @@ impacts.sarlm <- function(obj, ..., tr=NULL, R=NULL, listw=NULL, useHESS=NULL,
     if (!is.null(R)) {
         if (usingHESS && !iNsert) {
             mu <- c(rho, beta)
-            if (obj$type == "sac") mu <- c(rho, lambda, beta)
+            if (obj$type == "sac" || obj$type == "sacmixed")
+                mu <- c(rho, lambda, beta)
             Sigma <- fdHess
         } else {
             mu <- c(s2, rho, beta)
-            if (obj$type == "sac") mu <- c(s2, rho, lambda, beta)
+            if (obj$type == "sac" || obj$type == "sacmixed")
+                mu <- c(s2, rho, lambda, beta)
             if (usingHESS) {
                 Sigma <- fdHess
             } else {

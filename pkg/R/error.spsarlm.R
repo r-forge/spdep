@@ -1,7 +1,7 @@
 # Copyright 1998-2010 by Roger Bivand (non-W styles Rein Halbersma)
 #
 
-errorsarlm <- function(formula, data = list(), listw, na.action, 
+errorsarlm <- function(formula, data = list(), listw, na.action, etype="error",
 	method="eigen", quiet=NULL, zero.policy=NULL, interval=NULL, 
 	tol.solve=1.0e-10, trs=NULL, control=list()) {
         timings <- list()
@@ -30,6 +30,11 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 #        stopifnot(is.logical(con$super))
         stopifnot(is.logical(con$compiled_sse))
         stopifnot(is.character(con$spamPivot))
+	switch(etype, error = if (!quiet)
+                cat("\nSpatial autoregressive error model\n"),
+	    emixed = if (!quiet)
+                cat("\nSpatial mixed autoregressive error model\n"),
+	    stop("\nUnknown model type\n"))
 	can.sim <- FALSE
 	if (listw$style %in% c("W", "S")) 
 		can.sim <- can.be.simmed(listw)
@@ -46,6 +51,44 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 	wy <- lag.listw(listw, y, zero.policy=zero.policy)
 	n <- NROW(x)
 	m <- NCOL(x)
+	xcolnames <- colnames(x)
+	K <- ifelse(xcolnames[1] == "(Intercept)", 2, 1)
+	if (etype != "error") {
+		# check if there are enough regressors
+	        if (m > 1) {
+			WX <- matrix(nrow=n,ncol=(m-(K-1)))
+			for (k in K:m) {
+				wx <- lag.listw(listw, x[,k], 
+				    zero.policy=zero.policy)
+				if (any(is.na(wx))) 
+				    stop("NAs in lagged independent variable")
+				WX[,(k-(K-1))] <- wx
+			}
+		}
+		if (K == 2) {
+         	    # unnormalized weight matrices
+                	if (!(listw$style == "W")) {
+ 	      			intercept <- as.double(rep(1, n))
+       	        		wx <- lag.listw(listw, intercept, 
+					zero.policy = zero.policy)
+                    		if (m > 1) {
+                        		WX <- cbind(wx, WX)
+                    		} else {
+			      		WX <- matrix(wx, nrow = n, ncol = 1)
+                    		}
+                	} 
+            	}   
+		m1 <- m + 1
+		mm <- NCOL(x) + NCOL(WX)
+            	xxcolnames <- character(mm)
+		for (k in 1:m) xxcolnames[k] <- xcolnames[k]
+		for (k in m1:mm) 
+		    xxcolnames[k] <- paste("lag.", xcolnames[k-mm+m], sep="")
+		x <- cbind(x, WX)
+		colnames(x) <- xxcolnames
+		m <- NCOL(x)
+		rm(wx, WX)
+	}
 # added aliased after trying boston with TOWN dummy
 	lm.base <- lm(y ~ x - 1)
 	aliased <- is.na(coefficients(lm.base))
@@ -100,8 +143,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
         timings[["set_up"]] <- proc.time() - .ptime_start
         .ptime_start <- proc.time()
 
-	if (!quiet) cat(paste("\nSpatial autoregressive error model\n", 
-		"Jacobian calculated using "))
+	if (!quiet) cat(paste("\nJacobian calculated using "))
 	switch(method,
 		eigen = {
                     if (!quiet) cat("neighbourhood matrix eigenvalues\n")
@@ -230,7 +272,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action,
 	rest.se <- (summary(lm.target)$coefficients[,2])*sqrt((n-p)/n)
 	coef.lambda <- coefficients(lm.target)
 	names(coef.lambda) <- xcolnames
-	lm.model <- lm(formula, data)
+	lm.model <- lm(y ~ x - 1)
 	ase <- FALSE
 	lambda.se <- NULL
 	LMtest <- NULL

@@ -1,4 +1,4 @@
-# Copyright 1998-2009 by Roger Bivand (Wald test suggested by Rein Halbersma,
+# Copyright 1998-2010 by Roger Bivand (Wald test suggested by Rein Halbersma,
 # output of correlations suggested by Michael Tiefelsdorf)
 #
 
@@ -17,8 +17,8 @@ summary.sarlm <- function(object, correlation = FALSE, Nagelkerke=FALSE,
  Hausman=FALSE, ...)
 {
 	if (object$type == "error" || ((object$type == "lag" || 
-		object$type == "mixed" || object$type == "sac")
-                && object$ase)) {
+		object$type == "mixed" || object$type == "sac" || 
+                object$type == "sacmixed") && object$ase)) {
 		object$coeftitle <- "(asymptotic standard errors)"
 		object$Coef <- cbind(object$coefficients, object$rest.se, 
 			object$coefficients/object$rest.se,
@@ -264,7 +264,7 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 			digits)), ", p-value: ", format.pval(x$Wald1$p.value, 
 			digits), "\n", sep="")
 		}
-	} else if (x$type == "sac") {
+	} else if (x$type == "sac" || x$type == "sacmixed") {
 		cat("\nRho: ", format(signif(x$rho, digits)), "\n",
                     sep="")
                 if (!is.null(x$rho.se)) {
@@ -325,7 +325,7 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
                         "\n", sep="")
 		}
         }
-	if (x$type != "error" && x$type != "sac" && x$ase) {
+	if (x$type == "lag" && x$ase) {
 		cat("LM test for residual autocorrelation\n")
 		cat("test value: ", format(signif(x$LMtest, digits)),
 			", p-value: ", format.pval((1 - pchisq(x$LMtest, 1)), 
