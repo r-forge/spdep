@@ -4,6 +4,13 @@
 
 print.sarlm <- function(x, ...)
 {
+       if (x$type == "error") if (isTRUE(all.equal(x$lambda, x$interval[1])) ||
+            isTRUE(all.equal(x$lambda, x$interval[2]))) 
+            warning("lambda on interval bound - results should not be used")
+       if (x$type == "lag" || x$type == "mixed")
+            if (isTRUE(all.equal(x$rho, x$interval[1])) ||
+            isTRUE(all.equal(x$rho, x$interval[2]))) 
+            warning("rho on interval bound - results should not be used")
 	cat("\nCall:\n")
 	print(x$call)
 	cat("Type:", x$type, "\n")
@@ -216,6 +223,13 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 	signif.stars = FALSE, ...)
 {
 	cat("\nCall:", deparse(x$call),	sep = "", fill=TRUE)
+       if (x$type == "error") if (isTRUE(all.equal(x$lambda, x$interval[1])) ||
+            isTRUE(all.equal(x$lambda, x$interval[2]))) 
+            warning("lambda on interval bound - results should not be used")
+       if (x$type == "lag" || x$type == "mixed")
+            if (isTRUE(all.equal(x$rho, x$interval[1])) ||
+            isTRUE(all.equal(x$rho, x$interval[2]))) 
+            warning("rho on interval bound - results should not be used")
 	cat("\nResiduals:\n")
 	resid <- residuals(x)
 	nam <- c("Min", "1Q", "Median", "3Q", "Max")

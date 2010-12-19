@@ -255,6 +255,9 @@ errorsarlm <- function(formula, data = list(), listw, na.action, etype="error",
 	opt <- optimize(sar.error.f, interval=interval, 
 		maximum=TRUE, tol=con$tol.opt, env=env)
 	lambda <- opt$maximum
+        if (isTRUE(all.equal(lambda, interval[1])) ||
+            isTRUE(all.equal(lambda, interval[2]))) 
+            warning("lambda on interval bound - results should not be used")
 	names(lambda) <- "lambda"
 	LL <- opt$objective
         if (con$compiled_sse) {

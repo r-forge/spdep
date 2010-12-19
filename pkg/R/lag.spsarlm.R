@@ -230,6 +230,9 @@ lagsarlm <- function(formula, data = list(), listw,
 	opt <- optimize(sar.lag.mixed.f, interval=interval, 
 		maximum=TRUE, tol=con$tol.opt, env=env)
 	rho <- opt$maximum
+        if (isTRUE(all.equal(rho, interval[1])) ||
+            isTRUE(all.equal(rho, interval[2]))) 
+            warning("rho on interval bound - results should not be used")
 	names(rho) <- "rho"
 	LL <- opt$objective
 	optres <- opt
