@@ -1,4 +1,4 @@
-# Copyright 2002-3 by Roger Bivand
+# Copyright 2002-2010 by Roger Bivand and Pierre Legendre
 #
 
 sp.correlogram <- function (neighbours, var, order = 1, method = "corr", 
