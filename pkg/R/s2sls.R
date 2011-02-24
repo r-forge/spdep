@@ -111,7 +111,7 @@ print.summary.stsls <- function(x, digits = max(5, .Options$digits - 3),
 	cat("\nResiduals:\n")
 	resid <- residuals(x)
 	nam <- c("Min", "1Q", "Median", "3Q", "Max")
-	rq <- if (length(dim(resid)) == 2) 
+	rq <- if (length(dim(resid)) == 2L) 
 		structure(apply(t(resid), 1, quantile), dimnames = list(nam, 
 			dimnames(resid)[[2]]))
 	else structure(quantile(resid), names = nam)

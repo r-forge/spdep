@@ -29,7 +29,7 @@ sacsarlm <- function(formula, data = list(), listw, listw2=NULL, na.action,
         else if (!inherits(listw2, "listw")) stop("No 2nd neighbourhood list")
         if (is.null(con$fdHess)) con$fdHess <- method != "eigen"
         stopifnot(is.numeric(con$lower))
-        stopifnot(length(con$lower) == 2)
+        stopifnot(length(con$lower) == 2L)
         if (!is.null(con$pars)) {
             stopifnot(is.numeric(con$pars))
             stopifnot(length(con$pars)==length(con$lower))
@@ -266,7 +266,7 @@ sacsarlm <- function(formula, data = list(), listw, listw2=NULL, na.action,
         if (!is.null(llprof)) {
             llrho <- NULL
             lllambda <- NULL
-            if (length(llprof) == 1) {
+            if (length(llprof) == 1L) {
                 llrho <- seq(lower[1], upper[1], length.out=llprof)
                 lllambda <- seq(lower[2], upper[2], length.out=llprof)
                 llprof <- as.matrix(expand.grid(llrho, lllambda))

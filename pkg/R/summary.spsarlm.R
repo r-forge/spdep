@@ -182,7 +182,7 @@ Hausman.test.sarlm <- function(object, ..., tol=NULL) {
     p.value <- 1 - pchisq(abs(statistic), parameter)
     method <- paste("Spatial Hausman test", fmeth)
     data.name <- strwrap(deparse(object$formula), exdent=4)
-    if (length(data.name) > 1) 
+    if (length(data.name) > 1L) 
         data.name <- paste(data.name, collapse="\n    ")
     res <- list(statistic = statistic, parameter = parameter, 
         p.value = p.value, method = method, data.name=data.name)
@@ -211,7 +211,7 @@ Hausman.test.gmsar <- function(object, ..., tol=NULL) {
     p.value <- 1 - pchisq(abs(statistic), parameter)
     method <- paste("Spatial Hausman test", fmeth)
     data.name <- strwrap(deparse(object$formula), exdent=4)
-    if (length(data.name) > 1) 
+    if (length(data.name) > 1L) 
         data.name <- paste(data.name, collapse="\n    ")
     res <- list(statistic = statistic, parameter = parameter, 
         p.value = p.value, method = method, data.name=data.name)
@@ -233,7 +233,7 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 	cat("\nResiduals:\n")
 	resid <- residuals(x)
 	nam <- c("Min", "1Q", "Median", "3Q", "Max")
-	rq <- if (length(dim(resid)) == 2) 
+	rq <- if (length(dim(resid)) == 2L) 
 		structure(apply(t(resid), 1, quantile), dimnames = list(nam, 
 			dimnames(resid)[[2]]))
 	else structure(quantile(resid), names = nam)

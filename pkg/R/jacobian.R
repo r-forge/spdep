@@ -52,7 +52,7 @@ cheb_ldet <- function(alpha, env, which=1) {
         res <- res * x
         res
     }
-    q <- length(trT)-1
+    q <- length(trT)-1L
     n <- trT[1]
     C1 <- cheb_in(alpha, j=1, q)
     x <- 0.0

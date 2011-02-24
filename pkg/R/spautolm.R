@@ -225,7 +225,7 @@ spautolm <- function(formula, data = list(), listw, weights,
     .ptime_start <- proc.time()
 
     if (!is.null(llprof)) {
-        if (length(llprof) == 1)
+        if (length(llprof) == 1L)
             llprof <- seq(interval[1], interval[2], length.out=llprof)
         ll_prof <- numeric(length(llprof))
         for (i in seq(along=llprof)) 
@@ -276,7 +276,7 @@ spautolm <- function(formula, data = list(), listw, weights,
     if (zero.policy) {
         zero.regs <- attr(listw$neighbours, 
 	    "region.id")[which(card(listw$neighbours) == 0)]
-	if (length(zero.regs) > 0)
+	if (length(zero.regs) > 0L)
 	    attr(res, "zero.regs") <- zero.regs
 	}
 
@@ -445,7 +445,7 @@ print.summary.spautolm <- function(x, digits = max(5, .Options$digits - 3),
 	cat("\nResiduals:\n")
 	resid <- residuals(x)
 	nam <- c("Min", "1Q", "Median", "3Q", "Max")
-	rq <- if (length(dim(resid)) == 2) 
+	rq <- if (length(dim(resid)) == 2L) 
 		structure(apply(t(resid), 1, quantile), dimnames = list(nam, 
 			dimnames(resid)[[2]]))
 	else structure(quantile(resid), names = nam)

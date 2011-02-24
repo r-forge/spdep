@@ -386,7 +386,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action, etype="error",
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]
-		if (length(zero.regs) > 0)
+		if (length(zero.regs) > 0L)
 			attr(ret, "zero.regs") <- zero.regs
 	}
 	if (!is.null(na.act))
