@@ -1,4 +1,4 @@
-# Copyright 2010 by Roger Bivand
+# Copyright 2010-2011 by Roger Bivand
 
 # Chebyshev approximation setup and run functions
 cheb_setup <- function(env, q=5, which=1) {
@@ -448,10 +448,10 @@ ldetMoments <- function(Omega, rho, n, correct=TRUE, trunc=FALSE) {
     res
 }
 
-moments_setup <- function(env, trs, m, p, type="MC", correct=TRUE,
-    trunc=FALSE, which=1) {
+moments_setup <- function(env, trs=NULL, m, p, type="MC", correct=TRUE,
+    trunc=TRUE, which=1) {
     if (which == 1) {
-        if (missing(trs)) {
+        if (is.null(trs)) {
             if (get("listw", envir=env)$style %in% c("W", "S") && 
                 get("can.sim", envir=env)) {
                 csrw <- listw2U_Matrix(similar.listw_Matrix(get("listw",
@@ -463,7 +463,7 @@ moments_setup <- function(env, trs, m, p, type="MC", correct=TRUE,
         }
         assign("trs1", trs, envir=env)
     } else {
-        if (missing(trs)) {
+        if (is.null(trs)) {
             if (get("listw2", envir=env)$style %in% c("W", "S") && 
                 get("can.sim2", envir=env)) {
                 csrw <- listw2U_Matrix(similar.listw_Matrix(get("listw2",

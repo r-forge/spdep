@@ -1,4 +1,4 @@
-# Copyright 1998-2010 by Roger Bivand and Andrew Bernat
+# Copyright 1998-2011 by Roger Bivand and Andrew Bernat
 #
 
 lagsarlm <- function(formula, data = list(), listw, 
@@ -10,7 +10,7 @@ lagsarlm <- function(formula, data = list(), listw,
         con <- list(tol.opt=.Machine$double.eps^0.5,
             fdHess=NULL, optimHess=FALSE, compiled_sse=FALSE, Imult=2,
             cheb_q=5, MC_p=16, MC_m=30, super=NULL, spamPivot="MMD",
-            in_coef=0.1)
+            in_coef=0.1, type="MC", correct=TRUE, trunc=TRUE)
         nmsC <- names(con)
         con[(namc <- names(control))] <- control
         if (length(noNms <- namc[!namc %in% nmsC])) 
@@ -220,6 +220,15 @@ lagsarlm <- function(formula, data = list(), listw,
                     LU_setup(env)
                     W <- get("W", envir=env)
                     I <- get("I", envir=env)
+                    if (is.null(interval)) interval <- c(-1,0.999)
+                },
+                moments = {
+		    if (!quiet) cat("Smirnov/Anselin (2009)", 
+                        "trace approximation\n")
+                    moments_setup(env, trs=trs, m=con$MC_m, p=con$MC_p,
+                        type=con$type, correct=con$correct, trunc=con$trunc)
+                    W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
+        	    I <- as_dsCMatrix_I(n)
                     if (is.null(interval)) interval <- c(-1,0.999)
                 },
 		stop("...\nUnknown method\n"))
