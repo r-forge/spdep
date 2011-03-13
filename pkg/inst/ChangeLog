@@ -1,3 +1,12 @@
+2011-03-13 13:22  rsbivand
+
+	* inst/doc/CO69.Rnw, inst/doc/sids.Rnw: revise vignettes (thanks to
+	  Edzer Pebesma)
+
+2011-03-13 12:56  rsbivand
+
+	* ChangeLog, inst/ChangeLog: hypot for pythag in C code
+
 2011-03-13 12:54  rsbivand
 
 	* DESCRIPTION, src/dnn.c, src/gabriel.c, src/knn.c, src/nbdists.c,
