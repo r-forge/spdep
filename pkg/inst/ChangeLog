@@ -1,3 +1,21 @@
+2011-03-14 09:24  rsbivand
+
+	* data/NY_data.rda, data/afcon.rda, data/auckland.rda,
+	  data/baltimore.rda, data/boston.rda, data/columbus.rda,
+	  data/eire.rda, data/elect80.rda, data/getisord.rda,
+	  data/hopkins.rda, data/house.RData, data/huddersfield.rda,
+	  data/nc.sids.rda, data/oldcol.rda, data/used.cars.rda,
+	  inst/doc/CO69.pdf, inst/doc/sids.pdf: compressing PDFs and data
+
+2011-03-14 07:50  rsbivand
+
+	* data/00Index: removing data/00Index
+
+2011-03-13 13:23  rsbivand
+
+	* ChangeLog, inst/ChangeLog: revise vignettes (thanks to Edzer
+	  Pebesma)
+
 2011-03-13 13:22  rsbivand
 
 	* inst/doc/CO69.Rnw, inst/doc/sids.Rnw: revise vignettes (thanks to
