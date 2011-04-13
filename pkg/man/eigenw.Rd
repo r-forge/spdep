@@ -1,4 +1,4 @@
-% Copyright 2002 by Roger S. Bivand
+% Copyright 2002-2011 by Roger S. Bivand
 \name{eigenw}
 \alias{eigenw}
 %- Also NEED an `\alias' for EACH other topic documented here.
@@ -42,5 +42,22 @@ S.eig <- eigenw(nb2listw(COL.nb, style="S"))
 1/range(S.eig)
 B.eig <- eigenw(nb2listw(COL.nb, style="B"))
 1/range(B.eig)
+crds <- cbind(COL.OLD$X, COL.OLD$Y)
+k6 <- knn2nb(knearneigh(crds, k=6))
+is.symmetric.nb(k6)
+k6eig <- eigenw(nb2listw(k6, style="W"))
+is.complex(k6eig)
+rho <- 0.5
+Jc <- sum(log(1 - rho * k6eig))
+Jc
+W <- as(as_dgRMatrix_listw(nb2listw(k6, style="W")), "CsparseMatrix")
+I <- diag(length(k6))
+Jl <- sum(log(abs(diag(slot(lu(I - rho * W), "U")))))
+Jl
+Jr <- sum(log(1 - rho * Re(k6eig)))
+Jr
+Rev <- Re(k6eig)[which(Im(k6eig) == 0)]
+Cev <- k6eig[which(Im(k6eig) != 0)]
+pCev <- Cev[Im(Cev) > 0]
 }
 \keyword{spatial}
