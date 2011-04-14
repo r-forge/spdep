@@ -17,7 +17,7 @@
 }
 \usage{
 GMerrorsar(formula, data = list(), listw, na.action = na.fail,
- zero.policy = NULL, return_LL = FALSE, method="nlminb", 
+ zero.policy = NULL, return_LL = FALSE, method="nlminb", arnoldWied=FALSE, 
  control = list(), pars, verbose=NULL, legacy=FALSE, sparse_method="Matrix",
  returnHcov=FALSE, pWOrder=250, tol.Hcov=1.0e-10)
 \method{summary}{gmsar}(object, correlation = FALSE, Hausman=FALSE, ...)
@@ -36,6 +36,7 @@ is called.}
 neighbours, if FALSE (default) assign NA - causing \code{GMerrorsar()} to terminate with an error}
   \item{return_LL}{default FALSE, if TRUE, a warning that this argument is deprecated will be given}
   \item{method}{default \code{"nlminb"}, or optionally a method passed to \code{optim} to use an alternative optimizer}
+  \item{arnoldWied}{default FALSE}
   \item{control}{A list of control parameters. See details in \code{\link[stats]{optim}} or \code{\link[stats]{nlminb}}.}
   \item{pars}{starting values for \eqn{\lambda}{lambda} and \eqn{\sigma^2}{sigma squared} for GMM optimisation, if missing (default), approximated from initial OLS model as the autocorrelation coefficient corrected for weights style and model sigma squared}
   \item{verbose}{default NULL, use global option value; if TRUE, reports function values during optimization.}

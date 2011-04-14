@@ -22,7 +22,7 @@
 
 GMerrorsar <- function(#W, y, X, 
 	formula, data = list(), listw, na.action=na.fail, 
-	zero.policy=NULL, return_LL=FALSE, method="nlminb", 
+	zero.policy=NULL, return_LL=FALSE, method="nlminb", arnoldWied=FALSE, 
         control=list(), pars, verbose=NULL, legacy=FALSE, sparse_method="Matrix",
         returnHcov=FALSE, pWOrder=250, tol.Hcov=1.0e-10) {
 #	ols <- lm(I(y) ~ I(X) - 1)
@@ -70,7 +70,8 @@ GMerrorsar <- function(#W, y, X,
         }
         if (length(pars) !=2L || !is.numeric(pars))
             stop("invalid starting parameter values")
-	vv <- .kpwuwu(listw, residuals(ols), zero.policy=zero.policy)
+	vv <- .kpwuwu(listw, residuals(ols), zero.policy=zero.policy,
+            arnoldWied=arnoldWied, X=x)
 #	nlsres <- nlm(.kpgm, pars, print.level=print.level, gradtol=gradtol, steptol=steptol, iterlim=iterlim, v=vv, verbose=verbose)
 #	lambda <- nlsres$estimate[1]
         if (method == "nlminb")
@@ -402,7 +403,11 @@ print.summary.gmsar<-function (x, digits = max(5, .Options$digits - 3), signif.s
 #    bigG: the 3x3 G matrix
 #    litg: the 3x1 g vector
 
-.kpwuwu <- function(W, u, zero.policy=FALSE) {
+.kpwuwu <- function(W, u, zero.policy=FALSE, arnoldWied=FALSE, X=NULL) {
+        if (arnoldWied) {
+            stopifnot(!is.null(X))
+            WX <- lag.listw(W, X, zero.policy=zero.policy)
+        }
 	n <- length(u)
 # Gianfranco Piras 081119 
         trwpw <- sum(unlist(W$weights)^2)
@@ -418,18 +423,26 @@ print.summary.gmsar<-function (x, digits = max(5, .Options$digits - 3), signif.s
     	wwupwu <- crossprod(wwu,wu)
     	wwupwwu <- crossprod(wwu,wwu)
     	bigG <- matrix(0,3,3)
-    	bigG[,1] <- c(2*uwu,2*wwupwu,(uwwu+uwpuw))/n
-    	bigG[,2] <- - c(uwpuw,wwupwwu,wwupwu) / n
-    	bigG[,3] <- c(1,trwpw/n,0)
+        if (arnoldWied) {
+            k <- ncol(X)
+            bigG[,1] <- c(2*uwu,NA,NA)/n
+    	    bigG[,2] <- - c(NA,NA,NA)/n
+    	    bigG[,3] <- c(n-k,NA,NA)/n
+        } else {
+    	    bigG[,1] <- c(2*uwu,2*wwupwu,(uwwu+uwpuw))/n
+    	    bigG[,2] <- - c(uwpuw,wwupwwu,wwupwu) / n
+    	    bigG[,3] <- c(1,trwpw/n,0)
+        }
     	litg <- c(uu,uwpuw,uwu) / n
     	list(bigG=bigG, litg=litg, trwpw=trwpw, wu=wu, wwu=wwu)
 }
 
 ####SARAR model
 
-gstsls<-function (formula, data = list(), listw, listw2=NULL, na.action = na.fail, 
-    zero.policy = NULL, pars, control = list(), verbose = NULL, method = "nlminb",
-    robust = FALSE, legacy = FALSE, W2X = TRUE ) 
+gstsls<-function (formula, data = list(), listw, listw2=NULL,
+ na.action = na.fail, zero.policy = NULL, pars, arnoldWied=FALSE,
+ control = list(), verbose = NULL, method = "nlminb", robust = FALSE,
+ legacy = FALSE, W2X = TRUE ) 
 {
 	
 	
@@ -511,7 +524,8 @@ gstsls<-function (formula, data = list(), listw, listw2=NULL, na.action = na.fai
     }
     if (length(pars) != 2L || !is.numeric(pars)) 
         stop("invalid starting parameter values")
-    vv <- .kpwuwu(listw2, ubase, zero.policy = zero.policy)
+    vv <- .kpwuwu(listw2, ubase, zero.policy = zero.policy,
+        arnoldWied=arnoldWied, X=x)
     if (method == "nlminb") 
         optres <- nlminb(pars, .kpgm, v = vv, verbose = verbose, 
             control = control)
