@@ -194,8 +194,8 @@ GMerrorsar <- function(#W, y, X,
 		call=call, residuals=r, lm.target=lm.target,
 		fitted.values=fit, formula=formula, aliased=aliased,
 		zero.policy=zero.policy, LL=LL, vv=vv, optres=optres,
-                pars=pars, Hcov=Hcov, legacy=legacy,lambda.se=lambda.se),
-                class=c("gmsar"))
+                pars=pars, Hcov=Hcov, legacy=legacy, lambda.se=lambda.se,
+                arnoldWied=arnoldWied), class=c("gmsar"))
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]
@@ -313,8 +313,10 @@ print.summary.gmsar<-function (x, digits = max(5, .Options$digits - 3), signif.s
     else structure(quantile(resid), names = nam)
     print(rq, digits = digits, ...)
 
-    if(x$type=="SARAR") cat("\nType: GM SARAR estimator\n")
-    else  cat("\nType: GM SAR estimator\n")
+    if(x$type=="SARAR") cat("\nType: GM SARAR estimator")
+    else  cat("\nType: GM SAR estimator")
+    if (x$arnoldWied) cat(" (Arnold and Wied (2010) moment definitions\n")
+    else cat("\n")
     if (x$zero.policy) {
         zero.regs <- attr(x, "zero.regs")
         if (!is.null(zero.regs)) 
@@ -349,6 +351,7 @@ print.summary.gmsar<-function (x, digits = max(5, .Options$digits - 3), signif.s
         }
     cat("Number of observations:", length(x$residuals), "\n")
     cat("Number of parameters estimated:", x$parameters, "\n")
+    cat("Sigma squared:", x$s2, "\n")
     if (!is.null(res)) 
         cat("AIC: ", format(signif(AIC(x), digits)), ", (AIC for lm: ", 
             format(signif(AIC(x$lm.model), digits)), ")\n", sep = "")
@@ -403,19 +406,21 @@ print.summary.gmsar<-function (x, digits = max(5, .Options$digits - 3), signif.s
 #    bigG: the 3x3 G matrix
 #    litg: the 3x1 g vector
 
-.kpwuwu <- function(W, u, zero.policy=FALSE, arnoldWied=FALSE, X=NULL) {
+.kpwuwu <- function(listw, u, zero.policy=FALSE, arnoldWied=FALSE, X=NULL) {
         if (arnoldWied) {
             stopifnot(!is.null(X))
-            WX <- lag.listw(W, X, zero.policy=zero.policy)
+            invXtX <- chol2inv(qr.R(qr(X)))
+            W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
+            WX <- W %*% X
         }
 	n <- length(u)
 # Gianfranco Piras 081119 
-        trwpw <- sum(unlist(W$weights)^2)
+        trwpw <- sum(unlist(listw$weights)^2)
 #	tt <- matrix(0,n,1)
 #	for (i in 1:n) {tt[i] <- sum(W$weights[[i]]^2) }
 #	trwpw <- sum(tt)
-	wu <- lag.listw(W, u, zero.policy=zero.policy)
-	wwu <- lag.listw(W, wu, zero.policy=zero.policy)
+	wu <- lag.listw(listw, u, zero.policy=zero.policy)
+	wwu <- lag.listw(listw, wu, zero.policy=zero.policy)
     	uu <- crossprod(u,u)
     	uwu <- crossprod(u,wu)
     	uwpuw <- crossprod(wu,wu)
@@ -425,13 +430,30 @@ print.summary.gmsar<-function (x, digits = max(5, .Options$digits - 3), signif.s
     	bigG <- matrix(0,3,3)
         if (arnoldWied) {
             k <- ncol(X)
-            bigG[,1] <- c(2*uwu,NA,NA)/n
-    	    bigG[,2] <- - c(NA,NA,NA)/n
-    	    bigG[,3] <- c(n-k,NA,NA)/n
+            uwpX <- crossprod(wu, X)
+            upWX <- crossprod(u, WX)
+            uwpWX <- crossprod(wu, WX)
+            iXpXXpwu <- invXtX %*% t(uwpX)
+            c22 <- wwu - WX %*% iXpXXpwu
+            XiXpX <- X %*% invXtX
+            WXpW <- t(WX) %*% W
+            c23 <- trwpw - sum(diag(WXpW %*% XiXpX))
+            c32 <- crossprod(wu, wwu) - t(wu) %*% WX %*% iXpXXpwu
+            c32 <- c32 - ((t(wu) %*% XiXpX %*% crossprod(X, wwu)) - 
+                (t(wu) %*% XiXpX %*% crossprod(X, WX) %*% iXpXXpwu))
+            bigG[,1] <- c(2*uwu, 2*as.vector(wwupwu - (uwpWX %*% iXpXXpwu)),
+                as.vector(uwwu - (upWX %*% iXpXXpwu)) +
+                (uwpuw - (uwpX %*% iXpXXpwu)))/n
+    	    bigG[,2] <- - c(as.vector(uwpuw - (uwpX %*% iXpXXpwu)), as.vector(crossprod(c22)), as.vector(c32))/n
+    	    bigG[,3] <- c(n-k, as.vector(c23), -as.vector(sum(diag(t(X) %*% (WX %*% invXtX)))))/n
+# M <- diag(length(u)) - X %*% invXtX %*% t(X)
+# BGc1 <- c(2*as.vector(crossprod(u, W %*% u)), 2*as.vector(t(u) %*% t(W) %*% W %*% M %*% W %*% u), as.vector(u %*% (W+t(W)) %*% M %*% W %*% u))/n
+# BGc2 <- - c(as.vector(t(u) %*% t(W) %*% M %*% W %*% u), as.vector(t(u) %*% t(W) %*% M %*% t(W) %*% W %*% M %*% W %*% u), as.vector(t(u) %*% t(W) %*% M %*% W %*% M %*% W %*% u))/n
+# BGc3 <- c((n-k), sum(diag(M %*% t(W) %*% W)), sum(diag(W %*% M)))/n
         } else {
-    	    bigG[,1] <- c(2*uwu,2*wwupwu,(uwwu+uwpuw))/n
-    	    bigG[,2] <- - c(uwpuw,wwupwwu,wwupwu) / n
-    	    bigG[,3] <- c(1,trwpw/n,0)
+    	    bigG[,1] <- c(2*uwu, 2*wwupwu, (uwwu+uwpuw))/n
+    	    bigG[,2] <- - c(uwpuw, wwupwwu, wwupwu) / n
+    	    bigG[,3] <- c(1, trwpw/n, 0)
         }
     	litg <- c(uu,uwpuw,uwu) / n
     	list(bigG=bigG, litg=litg, trwpw=trwpw, wu=wu, wwu=wwu)
@@ -598,7 +620,8 @@ gstsls<-function (formula, data = list(), listw, listw2=NULL,
             3), lm.model = NULL, call = call, residuals = r, lm.target = NULL, 
         fitted.values = fit, formula = formula, aliased = NULL, 
         zero.policy = zero.policy, LL = NULL, vv = vv, optres = optres, 
-        pars = pars, Hcov = NULL, lambda.se=lambda.se), class = c("gmsar"))
+        pars = pars, Hcov = NULL, lambda.se=lambda.se),
+        arnoldWied=arnoldWied, class = c("gmsar"))
     if (zero.policy) {
         zero.regs <- attr(listw$neighbours, "region.id")[which(card(listw$neighbours) == 
             0)]
