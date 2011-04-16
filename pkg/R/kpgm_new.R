@@ -315,7 +315,7 @@ print.summary.gmsar<-function (x, digits = max(5, .Options$digits - 3), signif.s
 
     if(x$type=="SARAR") cat("\nType: GM SARAR estimator")
     else  cat("\nType: GM SAR estimator")
-    if (x$arnoldWied) cat(" (Arnold and Wied (2010) moment definitions\n")
+    if (x$arnoldWied) cat(" (Arnold and Wied (2010) moment definitions)\n")
     else cat("\n")
     if (x$zero.policy) {
         zero.regs <- attr(x, "zero.regs")
