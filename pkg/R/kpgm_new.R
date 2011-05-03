@@ -16,14 +16,13 @@
 #    the G and g matrices, calls optim unconstrained optimizer with
 #    kpgm as function and plausible starting values to get estimate
 #    for lambda, then finds results with spatially weighted least squares
-#    and finds LL using Matrix functions
 # Value:
 # an S3 "gmsar" object
 
 GMerrorsar <- function(#W, y, X, 
 	formula, data = list(), listw, na.action=na.fail, 
-	zero.policy=NULL, return_LL=FALSE, method="nlminb", arnoldWied=FALSE, 
-        control=list(), pars, verbose=NULL, legacy=FALSE, sparse_method="Matrix",
+	zero.policy=NULL, method="nlminb", arnoldWied=FALSE, 
+        control=list(), pars, verbose=NULL, legacy=FALSE,
         returnHcov=FALSE, pWOrder=250, tol.Hcov=1.0e-10) {
 #	ols <- lm(I(y) ~ I(X) - 1)
         if (is.null(verbose)) verbose <- get("verbose", env = .spdepOptions)
@@ -169,10 +168,6 @@ GMerrorsar <- function(#W, y, X,
 	call <- match.call()
 	names(r) <- names(y)
 	names(fit) <- names(y)
-	LL <- NULL
-	if (return_LL) {
-            warning("Return of log-likelihood deprecated")
-	}
         Hcov <- NULL
         if (returnHcov) {
 	    pp <- ols$rank
@@ -193,7 +188,7 @@ GMerrorsar <- function(#W, y, X,
 		s2=s2, SSE=SSE, parameters=(m+2), lm.model=ols, 
 		call=call, residuals=r, lm.target=lm.target,
 		fitted.values=fit, formula=formula, aliased=aliased,
-		zero.policy=zero.policy, LL=LL, vv=vv, optres=optres,
+		zero.policy=zero.policy, vv=vv, optres=optres,
                 pars=pars, Hcov=Hcov, legacy=legacy, lambda.se=lambda.se,
                 arnoldWied=arnoldWied), class=c("gmsar"))
 	if (zero.policy) {
@@ -239,8 +234,6 @@ print.gmsar <- function(x, ...)
 	cat("\n")
 	cat("\nCoefficients:\n")
 	print(coef(x))
-        LL <- logLik(x)
-	if (!is.null(LL)) cat("\nLog likelihood:", LL, "\n")
 	invisible(x)
 }
 
@@ -252,8 +245,6 @@ summary.gmsar <- function(object, correlation = FALSE, Hausman=FALSE, ...)
 		2*(1-pnorm(abs(object$coefficients/object$rest.se))))
 	colnames(object$Coef) <- c("Estimate", "Std. Error", 
 		"z value", "Pr(>|z|)")
-	if (is.null(object$LL)) object$LR1 <- NULL
-	else object$LR1 <- LR1.gmsar(object)
 	rownames(object$Coef) <- names(object$coefficients)
         if (Hausman && !is.null(object$Hcov)) {
                 object$Haus <- Hausman.test(object)
@@ -262,40 +253,7 @@ summary.gmsar <- function(object, correlation = FALSE, Hausman=FALSE, ...)
 	structure(object, class=c("summary.gmsar", class(object)))
 }
 
-LR1.gmsar <- function(object)
-{
-	if (!inherits(object, "gmsar")) stop("Not a gmsar object")
-	LLx <- logLik(object)
-	LLy <- logLik(object$lm.model)
-	statistic <- 2*(LLx - LLy)
-	attr(statistic, "names") <- "Likelihood ratio"
-	parameter <- abs(attr(LLx, "df") - attr(LLy, "df"))
-	if (parameter < 1) 
-		stop("non-positive degrees of freedom: no test possible")
-	attr(parameter, "names") <- "df"
-	p.value <- 1 - pchisq(abs(statistic), parameter)
-	estimate <- c(LLx, LLy)
-	attr(estimate, "names") <- c("Log likelihood of GM estimator", "Log likelihood of OLS fit")
-	method <- "Likelihood Ratio diagnostics for spatial dependence"
-	res <- list(statistic=statistic, parameter=parameter,
-		p.value=p.value, estimate=estimate, method=method)
-	class(res) <- "htest"
-	res
-}
 
-logLik.gmsar <- function(object, ...) {
-	if (is.null(object$LL)) {
-#		warning("Model fitted without LL")
-		return(NULL)
-	}
-	LL <- c(object$LL)
-	class(LL) <- "logLik"
-	N <- length(residuals(object))
-	attr(LL, "nall") <- N
-	attr(LL, "nobs") <- N
-	attr(LL, "df") <- object$parameters
-	LL
-}
 
 
 
@@ -335,26 +293,18 @@ print.summary.gmsar<-function (x, digits = max(5, .Options$digits - 3), signif.s
     }
     printCoefmat(coefs, signif.stars = signif.stars, digits = digits, 
         na.print = "NA")
-    res <- x$LR1
     cat("\nLambda:", format(signif(x$lambda, digits)))
-    cat(" (standard error):", format(signif(x$lambda.se, digits)))
-    cat(" (z-value):", format(signif(x$lambda/x$lambda.se, digits)))
-    if (!is.null(res)) 
-        cat(" LR test value:", format(signif(res$statistic, digits)), 
-            "p-value:", format.pval(res$p.value, digits), "\n")
-    else cat("\n")
-    if (!is.null(x$LL)){
-    	cat("\nLog likelihood:", logLik(x), "for GM model\n")
+    if (!is.null(x$lambda.se)) {
+      cat(" (standard error):", format(signif(x$lambda.se, digits)))
+      cat(" (z-value):", format(signif(x$lambda/x$lambda.se, digits)))
+    }
+    cat("\n")
     cat("ML residual variance (sigma squared): ", format(signif(x$s2, 
         digits)), ", (sigma: ", format(signif(sqrt(x$s2), digits)), 
         ")\n", sep = "")
-        }
     cat("Number of observations:", length(x$residuals), "\n")
     cat("Number of parameters estimated:", x$parameters, "\n")
     cat("Sigma squared:", x$s2, "\n")
-    if (!is.null(res)) 
-        cat("AIC: ", format(signif(AIC(x), digits)), ", (AIC for lm: ", 
-            format(signif(AIC(x$lm.model), digits)), ")\n", sep = "")
     if (!is.null(x$Haus)) {
         cat("Hausman test: ", format(signif(x$Haus$statistic, 
             digits)), ", df: ", format(x$Haus$parameter), ", p-value: ", 
@@ -462,7 +412,7 @@ print.summary.gmsar<-function (x, digits = max(5, .Options$digits - 3), signif.s
 ####SARAR model
 
 gstsls<-function (formula, data = list(), listw, listw2=NULL,
- na.action = na.fail, zero.policy = NULL, pars, arnoldWied=FALSE,
+ na.action = na.fail, zero.policy = NULL, pars,
  control = list(), verbose = NULL, method = "nlminb", robust = FALSE,
  legacy = FALSE, W2X = TRUE ) 
 {
@@ -547,7 +497,7 @@ gstsls<-function (formula, data = list(), listw, listw2=NULL,
     if (length(pars) != 2L || !is.numeric(pars)) 
         stop("invalid starting parameter values")
     vv <- .kpwuwu(listw2, ubase, zero.policy = zero.policy,
-        arnoldWied=arnoldWied, X=x)
+        arnoldWied=FALSE, X=x)
     if (method == "nlminb") 
         optres <- nlminb(pars, .kpgm, v = vv, verbose = verbose, 
             control = control)
@@ -565,66 +515,31 @@ gstsls<-function (formula, data = list(), listw, listw2=NULL,
 
         colnames(xt) <- xcolnames
         colnames(wyt) <- c("Rho_Wy")
-        secstep <- tsls(y = yt, yend = wyt, X = xt, Zinst = instr, robust = robust, legacy = legacy)
-		rho<-secstep$coefficients[1]
-		coef.sac<-secstep$coefficients
-		rest.se <- sqrt(diag(secstep$var))
-		rho.se <- sqrt(diag(secstep$var))[1]
-		s2<-secstep$sse / secstep$df
-		r<- secstep$residuals
-		fit<- y - r
-		SSE<- crossprod(r)
+        secstep <- tsls(y = yt, yend = wyt, X = xt, Zinst = instr,
+            robust = robust, legacy = legacy)
+	rho<-secstep$coefficients[1]
+	coef.sac<-secstep$coefficients
+	rest.se <- sqrt(diag(secstep$var))
+	rho.se <- sqrt(diag(secstep$var))[1]
+	s2<-secstep$sse / secstep$df
+	r<- secstep$residuals
+	fit<- y - r
+	SSE<- crossprod(r)
+        lambda.se <- NULL
 
-# speculative SE for lambda
+    	call <- match.call()
 
-        KP04a <- (1/n) * vv$trwpw
-        KP04c <- sqrt(1/(1+(KP04a*KP04a)))
-        KP04se <- vv$wu
-        KP04de <- vv$wwu
-        KP04eo <- ubase
-
-        J <- matrix(0.0, ncol=2, nrow=2)
-        J[1,1] <- 2*KP04c*(crossprod(KP04de, KP04se) - 
-            KP04a*crossprod(KP04se, KP04eo))
-        J[2,1] <- crossprod(KP04de, KP04eo) + crossprod(KP04se)
-        J[1,2] <- - KP04c*(crossprod(KP04de) - KP04a*crossprod(KP04se))
-        J[2,2] <- - crossprod(KP04de, KP04se)
-
-        J <- (1/n)*J
-
-        J1 <- J %*% matrix(c(1, 2*lambda), ncol=1)
-        W <- as(as_dgRMatrix_listw(listw2), "CsparseMatrix")
-        A2N <- crossprod(W)
-        A1N <- KP04c*(A2N - KP04a*as_dsCMatrix_I(n))
-        A1NA1Np <- A1N+t(A1N)
-        A2NA2Np <- A2N+t(A2N)
-
-        trA1A1 <- sum(apply((t(A1NA1Np)*A1NA1Np), 2, sum))
-        trA1A2 <- sum(apply(crossprod(A2NA2Np, A1NA1Np), 2, sum))
-        trA2A2 <- sum(apply(crossprod(A2NA2Np, A2NA2Np), 2, sum))
-        sigh <- s2*s2
-
-        phihat <- matrix(0.0, ncol=2, nrow=2)
-        phihat[1,1] <- (sigh)*trA1A1/(2*n)
-        phihat[1,2] <- (sigh)*trA1A2/(2*n)
-        phihat[2,1] <- (sigh)*trA1A2/(2*n)
-        phihat[2,2] <- (sigh)*trA2A2/(2*n)
-
-        JJI <- 1/crossprod(J1)
-        omega <- JJI * t(J1) %*% phihat %*% J1 * JJI
-        lambda.se <- sqrt(omega/n)
-    call <- match.call()
-
-    ret <- structure(list(type= "SARAR", lambda = lambda, coefficients = coef.sac, 
+    	ret <- structure(list(type= "SARAR", lambda = lambda,
+	coefficients = coef.sac, 
         rest.se = rest.se, s2 = s2, SSE = SSE, parameters = (k + 
             3), lm.model = NULL, call = call, residuals = r, lm.target = NULL, 
         fitted.values = fit, formula = formula, aliased = NULL, 
-        zero.policy = zero.policy, LL = NULL, vv = vv, optres = optres, 
+        zero.policy = zero.policy, vv = vv, optres = optres, 
         pars = pars, Hcov = NULL, lambda.se=lambda.se,
-        arnoldWied=arnoldWied), class = c("gmsar"))
-    if (zero.policy) {
-        zero.regs <- attr(listw$neighbours, "region.id")[which(card(listw$neighbours) == 
-            0)]
+        arnoldWied=FALSE), class = c("gmsar"))
+        if (zero.policy) {
+        zero.regs <- attr(listw$neighbours,
+            "region.id")[which(card(listw$neighbours) == 0)]
         if (length(zero.regs) > 0L) 
             attr(ret, "zero.regs") <- zero.regs
     }
