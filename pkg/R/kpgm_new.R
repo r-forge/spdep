@@ -22,7 +22,7 @@
 GMerrorsar <- function(#W, y, X, 
 	formula, data = list(), listw, na.action=na.fail, 
 	zero.policy=NULL, method="nlminb", arnoldWied=FALSE, 
-        control=list(), pars, verbose=NULL, legacy=FALSE,
+        control=list(), pars, verbose=NULL, legacy=FALSE, se.lambda=FALSE,
         returnHcov=FALSE, pWOrder=250, tol.Hcov=1.0e-10) {
 #	ols <- lm(I(y) ~ I(X) - 1)
         if (is.null(verbose)) verbose <- get("verbose", env = .spdepOptions)
@@ -39,9 +39,6 @@ GMerrorsar <- function(#W, y, X,
 	}
 
 	if (!inherits(listw, "listw")) stop("No neighbourhood list")
-	can.sim <- as.logical(NA)
-	if (listw$style %in% c("W", "S")) 
-		can.sim <- can.be.simmed(listw)
 
 	y <- model.extract(mf, "response")
 	if (any(is.na(y))) stop("NAs in dependent variable")
@@ -83,6 +80,11 @@ GMerrorsar <- function(#W, y, X,
             warning(paste("convergence failure:", optres$message))
 	lambda <- optres$par[1]
 	names(lambda) <- "lambda"
+        GMs2 <- optres$par[2]
+
+        Hess <- fdHess(pars=optres$par, fun=.kpgm, v=vv)$Hessian
+        res <- solve(Hess)
+        lambda.se <- sqrt(diag(res)[1])
 
 	wy <- lag.listw(listw, y, zero.policy=zero.policy)
 	if (any(is.na(wy)))
@@ -112,58 +114,70 @@ GMerrorsar <- function(#W, y, X,
 	colnames(WX) <- xcolnames
 	rm(wx)
 	lm.target <- lm(I(y - lambda*wy) ~ I(x - lambda*WX) - 1)
-	p <- lm.target$rank
-	SSE <- deviance(lm.target)
-	s2 <- SSE/n
-	rest.se <- (summary(lm.target)$coefficients[,2])*sqrt((n-p)/n)
 	coef.lambda <- coefficients(lm.target)
 	names(coef.lambda) <- xcolnames
         if (legacy) {
+	    SSE <- deviance(lm.target)
+	    s2 <- SSE/n
+	    p <- lm.target$rank
+	    rest.se <- (summary(lm.target)$coefficients[,2])*sqrt((n-p)/n)
 	    r <- as.vector(residuals(lm.target))
 	    fit <- as.vector(y - r)
         } else {
             fit <- as.vector(x %*% coef.lambda)
             r <- as.vector(y - fit)
+            e <- residuals(ols)
+            et <- e - lambda*lag(listw, e)
+            SSE <- c(crossprod(et))
+            s2 <- SSE/n
+            Bx <- x - lambda*WX
+            Qr <- qr(Bx/(sqrt(s2)))
+            invxpx <- chol2inv(Qr$qr)
+            rest.se <- sqrt(diag(invxpx))
         }
+
+        W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
+        if (!arnoldWied && se.lambda) {
 # produce an std for "rho" following Kelejian-Prucha (2004)
 # implemented following sem_gmm.m in the Matlab Spatial Econometrics
 # toolbox, written by Shawn Bucholtz, modified extensively by J.P. LeSage
-        KP04a <- (1/n) * vv$trwpw
-        KP04c <- sqrt(1/(1+(KP04a*KP04a)))
-        KP04se <- vv$wu
-        KP04de <- vv$wwu
-        KP04eo <- residuals(ols)
+# after http://econweb.umd.edu/~prucha/STATPROG/OLS/desols.pdf
+          KP04a <- (1/n) * vv$trwpw
+          KP04c <- sqrt(1/(1+(KP04a*KP04a)))
+          KP04se <- vv$wu
+          KP04de <- vv$wwu
+          KP04eo <- residuals(ols)
 
-        J <- matrix(0.0, ncol=2, nrow=2)
-        J[1,1] <- 2*KP04c*(crossprod(KP04de, KP04se) - 
+          J <- matrix(0.0, ncol=2, nrow=2)
+          J[1,1] <- 2*KP04c*(crossprod(KP04de, KP04se) - 
             KP04a*crossprod(KP04se, KP04eo))
-        J[2,1] <- crossprod(KP04de, KP04eo) + crossprod(KP04se)
-        J[1,2] <- - KP04c*(crossprod(KP04de) - KP04a*crossprod(KP04se))
-        J[2,2] <- - crossprod(KP04de, KP04se)
+          J[2,1] <- crossprod(KP04de, KP04eo) + crossprod(KP04se)
+          J[1,2] <- - KP04c*(crossprod(KP04de) - KP04a*crossprod(KP04se))
+          J[2,2] <- - crossprod(KP04de, KP04se)
 
-        J <- (1/n)*J
+          J <- (1/n)*J
 
-        J1 <- J %*% matrix(c(1, 2*lambda), ncol=1)
-        W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
-        A2N <- crossprod(W)
-        A1N <- KP04c*(A2N - KP04a*as_dsCMatrix_I(n))
-        A1NA1Np <- A1N+t(A1N)
-        A2NA2Np <- A2N+t(A2N)
+          J1 <- J %*% matrix(c(1, 2*lambda), ncol=1)
+          A2N <- crossprod(W)
+          A1N <- KP04c*(A2N - KP04a*as_dsCMatrix_I(n))
+          A1NA1Np <- A1N+t(A1N)
+          A2NA2Np <- A2N+t(A2N)
 
-        trA1A1 <- sum(apply((t(A1NA1Np)*A1NA1Np), 2, sum))
-        trA1A2 <- sum(apply(crossprod(A2NA2Np, A1NA1Np), 2, sum))
-        trA2A2 <- sum(apply(crossprod(A2NA2Np, A2NA2Np), 2, sum))
-        sigh <- s2*s2
+          trA1A1 <- sum(colSums(t(A1NA1Np)*A1NA1Np))
+          trA1A2 <- sum(colSums(crossprod(A2NA2Np, A1NA1Np)))
+          trA2A2 <- sum(colSums(crossprod(A2NA2Np, A2NA2Np)))
+          sigh <- s2*s2
 
-        phihat <- matrix(0.0, ncol=2, nrow=2)
-        phihat[1,1] <- (sigh)*trA1A1/(2*n)
-        phihat[1,2] <- (sigh)*trA1A2/(2*n)
-        phihat[2,1] <- (sigh)*trA1A2/(2*n)
-        phihat[2,2] <- (sigh)*trA2A2/(2*n)
+          phihat <- matrix(0.0, ncol=2, nrow=2)
+          phihat[1,1] <- (sigh)*trA1A1/(2*n)
+          phihat[1,2] <- (sigh)*trA1A2/(2*n)
+          phihat[2,1] <- (sigh)*trA1A2/(2*n)
+          phihat[2,2] <- (sigh)*trA2A2/(2*n)
 
-        JJI <- 1/crossprod(J1)
-        omega <- JJI * t(J1) %*% phihat %*% J1 * JJI
-        lambda.se <- sqrt(omega/n)
+          JJI <- 1/crossprod(J1)
+          omega <- JJI * t(J1) %*% phihat %*% J1 * JJI
+          lambda.se <- sqrt(omega/n)
+        }
 
 	call <- match.call()
 	names(r) <- names(y)
@@ -190,7 +204,7 @@ GMerrorsar <- function(#W, y, X,
 		fitted.values=fit, formula=formula, aliased=aliased,
 		zero.policy=zero.policy, vv=vv, optres=optres,
                 pars=pars, Hcov=Hcov, legacy=legacy, lambda.se=lambda.se,
-                arnoldWied=arnoldWied), class=c("gmsar"))
+                arnoldWied=arnoldWied, GMs2=GMs2), class=c("gmsar"))
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]
@@ -299,12 +313,13 @@ print.summary.gmsar<-function (x, digits = max(5, .Options$digits - 3), signif.s
       cat(" (z-value):", format(signif(x$lambda/x$lambda.se, digits)))
     }
     cat("\n")
-    cat("ML residual variance (sigma squared): ", format(signif(x$s2, 
+    cat("Residual variance (sigma squared): ", format(signif(x$s2, 
         digits)), ", (sigma: ", format(signif(sqrt(x$s2), digits)), 
         ")\n", sep = "")
+    cat("GM argmin sigma squared: ", format(signif(x$GMs2, 
+        digits)), "\n", sep = "")
     cat("Number of observations:", length(x$residuals), "\n")
     cat("Number of parameters estimated:", x$parameters, "\n")
-    cat("Sigma squared:", x$s2, "\n")
     if (!is.null(x$Haus)) {
         cat("Hausman test: ", format(signif(x$Haus$statistic, 
             digits)), ", df: ", format(x$Haus$parameter), ", p-value: ", 
@@ -507,6 +522,11 @@ gstsls<-function (formula, data = list(), listw, listw2=NULL,
         warning(paste("convergence failure:", optres$message))
     lambda <- optres$par[1]
     names(lambda) <- "lambda"
+    GMs2 <- optres$par[2]
+
+        Hess <- fdHess(pars=optres$par, fun=.kpgm, v=vv)$Hessian
+        res <- solve(Hess)
+        lambda.se <- sqrt(diag(res)[1])
 
         w2y <- lag.listw(listw2, y)
         yt <- y - lambda * w2y
@@ -525,7 +545,6 @@ gstsls<-function (formula, data = list(), listw, listw2=NULL,
 	r<- secstep$residuals
 	fit<- y - r
 	SSE<- crossprod(r)
-        lambda.se <- NULL
 
     	call <- match.call()
 
@@ -536,7 +555,7 @@ gstsls<-function (formula, data = list(), listw, listw2=NULL,
         fitted.values = fit, formula = formula, aliased = NULL, 
         zero.policy = zero.policy, vv = vv, optres = optres, 
         pars = pars, Hcov = NULL, lambda.se=lambda.se,
-        arnoldWied=FALSE), class = c("gmsar"))
+        arnoldWied=FALSE, GMs2=GMs2), class = c("gmsar"))
         if (zero.policy) {
         zero.regs <- attr(listw$neighbours,
             "region.id")[which(card(listw$neighbours) == 0)]
