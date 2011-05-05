@@ -22,7 +22,7 @@
 GMerrorsar <- function(#W, y, X, 
 	formula, data = list(), listw, na.action=na.fail, 
 	zero.policy=NULL, method="nlminb", arnoldWied=FALSE, 
-        control=list(), pars, verbose=NULL, legacy=FALSE, se.lambda=FALSE,
+        control=list(), pars, verbose=NULL, legacy=FALSE, se.lambda=TRUE,
         returnHcov=FALSE, pWOrder=250, tol.Hcov=1.0e-10) {
 #	ols <- lm(I(y) ~ I(X) - 1)
         if (is.null(verbose)) verbose <- get("verbose", env = .spdepOptions)
@@ -82,9 +82,21 @@ GMerrorsar <- function(#W, y, X,
 	names(lambda) <- "lambda"
         GMs2 <- optres$par[2]
 
-        Hess <- fdHess(pars=optres$par, fun=.kpgm, v=vv)$Hessian
-        res <- solve(Hess)
-        lambda.se <- sqrt(diag(res)[1])
+#        Gn <- vv$bigG
+#        Gn2 <- vv$litg
+#        pars <- c(lambda, lambda^2, GMs2)
+#        Hfun <- function(pars, Gn, Gn2) {
+#            val <- Gn2 - Gn %*% pars
+#            sum(val^2)
+#        }
+#        e1 <- Gn2 - Gn %*% pars
+#        vare1 <- sd(e1)^2
+
+#        Hess <- fdHess(pars=pars, fun=Hfun, Gn=Gn, Gn2=Gn2)$Hessian
+#        res <- solve(Hess)
+#        lambda.se <- sqrt(vare1*diag(res))[1]
+
+       lambda.se <- NULL
 
 	wy <- lag.listw(listw, y, zero.policy=zero.policy)
 	if (any(is.na(wy)))
@@ -137,6 +149,7 @@ GMerrorsar <- function(#W, y, X,
         }
 
         W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
+        lambda.se <- NULL
         if (!arnoldWied && se.lambda) {
 # produce an std for "rho" following Kelejian-Prucha (2004)
 # implemented following sem_gmm.m in the Matlab Spatial Econometrics
@@ -524,9 +537,21 @@ gstsls<-function (formula, data = list(), listw, listw2=NULL,
     names(lambda) <- "lambda"
     GMs2 <- optres$par[2]
 
-        Hess <- fdHess(pars=optres$par, fun=.kpgm, v=vv)$Hessian
-        res <- solve(Hess)
-        lambda.se <- sqrt(diag(res)[1])
+#        Gn <- vv$bigG
+#        Gn2 <- vv$litg
+#        pars <- c(lambda, lambda^2, GMs2)
+#        Hfun <- function(pars, Gn, Gn2) {
+#            val <- Gn2 - Gn %*% pars
+#            sum(val^2)
+#        }
+#        e1 <- Gn2 - Gn %*% pars
+#        vare1 <- sd(e1)^2
+
+#        Hess <- fdHess(pars=pars, fun=Hfun, Gn=Gn, Gn2=Gn2)$Hessian
+#        res <- solve(Hess)
+#        lambda.se <- sqrt(vare1*diag(res))[1]
+
+       lambda.se <- NULL
 
         w2y <- lag.listw(listw2, y)
         yt <- y - lambda * w2y

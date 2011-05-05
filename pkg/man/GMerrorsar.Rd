@@ -16,7 +16,7 @@
 \usage{
 GMerrorsar(formula, data = list(), listw, na.action = na.fail,
  zero.policy = NULL, method="nlminb", arnoldWied=FALSE, 
- control = list(), pars, verbose=NULL, legacy=FALSE, se.lambda=FALSE,
+ control = list(), pars, verbose=NULL, legacy=FALSE, se.lambda=TRUE,
  returnHcov=FALSE, pWOrder=250, tol.Hcov=1.0e-10)
 \method{summary}{gmsar}(object, correlation = FALSE, Hausman=FALSE, ...)
 GMargminImage(obj, lambdaseq, s2seq)
@@ -38,7 +38,7 @@ neighbours, if FALSE (default) assign NA - causing \code{GMerrorsar()} to termin
   \item{pars}{starting values for \eqn{\lambda}{lambda} and \eqn{\sigma^2}{sigma squared} for GMM optimisation, if missing (default), approximated from initial OLS model as the autocorrelation coefficient corrected for weights style and model sigma squared}
   \item{verbose}{default NULL, use global option value; if TRUE, reports function values during optimization.}
   \item{legacy}{default FALSE - compute using the unfiltered values of the response and right hand side variables; if TRUE - compute the fitted value and residuals from the spatially filtered model using the spatial error parameter}
-  \item{se.lambda}{default FALSE, compute the standard error of lambda using a finite difference Hessian of the numerical optimization problem; if TRUE, use the analytical method described in \url{http://econweb.umd.edu/~prucha/STATPROG/OLS/desols.pdf}}
+  \item{se.lambda}{default TRUE, use the analytical method described in \url{http://econweb.umd.edu/~prucha/STATPROG/OLS/desols.pdf}}
   \item{returnHcov}{default FALSE, return the Vo matrix for a spatial Hausman test}
   \item{tol.Hcov}{the tolerance for computing the Vo matrix (default=1.0e-10)}
   \item{pWOrder}{default 250, if returnHcov=TRUE, pass this order to \code{powerWeights} as the power series maximum limit}
