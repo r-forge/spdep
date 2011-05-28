@@ -22,8 +22,8 @@
 GMerrorsar <- function(#W, y, X, 
 	formula, data = list(), listw, na.action=na.fail, 
 	zero.policy=NULL, method="nlminb", arnoldWied=FALSE, 
-        control=list(), pars, verbose=NULL, legacy=FALSE, se.lambda=TRUE,
-        returnHcov=FALSE, pWOrder=250, tol.Hcov=1.0e-10) {
+        control=list(), pars, scaleU=FALSE, verbose=NULL, legacy=FALSE,
+        se.lambda=TRUE, returnHcov=FALSE, pWOrder=250, tol.Hcov=1.0e-10) {
 #	ols <- lm(I(y) ~ I(X) - 1)
         if (is.null(verbose)) verbose <- get("verbose", env = .spdepOptions)
         stopifnot(is.logical(verbose))
@@ -57,16 +57,17 @@ GMerrorsar <- function(#W, y, X,
 		x <- x[,-nacoef]
 	}
 	ols <- lm(y ~ x - 1)
+        ukp <- residuals(ols)
 	if (missing(pars)) {
- 	    ubase <- residuals(ols)
-	    scorr <- c(crossprod(lag.listw(listw, ubase,
-                zero.policy=zero.policy), ubase) / crossprod(ubase, ubase))
-            scorr <- scorr / (sum(unlist(listw$weights)) / length(ubase))
-            pars <- c(scorr, deviance(ols)/df.residual(ols))
+	    scorr <- c(crossprod(lag.listw(listw, ukp,
+                zero.policy=zero.policy), ukp) / crossprod(ukp, ukp))
+            scorr <- scorr / (sum(unlist(listw$weights)) / length(ukp))
+            if (scaleU) ukp <- scale(ukp)
+            pars <- c(scorr, var(ukp))
         }
         if (length(pars) !=2L || !is.numeric(pars))
             stop("invalid starting parameter values")
-	vv <- .kpwuwu(listw, residuals(ols), zero.policy=zero.policy,
+	vv <- .kpwuwu(listw, ukp, zero.policy=zero.policy,
             arnoldWied=arnoldWied, X=x)
 #	nlsres <- nlm(.kpgm, pars, print.level=print.level, gradtol=gradtol, steptol=steptol, iterlim=iterlim, v=vv, verbose=verbose)
 #	lambda <- nlsres$estimate[1]
@@ -217,7 +218,8 @@ GMerrorsar <- function(#W, y, X,
 		fitted.values=fit, formula=formula, aliased=aliased,
 		zero.policy=zero.policy, vv=vv, optres=optres,
                 pars=pars, Hcov=Hcov, legacy=legacy, lambda.se=lambda.se,
-                arnoldWied=arnoldWied, GMs2=GMs2), class=c("gmsar"))
+                arnoldWied=arnoldWied, GMs2=GMs2, scaleU=scaleU),
+                class=c("gmsar"))
 	if (zero.policy) {
 		zero.regs <- attr(listw$neighbours, 
 			"region.id")[which(card(listw$neighbours) == 0)]
@@ -329,6 +331,7 @@ print.summary.gmsar<-function (x, digits = max(5, .Options$digits - 3), signif.s
     cat("Residual variance (sigma squared): ", format(signif(x$s2, 
         digits)), ", (sigma: ", format(signif(sqrt(x$s2), digits)), 
         ")\n", sep = "")
+    if (x$scaleU) cat("(scaled) ")
     cat("GM argmin sigma squared: ", format(signif(x$GMs2, 
         digits)), "\n", sep = "")
     cat("Number of observations:", length(x$residuals), "\n")
@@ -440,7 +443,7 @@ print.summary.gmsar<-function (x, digits = max(5, .Options$digits - 3), signif.s
 ####SARAR model
 
 gstsls<-function (formula, data = list(), listw, listw2=NULL,
- na.action = na.fail, zero.policy = NULL, pars,
+ na.action = na.fail, zero.policy = NULL, pars, scaleU=FALSE,
  control = list(), verbose = NULL, method = "nlminb", robust = FALSE,
  legacy = FALSE, W2X = TRUE ) 
 {
@@ -512,19 +515,20 @@ gstsls<-function (formula, data = list(), listw, listw2=NULL,
 
         instr <- cbind(WX, WWX)
         firststep <- tsls(y = y, yend = wy, X = x, Zinst = instr, robust = robust, legacy = legacy)
-        ubase <- residuals(firststep)
+
+        ukp <- residuals(firststep)
 
     if (missing(pars)) {
     	
-        scorr <- c(crossprod(lag.listw(listw2, ubase, zero.policy = zero.policy), 
-            ubase)/crossprod(ubase, ubase))
-        scorr <- scorr/(sum(unlist(listw2$weights))/length(ubase))
-        
-        pars <- c(scorr, firststep$sse/firststep$df)
+        scorr <- c(crossprod(lag.listw(listw2, ukp,
+            zero.policy=zero.policy), ukp)/crossprod(ukp, ukp))
+        scorr <- scorr/(sum(unlist(listw2$weights))/length(ukp))
+        if (scaleU) ukp <- scale(ukp)
+        pars <- c(scorr, var(ukp))
     }
     if (length(pars) != 2L || !is.numeric(pars)) 
         stop("invalid starting parameter values")
-    vv <- .kpwuwu(listw2, ubase, zero.policy = zero.policy,
+    vv <- .kpwuwu(listw2, ukp, zero.policy = zero.policy,
         arnoldWied=FALSE, X=x)
     if (method == "nlminb") 
         optres <- nlminb(pars, .kpgm, v = vv, verbose = verbose, 
@@ -580,7 +584,7 @@ gstsls<-function (formula, data = list(), listw, listw2=NULL,
         fitted.values = fit, formula = formula, aliased = NULL, 
         zero.policy = zero.policy, vv = vv, optres = optres, 
         pars = pars, Hcov = NULL, lambda.se=lambda.se,
-        arnoldWied=FALSE, GMs2=GMs2), class = c("gmsar"))
+        arnoldWied=FALSE, GMs2=GMs2, scaleU=scaleU), class = c("gmsar"))
         if (zero.policy) {
         zero.regs <- attr(listw$neighbours,
             "region.id")[which(card(listw$neighbours) == 0)]
@@ -601,7 +605,7 @@ GMargminImage <- function(obj, lambdaseq, s2seq) {
         lambdaseq <- seq(lamin, lamax, length.out=40)
     }
     if (missing(s2seq)) 
-        s2seq <- seq(0.5*obj$s2, 1.5*obj$s2, length.out=40)
+        s2seq <- seq(0.5*obj$GMs2, 1.5*obj$GMs2, length.out=40)
     xy <- as.matrix(expand.grid(lambdaseq, s2seq))
     vres <- apply(xy, 1, function(x) .kpgm(rhopar=x, v=obj$vv))
     res <- matrix(vres, ncol=length(lambdaseq))
