@@ -581,10 +581,11 @@ gstsls<-function (formula, data = list(), listw, listw2=NULL,
 	coefficients = coef.sac, 
         rest.se = rest.se, s2 = s2, SSE = SSE, parameters = (k + 
             3), lm.model = NULL, call = call, residuals = r, lm.target = NULL, 
-        fitted.values = fit, formula = formula, aliased = NULL, 
-        zero.policy = zero.policy, vv = vv, optres = optres, 
-        pars = pars, Hcov = NULL, lambda.se=lambda.se,
-        arnoldWied=FALSE, GMs2=GMs2, scaleU=scaleU), class = c("gmsar"))
+            fitted.values = fit, formula = formula, aliased = NULL, 
+            zero.policy = zero.policy, vv = vv, optres = optres, 
+            pars = pars, Hcov = NULL, lambda.se=lambda.se,
+            arnoldWied=FALSE, GMs2=GMs2, scaleU=scaleU,
+            secstep_var=secstep$var), class = c("gmsar"))
         if (zero.policy) {
         zero.regs <- attr(listw$neighbours,
             "region.id")[which(card(listw$neighbours) == 0)]
