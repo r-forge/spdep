@@ -58,6 +58,8 @@ GMerrorsar <- function(#W, y, X,
 	}
 	ols <- lm(y ~ x - 1)
         ukp <- residuals(ols)
+	vvo <- .kpwuwu(listw, ukp, zero.policy=zero.policy,
+            arnoldWied=arnoldWied, X=x)
 	if (missing(pars)) {
 	    scorr <- c(crossprod(lag.listw(listw, ukp,
                 zero.policy=zero.policy), ukp) / crossprod(ukp, ukp))
@@ -156,10 +158,11 @@ GMerrorsar <- function(#W, y, X,
 # implemented following sem_gmm.m in the Matlab Spatial Econometrics
 # toolbox, written by Shawn Bucholtz, modified extensively by J.P. LeSage
 # after http://econweb.umd.edu/~prucha/STATPROG/OLS/desols.pdf
-          KP04a <- (1/n) * vv$trwpw
+          
+          KP04a <- (1/n) * vvo$trwpw
           KP04c <- sqrt(1/(1+(KP04a*KP04a)))
-          KP04se <- vv$wu
-          KP04de <- vv$wwu
+          KP04se <- vvo$wu
+          KP04de <- vvo$wwu
           KP04eo <- residuals(ols)
 
           J <- matrix(0.0, ncol=2, nrow=2)

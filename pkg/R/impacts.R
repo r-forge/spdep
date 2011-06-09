@@ -111,7 +111,10 @@ impacts.stsls <- function(obj, ..., tr=NULL, R=NULL, listw=NULL,
         type="lag", tr=tr, R=R, listw=listw, tol=tol, empirical=empirical,
         Q=Q, icept=icept, iicept=iicept, p=p)
     attr(res, "iClass") <- class(obj)
-    if (!is.null(obj$robust)) attr(res, "robust") <- obj$robust
+    if (!is.null(obj$robust)) {
+        attr(res, "robust") <- obj$robust
+        attr(res, "HC") <- obj$HC
+    }
     res
 }
 
@@ -680,8 +683,11 @@ summary.lagImpact <- function(object, ..., zstats=FALSE, short=FALSE, reportQ=NU
            "asymptotic")
     } else if ("stsls" %in% attr(object, "iClass")) {
         tp <- "asymptotic IV"
-        if (!is.null(attr(object, "robust")) && attr(object, "robust"))
-            tp <- "robust IV"
+        if (!is.null(attr(object, "robust")) && attr(object, "robust")) {
+            HC <- attr(object, "HC")
+            if (is.null(HC)) HC <- "HC0"
+            tp <- paste(HC, "IV")
+        }
     }
     if ("sphet" %in% attr(object, "iClass")) {
             tp <- "IV HAC"
