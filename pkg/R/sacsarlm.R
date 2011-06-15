@@ -139,7 +139,8 @@ sacsarlm <- function(formula, data = list(), listw, listw2=NULL, na.action,
 	colnames(WX) <- xcolnames
 	rm(wx)
 
-        env <- new.env(parent=globalenv())
+#        env <- new.env(parent=globalenv())
+        env <- new.env()
         assign("y", y, envir=env)
         assign("x", x, envir=env)
         assign("wy", wy, envir=env)
@@ -352,6 +353,8 @@ sacsarlm <- function(formula, data = list(), listw, listw2=NULL, na.action,
 	coef.sac <- coefficients(lm.target)
 	names(coef.sac) <- xcolnames
 	lm.model <- lm(formula, data)
+        logLik_lm.model <- logLik(lm.model)
+        AIC_lm.model <- AIC(lm.model)
         ase <- FALSE
 	asyvar1 <- FALSE
         if (method == "eigen") {
@@ -422,9 +425,11 @@ sacsarlm <- function(formula, data = list(), listw, listw2=NULL, na.action,
 	names(fit) <- names(y)
 	ret <- structure(list(type=type, rho=rho, lambda=lambda,
 	    coefficients=coef.sac, rest.se=rest.se, ase=ase,
-	    LL=LL, s2=s2, SSE=SSE, parameters=(p+3), lm.model=lm.model, 
-	    method=method, call=call, residuals=r, lm.target=lm.target,
-	    opt=optres, pars=pars, mxs=mxs, fitted.values=fit, formula=formula,
+	    LL=LL, s2=s2, SSE=SSE, parameters=(p+3), 
+            logLik_lm.model=logLik_lm.model, AIC_lm.model=AIC_lm.model,
+            #lm.model=lm.model, 
+	    method=method, call=call, residuals=r, #lm.target=lm.target,
+	    opt=optres, pars=pars, mxs=mxs, fitted.values=fit, #formula=formula,
 	    similar=get("similar", envir=env), rho.se=rho.se,
 	    lambda.se=lambda.se, zero.policy=zero.policy, 
 	    aliased=aliased, LLNullLlm=LL_null_lm,

@@ -96,13 +96,16 @@ lagsarlm <- function(formula, data = list(), listw,
 	m <- NCOL(x)
 	similar <- FALSE
 	lm.null <- lm(y ~ x - 1)
+        logLik_lm.model <- logLik(lm.null)
+        AIC_lm.model <- AIC(lm.null)
 	lm.w <- lm.fit(x, wy)
 	e.null <- lm.null$residuals
 	e.w <- lm.w$residuals
 	e.a <- t(e.null) %*% e.null
 	e.b <- t(e.w) %*% e.null
 	e.c <- t(e.w) %*% e.w
-        env <- new.env(parent=globalenv())
+#        env <- new.env(parent=globalenv())
+        env <- new.env()
         assign("y", y, envir=env)
         assign("wy", wy, envir=env)
         assign("x", x, envir=env)
@@ -340,9 +343,11 @@ lagsarlm <- function(formula, data = list(), listw,
 	ret <- structure(list(type=type, rho=rho, 
 		coefficients=coef.rho, rest.se=rest.se, 
 		LL=LL, s2=s2, SSE=SSE, parameters=(m+2), lm.model=lm.null,
+                logLik_lm.model=logLik_lm.model, AIC_lm.model=AIC_lm.model,
 		method=method, call=call, residuals=r, opt=optres,
 		lm.target=lm.lag, fitted.values=fit,
-		se.fit=NULL, formula=formula, similar=similar,
+		se.fit=NULL, #formula=formula,
+                similar=similar,
 		ase=ase, rho.se=rho.se, LMtest=LMtest, 
 		resvar=varb, zero.policy=zero.policy, aliased=aliased,
                 listw_style=listw$style, interval=interval, fdHess=fdHess,

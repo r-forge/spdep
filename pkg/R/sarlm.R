@@ -1,4 +1,4 @@
-# Copyright 2002-10 by Roger Bivand
+# Copyright 2002-11 by Roger Bivand
 #
 
 residuals.sarlm <- function(object, ...) {
@@ -46,7 +46,7 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 		res <- fitted.values(object)
 		X <- model.matrix(terms(object$lm.model), 
 				model.frame(object$lm.model))
-		B <- coefficients(object$lm.target)
+		B <- object$coefficients
 		y <- model.response(model.frame(object$lm.model))
 		tarX <- model.matrix(terms(object$lm.target), 
 				model.frame(object$lm.target))
@@ -61,9 +61,14 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 	}
 	else {
 		if (object$type == "error") {
-			B <- coefficients(object$lm.target)
-			tt <- terms(object$lm.model) 
-			X <- model.matrix(delete.response(tt), data=newdata)
+			B <- object$coefficients
+#			tt <- terms(object$lm.model) 
+#			X <- model.matrix(delete.response(tt), data=newdata)
+                        frm <- formula(object$call)
+			mt <- delete.response(terms(frm))
+#			mf <- lm(object$formula, newdata, method="model.frame")
+			mf <- model.frame(mt, newdata)
+			X <- model.matrix(mt, mf)
 			trend <- X %*% B
 			signal <- rep(0, length(trend))
 			res <- trend + signal
@@ -74,9 +79,10 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 				stop ("spatial weights list required")
 			if (nrow(newdata) != length(listw$neighbours))
 				stop("mismatch between newdata and spatial weights")
-			B <- coefficients(object$lm.target)
+			B <- object$coefficients
 #			mt <- terms(object$formula, data = newdata)
-			mt <- delete.response(terms(object$formula))
+                        frm <- formula(object$call)
+			mt <- delete.response(terms(frm))
 #			mf <- lm(object$formula, newdata, method="model.frame")
 			mf <- model.frame(mt, newdata)
 			X <- model.matrix(mt, mf)
@@ -104,9 +110,11 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 				stop ("spatial weights list required")
 			if (nrow(newdata) != length(listw$neighbours))
 				stop("mismatch between newdata and spatial weights")
-			B <- coefficients(object$lm.target)
+			B <- object$coefficients
 #			mt <- terms(object$formula, data = newdata)
-			mt <- delete.response(terms(object$formula))
+                        frm <- formula(object$call)
+			mt <- delete.response(terms(frm))
+#			mt <- delete.response(terms(object$formula))
 #			mf <- lm(object$formula, newdata, method="model.frame")
 # resolved problem of missing response column in newdata reported by
 # Christine N. Meynard, 060201

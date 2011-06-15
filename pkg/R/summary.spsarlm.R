@@ -102,7 +102,8 @@ LR1.sarlm <- function(object)
 {
 	if (!inherits(object, "sarlm")) stop("Not a sarlm object")
 	LLx <- logLik(object)
-	LLy <- logLik(object$lm.model)
+#	LLy <- logLik(object$lm.model)
+        LLy <- object$logLik_lm.model
 	statistic <- 2*(LLx - LLy)
 	attr(statistic, "names") <- "Likelihood ratio"
 	parameter <- abs(attr(LLx, "df") - attr(LLy, "df"))
@@ -128,7 +129,8 @@ Wald1.sarlm <- function(object) {
 #	if (!object$ase) 
 #		stop("Cannot compute Wald statistic: parameter a.s.e. missing")
 	LLx <- logLik(object)
-	LLy <- logLik(object$lm.model)
+#	LLy <- logLik(object$lm.model)
+        LLy <- object$logLik_lm.model
 	if (object$type == "lag" || object$type == "mixed") {
 		estimate <- object$rho
                 rse <- object$rho.se
@@ -167,8 +169,8 @@ Hausman.test.sarlm <- function(object, ..., tol=NULL) {
     if (is.null(object$Hcov)) stop("Vo not available")
     s2 <- object$s2
     Vo <- s2 * object$Hcov
-    Vs <- s2 * summary.lm(object$lm.target, corr = FALSE)$cov.unscaled
-    d <- coef(object$lm.model) - coef(object$lm.target)
+    Vs <- s2 * object$Vs
+    d <- object$coef_lm.model - object$coefficients
     if (!is.null(tol)) VV <- try(solve((Vo - Vs), tol=tol))
     else VV <- try(solve(Vo - Vs))
     if (class(VV) == "try.error") {
@@ -330,7 +332,7 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
 	cat("Number of observations:", length(x$residuals), "\n")
 	cat("Number of parameters estimated:", x$parameters, "\n")
 	cat("AIC: ", format(signif(AIC(x), digits)), ", (AIC for lm: ",
-		format(signif(AIC(x$lm.model), digits)), ")\n", sep="")
+		format(signif(x$AIC_lm.model, digits)), ")\n", sep="")
 	if (x$type == "error") {
 		if (!is.null(x$Haus)) {
 		    cat("Hausman test: ", format(signif(x$Haus$statistic, 
