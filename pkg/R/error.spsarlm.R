@@ -286,7 +286,9 @@ errorsarlm <- function(formula, data = list(), listw, na.action, etype="error",
 	rest.se <- (summary(lm.target)$coefficients[,2])*sqrt((n-p)/n)
 	coef.lambda <- coefficients(lm.target)
 	names(coef.lambda) <- xcolnames
-        Vs <- summary.lm(object$lm.target, corr = FALSE)$cov.unscaled
+        Vs <- summary.lm(lm.target, corr = FALSE)$cov.unscaled
+        tarX <- model.matrix(lm.target)
+        tary <- model.response(model.frame(lm.target))
 	lm.model <- lm(y ~ x - 1)
         logLik_lm.model <- logLik(lm.model)
         AIC_lm.model <- AIC(lm.model)
@@ -388,6 +390,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action, etype="error",
 		LL=LL, s2=s2, SSE=SSE, parameters=(m+2), #lm.model=lm.model, 
                 logLik_lm.model=logLik_lm.model, AIC_lm.model=AIC_lm.model,
                 coef_lm.model=coef(lm.model),
+                tarX=tarX, tary=tary, y=y, X=x,
 		method=method, call=call, residuals=r, #lm.target=lm.target,
 		opt=opt, fitted.values=fit, ase=ase, #formula=formula,
 		se.fit=NULL, resvar=asyvar1, similar=get("similar", envir=env),

@@ -1,4 +1,4 @@
-# Copyright 1998-2010 by Roger Bivand (Wald test suggested by Rein Halbersma,
+# Copyright 1998-2011 by Roger Bivand (Wald test suggested by Rein Halbersma,
 # output of correlations suggested by Michael Tiefelsdorf)
 #
 

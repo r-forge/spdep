@@ -8,7 +8,7 @@ residuals.sarlm <- function(object, ...) {
 }
 
 deviance.sarlm <- function(object, ...) {
-	deviance(object$lm.target)
+	object$SSE
 }
 
 coef.sarlm <- function(object, ...) {
@@ -44,18 +44,16 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
         if (object$type == "sac") stop("no predict method for sac")
 	if (is.null(newdata)) {
 		res <- fitted.values(object)
-		X <- model.matrix(terms(object$lm.model), 
-				model.frame(object$lm.model))
+		X <- object$X
 		B <- object$coefficients
-		y <- model.response(model.frame(object$lm.model))
-		tarX <- model.matrix(terms(object$lm.target), 
-				model.frame(object$lm.target))
-		tary <- model.response(model.frame(object$lm.target))
+		y <- object$y
+		tarX <- object$tarX
+		tary <- object$tary
 		if (object$type == "error") {
 			attr(res, "trend") <- as.vector(X %*% B)
 			attr(res, "signal") <- as.vector( -1 * (tary - y) - 					-1 * (tarX - X) %*% B)
 		} else {
-			attr(res, "trend") <- fitted.values(object$lm.target)
+			attr(res, "trend") <- as.vector(X %*% B)
 			attr(res, "signal") <- as.vector( -1 * (tary - y))
 		}
 	}

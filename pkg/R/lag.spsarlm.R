@@ -256,6 +256,8 @@ lagsarlm <- function(formula, data = list(), listw,
 	fit <- y - r
 	names(r) <- names(fit)
 	coef.rho <- coefficients(lm.lag)
+        tarX <- model.matrix(lm.lag)
+        tary <- model.response(model.frame(lm.lag))
 	names(coef.rho) <- colnames(x)
 	SSE <- deviance(lm.lag)
 	s2 <- SSE/n
@@ -342,10 +344,12 @@ lagsarlm <- function(formula, data = list(), listw,
         GC <- gc()
 	ret <- structure(list(type=type, rho=rho, 
 		coefficients=coef.rho, rest.se=rest.se, 
-		LL=LL, s2=s2, SSE=SSE, parameters=(m+2), lm.model=lm.null,
+		LL=LL, s2=s2, SSE=SSE, parameters=(m+2), #lm.model=lm.null,
                 logLik_lm.model=logLik_lm.model, AIC_lm.model=AIC_lm.model,
 		method=method, call=call, residuals=r, opt=optres,
-		lm.target=lm.lag, fitted.values=fit,
+                tarX=tarX, tary=tary, y=y, X=x,
+		#lm.target=lm.lag, 
+                fitted.values=fit,
 		se.fit=NULL, #formula=formula,
                 similar=similar,
 		ase=ase, rho.se=rho.se, LMtest=LMtest, 
