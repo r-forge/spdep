@@ -341,7 +341,7 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
                         "\n", sep="")
 		}
         }
-	if (x$type == "lag" && x$ase) {
+	if ((x$type == "lag" || x$type ==  "mixed") && x$ase) {
 		cat("LM test for residual autocorrelation\n")
 		cat("test value: ", format(signif(x$LMtest, digits)),
 			", p-value: ", format.pval((1 - pchisq(x$LMtest, 1)), 
