@@ -18,7 +18,8 @@ coef.sarlm <- function(object, ...) {
 	if (object$type == "error") ret <- c(ret, object$lambda)
 	else if (object$type == "lag" || object$type == "mixed")
             ret <- c(ret, object$rho)
-        else if (object$type == "sac") ret <- c(ret, object$rho, object$lambda)
+        else if (object$type == "sac" || object$type == "sacmixed")
+            ret <- c(ret, object$rho, object$lambda)
 	ret <- c(ret, object$coefficients)
 
 	ret
