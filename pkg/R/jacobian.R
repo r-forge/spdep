@@ -460,7 +460,7 @@ moments_setup <- function(env, trs=NULL, m, p, type="MC", correct=TRUE,
                 csrw <- listw2U_Matrix(similar.listw_Matrix(get("listw",
                     envir=env)))
 	        assign("similar", TRUE, envir=env)
-            } else csrw <- as_dsTMatrix_listw(get("listw", envir=env))
+            } else csrw <- as_dgRMatrix_listw(get("listw", envir=env))
             csrw <- as(csrw, "CsparseMatrix")
             trs <- trW(csrw, m=m, p=p, type=type)
         }
@@ -472,7 +472,7 @@ moments_setup <- function(env, trs=NULL, m, p, type="MC", correct=TRUE,
                 csrw <- listw2U_Matrix(similar.listw_Matrix(get("listw2",
                     envir=env)))
 	        assign("similar2", TRUE, envir=env)
-            } else csrw <- as_dsTMatrix_listw(get("listw2", envir=env))
+            } else csrw <- as_dgRMatrix_listw(get("listw2", envir=env))
             csrw <- as(csrw, "CsparseMatrix")
             trs <- trW(csrw, m=m, p=p, type=type)
         }
