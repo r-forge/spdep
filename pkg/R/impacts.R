@@ -279,7 +279,7 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
             }
             timings[["impacts_samples"]] <- proc.time() - .ptime_start
             .ptime_start <- proc.time()
-            CL <- get("cl", env = .spdepOptions)
+            CL <- get("cl", envir = .spdepOptions)
             if (!is.null(CL) && length(CL) > 1L) {
                 require(snow)
                 l_sp <- lapply(splitIndices(nrow(samples), length(CL)), 
@@ -287,7 +287,7 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
                 clusterEvalQ(CL, library(spdep))
 		clusterExport_l <- function(CL, list) {
                     gets <- function(n, v) {
-                        assign(n, v, env = .GlobalEnv)
+                        assign(n, v, envir = .GlobalEnv)
                         NULL
                     }
                     for (name in list) {
@@ -373,7 +373,7 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
             timings[["impacts_samples"]] <- proc.time() - .ptime_start
             .ptime_start <- proc.time()
 # type, iicept, icept, SW, n, listw
-            CL <- get("cl", env = .spdepOptions)
+            CL <- get("cl", envir = .spdepOptions)
             if (!is.null(CL) && length(CL) > 1L) {
                 require(snow)
                 l_sp <- lapply(splitIndices(nrow(samples), length(CL)), 
@@ -381,7 +381,7 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
                 clusterEvalQ(CL, library(spdep))
 		clusterExport_l <- function(CL, list) {
                     gets <- function(n, v) {
-                        assign(n, v, env = .GlobalEnv)
+                        assign(n, v, envir = .GlobalEnv)
                         NULL
                     }
                     for (name in list) {
