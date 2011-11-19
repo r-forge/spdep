@@ -1,6 +1,6 @@
 # Copyright 2009-2010 by Roger Bivand
 
-trW <- function(W=NULL, m=30, p=16, type="mult", listw=NULL) {
+trW <- function(W=NULL, m=30, p=16, type="mult", listw=NULL, momentsSymmetry=TRUE) {
 # returns traces
     timings <- list()
     .ptime_start <- proc.time()
@@ -30,7 +30,8 @@ trW <- function(W=NULL, m=30, p=16, type="mult", listw=NULL) {
         tr[2] <- sum(t(W) * W)
     } else if (type == "moments") {
         if (!is.null(W) && is.null(listw)) {
-            if (!is(W, "symmetricMatrix")) stop("moments require symmetric W")
+            if (momentsSymmetry && !is(W, "symmetricMatrix"))
+                stop("moments require symmetric W")
             listw <- mat2listw(W)
         }
         tr <- mom_calc(listw, m)

@@ -5,7 +5,7 @@
 \title{Spatial weights matrix powers traces}
 \description{The function is used to prepare a vector of traces of powers of a spatial weights matrix}
 \usage{
-trW(W=NULL, m = 30, p = 16, type = "mult", listw=NULL)
+trW(W=NULL, m = 30, p = 16, type = "mult", listw=NULL, momentsSymmetry=TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -14,6 +14,7 @@ trW(W=NULL, m = 30, p = 16, type = "mult", listw=NULL)
   \item{p}{The number of samples used in Monte Carlo simulation of the traces if type is MC (default changed from 50 to 16 (2010-11-17))}
   \item{type}{Either \dQuote{mult} (default) for powering a sparse matrix (with moderate or larger N, the matrix becomes dense, and may lead to swapping), or \dQuote{MC} for Monte Carlo simulation of the traces, or \dQuote{moments} to use the looping space saving algorithm proposed by Smirnov and Anselin (2009) - for \dQuote{moments}, \code{W} must be symmetric, for row-standardised weights through a similarity transformation}
   \item{listw}{a listw object, which should either be fully symmetric, or be constructed as similar to symmetric from intrinsically symmetric neighbours using \code{\link{similar.listw}}, used with \sQuote{type}=\dQuote{moments}}
+  \item{momentsSymmetry}{default TRUE; assert Smirnov/Anselin symmetry assumption}
 }
 
 \value{
