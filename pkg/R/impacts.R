@@ -1,4 +1,4 @@
-# Copyright 2009-2010 by Roger Bivand
+# Copyright 2009-2011 by Roger Bivand
 
 trW <- function(W=NULL, m=30, p=16, type="mult", listw=NULL, momentsSymmetry=TRUE) {
 # returns traces
@@ -19,15 +19,24 @@ trW <- function(W=NULL, m=30, p=16, type="mult", listw=NULL, momentsSymmetry=TRU
         stopifnot(inherits(W, "sparseMatrix"))
         n <- dim(W)[1]
         tr <- numeric(m)
+# return sd of traces 111126
+        sdtr <- numeric(m)
         x <- matrix(rnorm(n*p), nrow=n, ncol=p)
         xx <- x
         for (i in 1:m) {
             xx <- W %*% xx
-            tr[i] <- sum(apply(x * as.matrix(xx), 2,  function(y) sum(y)/p))
+# return sd of traces 111126
+            v <- apply(x * as.matrix(xx), 2, sum)
+            tr[i] <- mean(v)
+            sdtr[i] <- sd(v)/sqrt(p)
+#            tr[i] <- sum(apply(x * as.matrix(xx), 2,  function(y) sum(y)/p))
 # mean replaced by sum(y)/p 091012, 0.4-47
         }
         tr[1] <- 0.0
         tr[2] <- sum(t(W) * W)
+# return sd of traces 111126
+        sdtr[1:2] <- NA
+        attr(tr, "sd") <- sdtr
     } else if (type == "moments") {
         if (!is.null(W) && is.null(listw)) {
             if (momentsSymmetry && !is(W, "symmetricMatrix"))
