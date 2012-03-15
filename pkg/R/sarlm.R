@@ -76,6 +76,9 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 #			mf <- lm(object$formula, newdata, method="model.frame")
 			mf <- model.frame(mt, newdata)
 			X <- model.matrix(mt, mf)
+#  accommodate aliased coefficients 120314
+                        if (any(object$aliased))
+                            X <- X[,-which(object$aliased)]
 			trend <- X %*% B
 			signal <- rep(0, length(trend))
 			res <- trend + signal
@@ -104,6 +107,9 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 				WX[,(k-(K-1))] <- wx
 			}
 			X <- cbind(X, WX)
+#  accommodate aliased coefficients 120314
+                        if (any(object$aliased))
+                            X <- X[,-which(object$aliased)]
 			trend <- X %*% B
 			signal <- object$rho * lag.listw(listw, 
 				(invIrW(listw, object$rho) %*% trend), 
@@ -129,6 +135,9 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 			if (dim(mf)[1] != length(listw$neighbours))
 			    stop("missing values in newdata")
 			X <- model.matrix(mt, mf)
+#  accommodate aliased coefficients 120314
+                        if (any(object$aliased))
+                            X <- X[,-which(object$aliased)]
 			trend <- X %*% B
 			raw.sig <- invIrW(listw, object$rho) %*% trend
 			signal <- object$rho * lag.listw(listw, 
