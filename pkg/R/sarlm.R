@@ -1,4 +1,4 @@
-# Copyright 2002-11 by Roger Bivand
+# Copyright 2002-12 by Roger Bivand
 #
 
 residuals.sarlm <- function(object, ...) {
@@ -46,11 +46,20 @@ fitted.sarlm <- function(object, ...) {
 }
 
 predict.sarlm <- function(object, newdata=NULL, listw=NULL, 
-	zero.policy=NULL, ...) {
+	zero.policy=NULL, legacy=TRUE, power=NULL, order=250, tol=.Machine$double.eps^(3/5), pred.se=FALSE, lagImpact=NULL, ...) {
         if (is.null(zero.policy))
             zero.policy <- get("zeroPolicy", envir = .spdepOptions)
         stopifnot(is.logical(zero.policy))
         if (object$type == "sac") stop("no predict method for sac")
+        if (is.null(power)) power <- object$method != "eigen"
+        stopifnot(is.logical(legacy))
+        stopifnot(is.logical(power))
+        if (pred.se && object$type == "error") {
+            pred.se <- FALSE
+            warning("standard error estimates not available for error models")
+        }
+        if (pred.se && is.null(lagImpact))
+            stop("lagImpact object from impact method required for standard error estimate")
 	if (is.null(newdata)) {
 		res <- fitted.values(object)
 		X <- object$X
@@ -72,7 +81,7 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 #			tt <- terms(object$lm.model) 
 #			X <- model.matrix(delete.response(tt), data=newdata)
                         frm <- formula(object$call)
-			mt <- delete.response(terms(frm))
+			mt <- delete.response(terms(frm, data=newdata))
 #			mf <- lm(object$formula, newdata, method="model.frame")
 			mf <- model.frame(mt, newdata)
 			X <- model.matrix(mt, mf)
@@ -92,7 +101,7 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 			B <- object$coefficients
 #			mt <- terms(object$formula, data = newdata)
                         frm <- formula(object$call)
-			mt <- delete.response(terms(frm))
+			mt <- delete.response(terms(frm, data=newdata))
 #			mf <- lm(object$formula, newdata, method="model.frame")
 			mf <- model.frame(mt, newdata)
 			X <- model.matrix(mt, mf)
@@ -111,13 +120,43 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
                         if (any(object$aliased))
                             X <- X[,-which(object$aliased)]
 			trend <- X %*% B
-			signal <- object$rho * lag.listw(listw, 
-				(invIrW(listw, object$rho) %*% trend), 
-				zero.policy=zero.policy)
-			res <- trend + signal
-			attr(res, "trend") <- trend
-			attr(res, "signal") <- signal
-
+                        if (power) {
+                            W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
+                            res <- c(as(powerWeights(W, rho=object$rho,
+                                X=trend, order=order, tol=tol), "matrix"))
+                        } else {
+                            res <- c(invIrW(listw, object$rho) %*% trend)
+                        }
+                        if (legacy) {
+			    signal <- object$rho * lag.listw(listw, 
+				res, zero.policy=zero.policy)
+			    res <- c(trend + signal)
+                        } else {
+                            signal <- res - trend
+                        }
+                        if (pred.se) {
+                            samples <- attr(lagImpact, "samples")$samples
+                            irho <- attr(lagImpact, "samples")$irho
+                            drop2beta <- attr(lagImpact, "samples")$drop2beta
+                            nSim <- nrow(samples)
+                            outmat <- matrix(NA, ncol=nSim, nrow=nrow(X))
+                            for (i in 1:nSim) {
+                                B <- samples[i, -drop2beta]
+                                trend <- X %*% B
+                                rho <- samples[i, irho]
+                                if (power) {
+                                    res <- c(as(powerWeights(W, rho=rho,
+                                    X=trend, order=order, tol=tol), "matrix"))
+                                } else {
+                                    res <- c(invIrW(listw, rho) %*% trend)
+                                }
+                                outmat[,i] <- res
+                            }
+                            pred.se <- apply(outmat, 1, sd)
+                            attr(res, "pred.se") <- pred.se
+                        }
+			attr(res, "trend") <- c(trend)
+			attr(res, "signal") <- c(signal)
 		} else {
 			if (is.null(listw) || !inherits(listw, "listw")) 
 				stop ("spatial weights list required")
@@ -126,7 +165,7 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 			B <- object$coefficients
 #			mt <- terms(object$formula, data = newdata)
                         frm <- formula(object$call)
-			mt <- delete.response(terms(frm))
+			mt <- delete.response(terms(frm, data=newdata))
 #			mt <- delete.response(terms(object$formula))
 #			mf <- lm(object$formula, newdata, method="model.frame")
 # resolved problem of missing response column in newdata reported by
@@ -139,12 +178,43 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
                         if (any(object$aliased))
                             X <- X[,-which(object$aliased)]
 			trend <- X %*% B
-			raw.sig <- invIrW(listw, object$rho) %*% trend
-			signal <- object$rho * lag.listw(listw, 
-				raw.sig, zero.policy=zero.policy)
-			res <- trend + signal
-			attr(res, "trend") <- trend
-			attr(res, "signal") <- signal
+                        if (power) {
+                            W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
+                            res <- c(as(powerWeights(W, rho=object$rho,
+                                X=trend, order=order, tol=tol), "matrix"))
+                        } else {
+                            res <- c(invIrW(listw, object$rho) %*% trend)
+                        }
+                        if (legacy) {
+			    signal <- object$rho * lag.listw(listw, 
+				res, zero.policy=zero.policy)
+			    res <- c(trend + signal)
+                        } else {
+                            signal <- res - trend
+                        }
+                        if (pred.se) {
+                            samples <- attr(lagImpact, "samples")$samples
+                            irho <- attr(lagImpact, "samples")$irho
+                            drop2beta <- attr(lagImpact, "samples")$drop2beta
+                            nSim <- nrow(samples)
+                            outmat <- matrix(NA, ncol=nSim, nrow=nrow(X))
+                            for (i in 1:nSim) {
+                                B <- samples[i, -drop2beta]
+                                trend <- X %*% B
+                                rho <- samples[i, irho]
+                                if (power) {
+                                    res <- c(as(powerWeights(W, rho=rho,
+                                    X=trend, order=order, tol=tol), "matrix"))
+                                } else {
+                                    res <- c(invIrW(listw, rho) %*% trend)
+                                }
+                                outmat[,i] <- res
+                            }
+                            pred.se <- apply(outmat, 1, sd)
+                            attr(res, "pred.se") <- pred.se
+                        }
+			attr(res, "trend") <- c(trend)
+			attr(res, "signal") <- c(signal)
 		}
 	}
 	class(res) <- "sarlm.pred"
