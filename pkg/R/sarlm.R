@@ -77,6 +77,7 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 	}
 	else {
 		if (object$type == "error") {
+                    if (object$etype == "error") {
 			B <- object$coefficients
 #			tt <- terms(object$lm.model) 
 #			X <- model.matrix(delete.response(tt), data=newdata)
@@ -93,6 +94,38 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 			res <- trend + signal
 			attr(res, "trend") <- trend
 			attr(res, "signal") <- signal
+                    } else if (object$etype == "emixed") {
+			if (is.null(listw) || !inherits(listw, "listw")) 
+				stop ("spatial weights list required")
+			if (nrow(newdata) != length(listw$neighbours))
+				stop("mismatch between newdata and spatial weights")
+			B <- object$coefficients
+#			mt <- terms(object$formula, data = newdata)
+                        frm <- formula(object$call)
+			mt <- delete.response(terms(frm, data=newdata))
+#			mf <- lm(object$formula, newdata, method="model.frame")
+			mf <- model.frame(mt, newdata)
+			X <- model.matrix(mt, mf)
+			K <- ifelse(colnames(X)[1] == "(Intercept)", 2, 1)
+			m <- ncol(X)
+			WX <- matrix(nrow=nrow(X),ncol=(m-(K-1)))
+			for (k in K:m) {
+				wx <- lag.listw(listw, X[,k], 
+				    zero.policy=zero.policy)
+				if (any(is.na(wx))) 
+				    stop("NAs in lagged independent variable")
+				WX[,(k-(K-1))] <- wx
+			}
+			X <- cbind(X, WX)
+#  accommodate aliased coefficients 120314
+                        if (any(object$aliased))
+                            X <- X[,-which(object$aliased)]
+			trend <- X %*% B
+			signal <- rep(0, length(trend))
+			res <- trend + signal
+			attr(res, "trend") <- trend
+			attr(res, "signal") <- signal
+                    } else stop("unkown error model etype")
 		} else if (object$type == "mixed") {
 			if (is.null(listw) || !inherits(listw, "listw")) 
 				stop ("spatial weights list required")
