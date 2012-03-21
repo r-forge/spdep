@@ -108,14 +108,30 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 			X <- model.matrix(mt, mf)
 			K <- ifelse(colnames(X)[1] == "(Intercept)", 2, 1)
 			m <- ncol(X)
-			WX <- matrix(nrow=nrow(X),ncol=(m-(K-1)))
-			for (k in K:m) {
+		        # check if there are enough regressors
+                        if (m > 1) {
+			    WX <- matrix(nrow=nrow(X),ncol=(m-(K-1)))
+			    for (k in K:m) {
 				wx <- lag.listw(listw, X[,k], 
 				    zero.policy=zero.policy)
 				if (any(is.na(wx))) 
 				    stop("NAs in lagged independent variable")
 				WX[,(k-(K-1))] <- wx
-			}
+			    }
+                        }
+		        if (K == 2) {
+         	        # unnormalized weight matrices
+                	    if (!(listw$style == "W")) {
+ 	      			intercept <- as.double(rep(1, nrow(X)))
+       	        		wx <- lag.listw(listw, intercept, 
+					zero.policy = zero.policy)
+                    		if (m > 1) {
+                        		WX <- cbind(wx, WX)
+                    		} else {
+			      		WX <- matrix(wx, nrow = nrow(X), ncol = 1)
+                    		}
+                	    } 
+            	        }   
 			X <- cbind(X, WX)
 #  accommodate aliased coefficients 120314
                         if (any(object$aliased))
@@ -140,14 +156,30 @@ predict.sarlm <- function(object, newdata=NULL, listw=NULL,
 			X <- model.matrix(mt, mf)
 			K <- ifelse(colnames(X)[1] == "(Intercept)", 2, 1)
 			m <- ncol(X)
-			WX <- matrix(nrow=nrow(X),ncol=(m-(K-1)))
-			for (k in K:m) {
+		        # check if there are enough regressors
+                        if (m > 1) {
+			    WX <- matrix(nrow=nrow(X),ncol=(m-(K-1)))
+			    for (k in K:m) {
 				wx <- lag.listw(listw, X[,k], 
 				    zero.policy=zero.policy)
 				if (any(is.na(wx))) 
 				    stop("NAs in lagged independent variable")
 				WX[,(k-(K-1))] <- wx
-			}
+			    }
+                        }
+		        if (K == 2) {
+         	        # unnormalized weight matrices
+                	    if (!(listw$style == "W")) {
+ 	      			intercept <- as.double(rep(1, nrow(X)))
+       	        		wx <- lag.listw(listw, intercept, 
+					zero.policy = zero.policy)
+                    		if (m > 1) {
+                        		WX <- cbind(wx, WX)
+                    		} else {
+			      		WX <- matrix(wx, nrow = nrow(X), ncol = 1)
+                    		}
+                	    } 
+            	        }   
 			X <- cbind(X, WX)
 #  accommodate aliased coefficients 120314
                         if (any(object$aliased))
