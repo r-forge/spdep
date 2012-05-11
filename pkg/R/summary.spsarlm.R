@@ -31,7 +31,9 @@ summary.sarlm <- function(object, correlation = FALSE, Nagelkerke=FALSE,
                 SE <- object$rest.se
                 if (adj.se) {
                     N <- length(residuals(object))
-                    adj <- N/(N-length(object$coefficients))
+                    adj <- N/(N-(length(object$coefficients) +
+                        ifelse(object$type == "sac" || 
+                            object$type == "sacmixed", 2, 1)))
                     SE <- sqrt((SE^2) * adj)
                 }
 		object$Coef <- cbind(object$coefficients, SE, 
@@ -46,7 +48,9 @@ summary.sarlm <- function(object, correlation = FALSE, Nagelkerke=FALSE,
                 SE <- object$rest.se
                 if (adj.se) {
                     N <- length(residuals(object))
-                    adj <- N/(N-length(object$coefficients))
+                    adj <- N/(N-(length(object$coefficients) +
+                        ifelse(object$type == "sac" || 
+                            object$type == "sacmixed", 2, 1)))
                     SE <- sqrt((SE^2) * adj)
                 }
 		object$Coef <- cbind(object$coefficients, SE, 
@@ -289,7 +293,8 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
                     }
 		    cat(pref, " standard error: ", 
 		        format(signif(x$lambda.se, digits)),
-			"\n    z-value: ",format(signif((x$lambda/
+			ifelse(is.null(x$adj.se), "\n    z-value: ",
+                               "\n    t-value: "), format(signif((x$lambda/
 				x$lambda.se), digits)),
 			", p-value: ", format.pval(2*(1-pnorm(abs(x$lambda/
 				x$lambda.se))), digits), "\n", sep="")
@@ -305,7 +310,9 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
                         x$rho.se <- sqrt((x$rho.se^2)*x$adj.se)   
                     }
 		  cat(pref, " standard error: ", 
-			format(signif(x$rho.se, digits)), "\n    z-value: ", 
+			format(signif(x$rho.se, digits)), 
+                        ifelse(is.null(x$adj.se), "\n    z-value: ",
+                               "\n    t-value: "), 
 			format(signif((x$rho/x$rho.se), digits)),
 			", p-value: ", format.pval(2 * (1 - pnorm(abs(x$rho/
 				x$rho.se))), digits), "\n", sep="")
@@ -319,7 +326,8 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
                     }
 		    cat(pref, " standard error: ", 
 		        format(signif(x$lambda.se, digits)),
-			"\n    z-value: ",format(signif((x$lambda/
+			ifelse(is.null(x$adj.se), "\n    z-value: ",
+                               "\n    t-value: "), format(signif((x$lambda/
 				x$lambda.se), digits)),
 			", p-value: ", format.pval(2*(1-pnorm(abs(x$lambda/
 				x$lambda.se))), digits), "\n", sep="")
@@ -337,7 +345,9 @@ print.summary.sarlm <- function(x, digits = max(5, .Options$digits - 3),
                         x$rho.se <- sqrt((x$rho.se^2)*x$adj.se)   
                     }
 		  cat(pref, " standard error: ", 
-			format(signif(x$rho.se, digits)), "\n    z-value: ", 
+			format(signif(x$rho.se, digits)), 
+                        ifelse(is.null(x$adj.se), "\n    z-value: ",
+                               "\n    t-value: "), 
 			format(signif((x$rho/x$rho.se), digits)),
 			", p-value: ", format.pval(2 * (1 - pnorm(abs(x$rho/
 				x$rho.se))), digits), "\n", sep="")
