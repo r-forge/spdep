@@ -31,9 +31,7 @@ summary.sarlm <- function(object, correlation = FALSE, Nagelkerke=FALSE,
                 SE <- object$rest.se
                 if (adj.se) {
                     N <- length(residuals(object))
-                    adj <- N/(N-(length(object$coefficients) +
-                        ifelse(object$type == "sac" || 
-                            object$type == "sacmixed", 2, 1)))
+                    adj <- N/(N-(length(object$coefficients)))
                     SE <- sqrt((SE^2) * adj)
                 }
 		object$Coef <- cbind(object$coefficients, SE, 
@@ -48,9 +46,7 @@ summary.sarlm <- function(object, correlation = FALSE, Nagelkerke=FALSE,
                 SE <- object$rest.se
                 if (adj.se) {
                     N <- length(residuals(object))
-                    adj <- N/(N-(length(object$coefficients) +
-                        ifelse(object$type == "sac" || 
-                            object$type == "sacmixed", 2, 1)))
+                    adj <- N/(N-(length(object$coefficients)))
                     SE <- sqrt((SE^2) * adj)
                 }
 		object$Coef <- cbind(object$coefficients, SE, 
