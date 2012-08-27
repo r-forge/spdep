@@ -1,4 +1,4 @@
-# Copyright 1998-2011 by Roger Bivand (non-W styles Rein Halbersma)
+# Copyright 1998-2012 by Roger Bivand (non-W styles Rein Halbersma)
 #
 
 errorsarlm <- function(formula, data = list(), listw, na.action, etype="error",
