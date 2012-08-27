@@ -75,6 +75,7 @@ variable in making predictions for the fitting data.
   \item{interpn}{default 2000, as in SE toolbox; the size of the second stage lndet grid}
   \item{small_asy}{default TRUE; if the method is not \dQuote{eigen}, use asymmetric covariances rather than numerical Hessian ones if n <= small}
   \item{small}{default 1500; threshold number of observations for asymmetric covariances when the method is not \dQuote{eigen}}
+  \item{SElndet}{default NULL, may be used to pass a pre-computed SE toolbox style matrix of coefficients and their lndet values to the "SE_classic" and "SE_whichMin" methods}
 }}
 
 \value{
@@ -117,6 +118,8 @@ of spatial autocorrelation in the lag model residuals}
   \item{LLNullLlm}{Log-likelihood of the null linear model}
   \item{timings}{processing timings}
   \item{f_calls}{number of calls to the log likelihood function during optimization}
+  \item{hf_calls}{number of calls to the log likelihood function during numerical Hessian computation}
+  \item{intern_classic}{a data frame of detval matrix row choices used by the SE toolbox classic method}
   \item{na.action}{(possibly) named vector of excluded or omitted observations if non-default na.action argument used}
 
 The internal sar.lag.mixed.* functions return the value of the log likelihood function at \eqn{\rho}{rho}.
@@ -128,7 +131,7 @@ Ord, J. K. 1975 Estimation methods for models of spatial interaction,
 Anselin, L. 1988 \emph{Spatial econometrics: methods and models.}
 (Dordrecht: Kluwer); Anselin, L. 1995 SpaceStat, a software program for
 the analysis of spatial data, version 1.80. Regional Research Institute,
-West Virginia University, Morgantown, WV (\url{www.spacestat.com});
+West Virginia University, Morgantown, WV;
 Anselin L, Bera AK (1998) Spatial dependence in linear regression models
 with an introduction to spatial econometrics. In: Ullah A, Giles DEA
 (eds) Handbook of applied economic statistics. Marcel Dekker, New York,
