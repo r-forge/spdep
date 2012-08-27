@@ -511,27 +511,34 @@ moments_ldet <- function(x, env, which=1) {
 }
 
 SE_classic_setup <- function(env, SE_method="LU", p=16, m=30, nrho=200,
-  interpn=2000, interval=c(-1,0.999), which=1) {
+  interpn=2000, interval=c(-1,0.999), SElndet=NULL, which=1) {
   stopifnot(require(splines))
 
-  SE_setup_intern(env, SE_method=SE_method, p=p, m=m, nrho=nrho,
-    interval=interval, which=which)
-  assign("method", "SE_classic", envir=env)
-  assign("SE_method", SE_method, envir=env)
-  if (which == 1) {
-    detval <- get("detval1", envir=env)
-  } else if (which == 2) {
-    detval <- get("detval2", envir=env)
+  if (is.null(SElndet)) {
+    SE_setup_intern(env, SE_method=SE_method, p=p, m=m, nrho=nrho,
+      interval=interval, which=which)
+    assign("SE_method", SE_method, envir=env)
+    if (which == 1) {
+      detval <- get("detval1", envir=env)
+    } else if (which == 2) {
+      detval <- get("detval2", envir=env)
+    }
+    fit <- interpSpline(detval[,1], detval[,2])
+    rho <- seq(interval[1], interval[2], length.out=interpn)
+    detval <- matrix(unlist(predict(fit, rho)), ncol=2)
+  } else {
+    stopifnot(is.matrix(SElndet))
+    stopifnot(ncol(SElndet) == 2)
+    detval <- SElndet
+    assign("SE_method", "precomputed", envir=env)
   }
-  fit <- interpSpline(detval[,1], detval[,2])
-  rho <- seq(interval[1], interval[2], length.out=interpn)
-  detval <- matrix(unlist(predict(fit, rho)), ncol=2)
+  assign("method", "SE_classic", envir=env)
   if (which == 1) {
     assign("detval1", detval, envir=env)
   } else if (which == 2) {
     assign("detval2", detval, envir=env)
   }
-  assign("intern_classic", list(), envir=env)
+  assign("intern_classic", data.frame(), envir=env)
   invisible(NULL)
  
 }
@@ -568,7 +575,8 @@ SE_classic_ldet <- function(x, env, which=1) {
     intern_attr <- attr(res, "intern")
     intern_attr$rho0 <- x
     intern_attr$rho1 <- res[1]
-    iC <- c(get("intern_classic", envir=env), intern_attr)
+    intern_attr <- as.data.frame(intern_attr)
+    iC <- rbind(get("intern_classic", envir=env), intern_attr)
     assign("intern_classic", iC, envir=env)
     res[2]
 }
@@ -593,22 +601,29 @@ SE_classic <- function(rho, detval) {
 }
 
 SE_whichMin_setup <- function(env, SE_method="LU", p=16, m=30, nrho=200,
-  interpn=2000, interval=c(-1,0.999), which=1) {
+  interpn=2000, interval=c(-1,0.999), SElndet=NULL, which=1) {
   stopifnot(require(splines))
 
-  SE_setup_intern(env, SE_method=SE_method, p=p, m=m, nrho=nrho,
-    interval=interval, which=which)
-  assign("method", "SE_whichMin", envir=env)
-  assign("SE_method", SE_method, envir=env)
-  if (which == 1) {
-    detval <- get("detval1", envir=env)
-  } else if (which == 2) {
-    detval <- get("detval2", envir=env)
-  }
+  if (is.null(SElndet)) {
+    SE_setup_intern(env, SE_method=SE_method, p=p, m=m, nrho=nrho,
+      interval=interval, which=which)
+    assign("SE_method", SE_method, envir=env)
+    if (which == 1) {
+      detval <- get("detval1", envir=env)
+    } else if (which == 2) {
+      detval <- get("detval2", envir=env)
+    }
   
-  fit <- interpSpline(detval[,1], detval[,2])
-  rho <- seq(interval[1], interval[2], length.out=interpn)
-  detval <- matrix(unlist(predict(fit, rho)), ncol=2)
+    fit <- interpSpline(detval[,1], detval[,2])
+    rho <- seq(interval[1], interval[2], length.out=interpn)
+    detval <- matrix(unlist(predict(fit, rho)), ncol=2)
+  } else {
+    stopifnot(is.matrix(SElndet))
+    stopifnot(ncol(SElndet) == 2)
+    detval <- SElndet
+    assign("SE_method", "precomputed", envir=env)
+  }
+  assign("method", "SE_whichMin", envir=env)
   if (which == 1) {
     assign("detval1", detval, envir=env)
   } else if (which == 2) {

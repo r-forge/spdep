@@ -29,9 +29,9 @@ Matrix_J_setup(env, super=FALSE, which=1)
 LU_setup(env, which=1)
 moments_setup(env, trs=NULL, m, p, type="MC", correct=TRUE, trunc=TRUE, which=1)
 SE_classic_setup(env, SE_method="LU", p=16, m=30, nrho=200, interpn=2000,
- interval=c(-1,0.999), which=1)
+ interval=c(-1,0.999), SElndet=NULL, which=1)
 SE_whichMin_setup(env, SE_method="LU", p=16, m=30, nrho=200, interpn=2000,
- interval=c(-1,0.999), which=1)
+ interval=c(-1,0.999), SElndet=NULL, which=1)
 SE_interp_setup(env, SE_method="LU", p=16, m=30, nrho=200,
  interval=c(-1,0.999), which=1)
 }
@@ -55,6 +55,7 @@ SE_interp_setup(env, SE_method="LU", p=16, m=30, nrho=200,
   \item{nrho}{default 200, number of lndet values in first stage SE toolbox emulation grid}
   \item{interval}{default c(-1,0.999) if interval argument NULL, bounds for SE toolbox emulation grid}
   \item{interpn}{default 2000, number of lndet values to interpolate in second stage SE toolbox emulation grid}
+  \item{SElndet}{default NULL, used to pass a pre-computed two-column matrix of coefficient values and corresponding interpolated lndet values}
 }
 
 \details{Since environments are containers in the R workspace passed by reference rather than by value, they are useful for passing objects to functions called in numerical optimisation, here for the maximum likelihood estimation of spatial regression models. This technique can save a little time on each function call, balanced against the need to access the objects in the environment inside the function. The environment should contain a \code{family} string object either \dQuote{SAR}, \dQuote{CAR} or \dQuote{SMA} (used in \code{do_ldet} to choose spatial moving average in \code{spautolm}, and these specific objects before calling the set-up functions:

@@ -12,7 +12,7 @@ lagsarlm <- function(formula, data = list(), listw,
             cheb_q=5, MC_p=16, MC_m=30, super=NULL, spamPivot="MMD",
             in_coef=0.1, type="MC", correct=TRUE, trunc=TRUE,
             SE_method="LU", nrho=200, interpn=2000, small_asy=TRUE,
-            small=1500)
+            small=1500, SElndet=NULL)
         nmsC <- names(con)
         con[(namc <- names(control))] <- control
         if (length(noNms <- namc[!namc %in% nmsC])) 
@@ -252,7 +252,7 @@ lagsarlm <- function(formula, data = list(), listw,
 		        stop("MC method requires row-standardised weights")
                     SE_classic_setup(env, SE_method=con$SE_method, p=con$MC_p,
                         m=con$MC_m, nrho=con$nrho, interpn=con$interpn,
-                        interval=interval)
+                        interval=interval, SElndet=con$SElndet)
                     W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
         	    I <- as_dsCMatrix_I(n)
                 },
@@ -263,7 +263,7 @@ lagsarlm <- function(formula, data = list(), listw,
 		        stop("MC method requires row-standardised weights")
                     SE_whichMin_setup(env, SE_method=con$SE_method, p=con$MC_p,
                         m=con$MC_m, nrho=con$nrho, interpn=con$interpn,
-                        interval=interval)
+                        interval=interval, SElndet=con$SElndet)
                     W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
         	    I <- as_dsCMatrix_I(n)
                 },
@@ -385,8 +385,7 @@ lagsarlm <- function(formula, data = list(), listw,
 	}
 	call <- match.call()
         if (method=="SE_classic") {
-            aa <- get("intern_classic", envir=env)
-            iC <- do.call("rbind", aa)
+            iC <- get("intern_classic", envir=env)
         } else iC <- NULL
 	ret <- structure(list(type=type, rho=rho, 
 		coefficients=coef.rho, rest.se=rest.se, 
