@@ -132,6 +132,7 @@ lagsarlm <- function(formula, data = list(), listw,
         assign("listw", listw, envir=env)
         assign("similar", FALSE, envir=env)
         assign("f_calls", 0L, envir=env)
+        assign("hf_calls", 0L, envir=env)
         timings[["set_up"]] <- proc.time() - .ptime_start
         .ptime_start <- proc.time()
 	if (!quiet) cat("Jacobian calculated using ")
@@ -403,7 +404,8 @@ lagsarlm <- function(formula, data = list(), listw,
                 optimHess=con$optimHess, insert=!is.null(trs),
                 LLNullLlm=LL_null_lm,
                 timings=do.call("rbind", timings)[, c(1, 3)], 
-                f_calls=get("f_calls", envir=env), intern_classic=iC),
+                f_calls=get("f_calls", envir=env),
+                hf_calls=get("hf_calls", envir=env), intern_classic=iC),
                 class=c("sarlm"))
         rm(env)
         GC <- gc()
