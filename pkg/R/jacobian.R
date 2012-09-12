@@ -431,7 +431,8 @@ Rmrho <- function(Omega, m, rho, n, trunc=FALSE) {
     rhoj <- rho^m
     Om_ej <- Om_e^m
     Om_oj <- Om_o^m
-    for (j in m:n) {
+# m+1 120912 RSB
+    for (j in (m+1):n) {
         if ((j %% 2) == 0) {
             inc <- ((1/j)*rhoj)*Om*(Om_ej)
         } else { 
