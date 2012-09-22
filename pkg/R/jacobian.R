@@ -158,6 +158,7 @@ do_ldet <- function(coef, env, which=1) {
            Chebyshev = {ldet <- cheb_ldet(coef, env, which=which)},
            MC = {ldet <- mcdet_ldet(coef, env, which=which)},
            LU = {ldet <- LU_ldet(coef, env, which=which)},
+           LU_update = {ldet <- LU_update_ldet(coef, env, which=which)},
            moments = {ldet <- moments_ldet(coef, env, which=which)},
            SE_classic = {ldet <- SE_classic_ldet(coef, env, which=which)},
            SE_whichMin = {ldet <- SE_whichMin_ldet(coef, env, which=which)},
@@ -372,6 +373,37 @@ LU_ldet <- function(coef, env, which=1) {
         W <- get("W2", envir=env)
     }
     LU <- lu(I - coef * W)
+    dU <- abs(diag(slot(LU, "U")))
+    ldet <- sum(log(dU))
+    ldet
+}
+
+LU_update_setup <- function(env, coef=0.1, which=1) {
+    I <- as_dsCMatrix_I(get("n", envir=env))
+    assign("I", I, envir=env)
+    if (which == 1) {
+        W <- as(as_dgRMatrix_listw(get("listw", envir=env)), "CsparseMatrix")
+        LU <- lu(I - coef * W)
+        Wpq <- W[LU@p+1L, LU@q+1L]
+        assign("W", Wpq, envir=env)
+    } else {
+        W <- as(as_dgRMatrix_listw(get("listw2", envir=env)), "CsparseMatrix")
+        LU <- lu(I - coef * W)
+        Wpq <- W[LU@p+1L, LU@q+1L]
+        assign("W2", Wpq, envir=env)
+    }
+    assign("method", "LU_update", envir=env)
+    invisible(NULL)
+}
+
+LU_update_ldet <- function(coef, env, which=1) {
+    I <- get("I", envir=env)
+    if (which == 1) {
+        W <- get("W", envir=env)
+    } else {
+        W <- get("W2", envir=env)
+    }
+    LU <- lu(I - coef * W, order=FALSE)
     dU <- abs(diag(slot(LU, "U")))
     ldet <- sum(log(dU))
     ldet
