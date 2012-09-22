@@ -383,14 +383,16 @@ LU_update_setup <- function(env, coef=0.1, which=1) {
     assign("I", I, envir=env)
     if (which == 1) {
         W <- as(as_dgRMatrix_listw(get("listw", envir=env)), "CsparseMatrix")
+        assign("W", W, envir=env)
         LU <- lu(I - coef * W)
-        Wpq <- W[LU@p+1L, LU@q+1L]
-        assign("W", Wpq, envir=env)
+        pq <- cbind(LU@p+1L, LU@q+1L)
+        assign("pq", pq, envir=env)
     } else {
         W <- as(as_dgRMatrix_listw(get("listw2", envir=env)), "CsparseMatrix")
+        assign("W2", W, envir=env)
         LU <- lu(I - coef * W)
-        Wpq <- W[LU@p+1L, LU@q+1L]
-        assign("W2", Wpq, envir=env)
+        pq <- cbind(LU@p+1L, LU@q+1L)
+        assign("pq2", pq, envir=env)
     }
     assign("method", "LU_update", envir=env)
     invisible(NULL)
@@ -400,10 +402,13 @@ LU_update_ldet <- function(coef, env, which=1) {
     I <- get("I", envir=env)
     if (which == 1) {
         W <- get("W", envir=env)
+        pq <- get("pq", envir=env)
     } else {
         W <- get("W2", envir=env)
+        pq <- get("pq2", envir=env)
     }
-    LU <- lu(I - coef * W, order=FALSE)
+    z <- (I - coef * W)
+    LU <- lu(z[pq[,1], pq[,2]], order=FALSE)
     dU <- abs(diag(slot(LU, "U")))
     ldet <- sum(log(dU))
     ldet

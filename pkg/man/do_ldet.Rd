@@ -144,7 +144,8 @@ SE_interp_setup(env, SE_method="LU", p=16, m=30, nrho=200,
     \item{n}{number of spatial objects}
   } and assigns to the environment:
   \describe{
-    \item{W}{sparse spatial weights matrix permuted for fill-reduction}
+    \item{W}{sparse spatial weights matrix}
+    \item{pq}{2-column matrix for row and column permutation for fill-reduction}
     \item{I}{sparse identity matrix}
     \item{method}{string: \dQuote{LU}}
   }
