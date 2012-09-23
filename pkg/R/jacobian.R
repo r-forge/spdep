@@ -158,7 +158,7 @@ do_ldet <- function(coef, env, which=1) {
            Chebyshev = {ldet <- cheb_ldet(coef, env, which=which)},
            MC = {ldet <- mcdet_ldet(coef, env, which=which)},
            LU = {ldet <- LU_ldet(coef, env, which=which)},
-           LU_update = {ldet <- LU_update_ldet(coef, env, which=which)},
+           LU_prepermutate = {ldet <- LU_prepermutate_ldet(coef, env, which=which)},
            moments = {ldet <- moments_ldet(coef, env, which=which)},
            SE_classic = {ldet <- SE_classic_ldet(coef, env, which=which)},
            SE_whichMin = {ldet <- SE_whichMin_ldet(coef, env, which=which)},
@@ -378,37 +378,41 @@ LU_ldet <- function(coef, env, which=1) {
     ldet
 }
 
-LU_update_setup <- function(env, coef=0.1, which=1) {
+LU_prepermutate_setup <- function(env, coef=0.1, order=FALSE, which=1) {
     I <- as_dsCMatrix_I(get("n", envir=env))
     assign("I", I, envir=env)
     if (which == 1) {
+        assign("lu_order", order, envir=env)
         W <- as(as_dgRMatrix_listw(get("listw", envir=env)), "CsparseMatrix")
         assign("W", W, envir=env)
         LU <- lu(I - coef * W)
         pq <- cbind(LU@p+1L, LU@q+1L)
         assign("pq", pq, envir=env)
     } else {
+        assign("lu_order2", order, envir=env)
         W <- as(as_dgRMatrix_listw(get("listw2", envir=env)), "CsparseMatrix")
         assign("W2", W, envir=env)
         LU <- lu(I - coef * W)
         pq <- cbind(LU@p+1L, LU@q+1L)
         assign("pq2", pq, envir=env)
     }
-    assign("method", "LU_update", envir=env)
+    assign("method", "LU_prepermutate", envir=env)
     invisible(NULL)
 }
 
-LU_update_ldet <- function(coef, env, which=1) {
+LU_prepermutate_ldet <- function(coef, env, which=1) {
     I <- get("I", envir=env)
     if (which == 1) {
+        order <- get("lu_order", envir=env)
         W <- get("W", envir=env)
         pq <- get("pq", envir=env)
     } else {
+        order <- get("lu_order2", envir=env)
         W <- get("W2", envir=env)
         pq <- get("pq2", envir=env)
     }
     z <- (I - coef * W)
-    LU <- lu(z[pq[,1], pq[,2]], order=FALSE)
+    LU <- lu(z[pq[,1], pq[,2]], order=order)
     dU <- abs(diag(slot(LU, "U")))
     ldet <- sum(log(dU))
     ldet
