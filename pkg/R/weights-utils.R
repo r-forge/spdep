@@ -180,7 +180,9 @@ find_q1_q2 <- function(lw) {
     if ("1" %in% names(t2)) q1 <- unname(q1 - t2["1"])
     ids <- as.integer(names(t1[t1 > 1]))
     members1 <- members[ids]
-
+    for (sub in seq(along=members1)) {
+        q2 <- q2 + isCyclical(subset(nb, (1:length(nb) %in% members1[[sub]])))
+    }
     c(q1, q2)
 }
 
