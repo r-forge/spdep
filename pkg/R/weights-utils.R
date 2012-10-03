@@ -148,3 +148,36 @@ aggregate.nb <- function(x, IDs, remove.self=TRUE, ...) {
     nb_short
 }
 
+isCyclical <- function(nb) {
+    cnb <- card(nb)
+    if (any(cnb == 0)) stop("Neighbours must be connected")
+    if (n.comp.nb(nb)$nc != 1) stop("Complete connection required")
+    res <- FALSE
+    for (i in seq(along=nb)) {
+        inbs <- nb[[i]]
+        for (j in 1:(length(inbs)-1)) {
+            for (k in 2:length(inbs)) {
+                hit <- j %in% nb[[k]]
+                if (hit) res <- hit
+                break
+            }
+            if (res) break
+        }
+        if (res) break
+    }
+    res
+}
+
+find_q1_q2 <- function(lw) {
+    stopifnot(lw$style == "W")
+    nb <- lw$neighbours
+    nc <- n.comp.nb(nb)
+    members <- tapply(1:length(nb), nc$comp.id, c)
+    q1 <- nc$nc
+    t1 <- table(nc$comp.id)
+    t2 <- table(t1)
+    if ("1" %in% names(t2)) q1 <- unname(q1 - t2["1"])
+    ids <- as.integer(names(t1[t1 > 1]))
+
+}
+
