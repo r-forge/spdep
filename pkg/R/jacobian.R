@@ -494,30 +494,52 @@ Rmrho <- function(Omega, m, rho, n, trunc=FALSE, q12, eq7=TRUE) {
     res
 }
 
-ldetMoments <- function(Omega, rho, n, correct=TRUE, trunc=FALSE, q12,
- eq7=TRUE) {
-    m <- length(Omega)
-    Rm <- 0
-    attr(Rm, "j") <- as.integer(NA)
-    if (correct) Rm <- Rmrho(Omega, m, rho, n, trunc, q12, eq7=eq7)
+Om_extrap <- function(Omega, m, n) {
+    Omega_ex <- numeric(n)
+    Omega_ex[1:m] <- Omega
+    Om <- Omega[m]
+    Om1 <- Omega[m-1]
+    Om_e <- Omega[m]/Omega[m-2]
+    Om_o <- Omega[m-1]/Omega[m-3]
+    for (j in (m+1):n) {
+        if ((j %% 2) == 0) {
+# eq. 7 121003
+            Omega_ex[j] <- Om*(Om_ej)
+        } else { 
+# eq. 7 121003
+            Omega_ex[j] <- Om1*(Om_oj)
+        }
+        Om_ej <- Om_ej*Om_e
+        Om_oj <- Om_oj*Om_o
+    }
+    Omega_ex
+}
+
+ldetMoments <- function(Omega, rho, correct=TRUE, trunc=FALSE, q12,
+ eq7=TRUE, m) {
     res <- 0
     rhoj <- rho
     for (j in seq(along=Omega)) {
-        res <- res + ifelse(eq7,
-            (1/j)*rhoj*(Omega[j] - q12[1] -  (q12[2]*((-1)^j))),
-            (1/j)*rhoj*Omega[j])
+        inc <- (1/j)*rhoj*Omega[j]
+        if (!is.finite(inc)) break
+        if (abs(inc) < .Machine$double.eps && j > m && trunc) break
+        res <- res + inc
         rhoj <- rhoj*rho
     }
 # eq. 7 121003
-    res <- -ifelse(eq7, (q12[1]*log(1-rho) + q12[2]*log(1+rho) + res + Rm),
-        res + Rm)
-    attr(res, "j") <- attr(Rm, "j")
+    res <- -ifelse(eq7, (q12[1]*log(1-rho) + q12[2]*log(1+rho) + res),
+        res)
+    attr(res, "j") <- j
     res
 }
 
 moments_setup <- function(env, trs=NULL, m, p, type="MC", correct=TRUE,
     trunc=TRUE, eq7=TRUE, which=1) {
     if (which == 1) {
+        if (eq7) {
+            q12 <- find_q1_q2(get("listw", envir=env))
+            assign("q12_1", q12, envir=env)
+        }
         if (is.null(trs)) {
             if (get("listw", envir=env)$style %in% c("W", "S") && 
                 get("can.sim", envir=env)) {
@@ -528,10 +550,14 @@ moments_setup <- function(env, trs=NULL, m, p, type="MC", correct=TRUE,
             csrw <- as(csrw, "CsparseMatrix")
             trs <- trW(csrw, m=m, p=p, type=type)
         }
+        if (correct) trs <- Om_extrap(trs, m, get("n", envir=env))
+        if (eq7) trs <- trs - q12[1] - q12[2]*ifelse(1:length(trs) %% 2, -1, 1)
         assign("trs1", trs, envir=env)
-        q12 <- find_q1_q2(get("listw", envir=env))
-        assign("q12_1", q12, envir=env)
     } else {
+        if (eq7) {
+            q12 <- find_q1_q2(get("listw2", envir=env))
+            assign("q12_2", q12, envir=env)
+        }
         if (is.null(trs)) {
             if (get("listw2", envir=env)$style %in% c("W", "S") && 
                 get("can.sim2", envir=env)) {
@@ -542,19 +568,19 @@ moments_setup <- function(env, trs=NULL, m, p, type="MC", correct=TRUE,
             csrw <- as(csrw, "CsparseMatrix")
             trs <- trW(csrw, m=m, p=p, type=type)
         }
+        if (correct) trs <- Om_extrap(trs, m, get("n", envir=env))
+        if (eq7) trs <- trs - q12[1] - q12[2]*ifelse(1:length(trs) %% 2, -1, 1)
         assign("trs2", trs, envir=env)
-        q12 <- find_q1_q2(get("listw2", envir=env))
-        assign("q12_2", q12, envir=env)
      }
     assign("correct", correct, envir=env)
     assign("trunc", trunc, envir=env)
     assign("eq7", eq7, envir=env)
+    assign("m", m, envir=env)
     assign("method", "moments", envir=env)
     invisible(NULL)
 }
 
 moments_ldet <- function(x, env, which=1) {
-    n <- get("n", envir=env)
     if (which == 1) {
         trs <- get("trs1", envir=env)
         q12 <- get("q12_1", envir=env)
@@ -565,7 +591,8 @@ moments_ldet <- function(x, env, which=1) {
     correct <- get("correct", envir=env)
     trunc <- get("trunc", envir=env)
     eq7 <- get("eq7", envir=env)
-    Jacobian <- ldetMoments(trs, x, n, correct, trunc, q12, eq7)
+    m <- get("m", envir=env)
+    Jacobian <- ldetMoments(trs, x, correct, trunc, q12, eq7, m)
     Jacobian
 }
 
