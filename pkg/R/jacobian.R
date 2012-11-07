@@ -1,4 +1,4 @@
-# Copyright 2010-2011 by Roger Bivand
+# Copyright 2010-2012 by Roger Bivand
 
 # Chebyshev approximation setup and run functions
 cheb_setup <- function(env, q=5, which=1) {
