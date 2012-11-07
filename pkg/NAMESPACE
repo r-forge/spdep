@@ -15,6 +15,7 @@ importFrom(coda, as.mcmc, HPDinterval)
 importFrom(splines, interpSpline)
 
 import(Matrix)
+import(MCMCpack)
 
 #importClassesFrom(spam, spam)
 #importMethodsFrom(spam, Math, Math2)
@@ -80,6 +81,8 @@ export(do_ldet, eigen_setup, mcdet_setup, cheb_setup, spam_setup,
         Matrix_setup, LU_setup, Matrix_J_setup, spam_update_setup,
         moments_setup, SE_classic_setup, SE_whichMin_setup, SE_interp_setup,
         LU_prepermutate_setup)
+
+export(MCMCsamp)
 
 export(tolerance.nb, Rotation)
 
@@ -147,6 +150,7 @@ S3method(fitted, spautolm)
 S3method(print, spautolm)
 S3method(summary, spautolm)
 S3method(logLik, spautolm)
+S3method(MCMCsamp, spautolm)
 
 S3method(print, summary.spautolm)
 
