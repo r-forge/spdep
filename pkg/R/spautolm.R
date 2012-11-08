@@ -47,7 +47,7 @@ spautolm <- function(formula, data = list(), listw, weights,
     X <- model.matrix(mt, mf)
     if (any(is.na(X))) stop("NAs in independent variable")
     n <- nrow(X)
-    if (NROW(X) != length(listw$neighbours))
+    if (n != length(listw$neighbours))
 	 stop("Input data and neighbourhood list have different dimensions")
     weights <- as.vector(model.extract(mf, "weights"))
 # set up default weights
@@ -98,6 +98,7 @@ spautolm <- function(formula, data = list(), listw, weights,
 
     interval <- jacobianSetup(method, env, con, trs=trs,
         interval=interval)
+    assign("interval", interval, envir=env)
 
 # fix SMA bounds
     if (family == "SMA") interval <- -rev(interval)
@@ -167,10 +168,10 @@ spautolm <- function(formula, data = list(), listw, weights,
     rm(env)
     GC <- gc()
     res <- list(fit=fit, lambda=lambda, LL=LL, LL0=LL0, call=match.call(),
-        parameters=(ncol(X)+2), aliased=aliased, method=method,
-        zero.policy=zero.policy, weights=weights, interval=interval,
+        parameters=(ncol(X)+2), aliased=aliased, method=method, family=family,
+        zero.policy=zero.policy, weights=weights, interval=interval, trs=trs,
         timings=do.call("rbind", timings)[, c(1, 3)], LLNullLlm=LLNullLlm,
-        fdHess=fdHess, lambda.se=lambda.se)
+        fdHess=fdHess, lambda.se=lambda.se, X=X, Y=Y, weights=weights)
     if (!is.null(na.act))
 	res$na.action <- na.act
     if (is.null(llprof)) res$llprof <- llprof
@@ -420,6 +421,8 @@ getVcovmat <- function(coefs, env, tol.solve=.Machine$double.eps, optim=FALSE) {
 
 f_spautolm_hess <- function(coefs, env) {
     lambda <- coefs[1]
+    int <- get("interval", envir=env)
+    if (lambda <= int[1] || lambda >= int[2]) return(-Inf)
     beta <- coefs[-1]
     X <- get("X", envir=env)
     Y <- get("Y", envir=env)
@@ -437,7 +440,10 @@ f_spautolm_hess <- function(coefs, env) {
     det <- ifelse(get("family", envir=env) == "CAR", 0.5*ldet, ldet)
     ret <- (det + (1/2)*get("sum_lw", envir=env) - ((n/2)*log(2*pi)) - 
         (n/2)*log(s2) - (1/(2*(s2)))*SSE)
-    if (get("verbose", envir=env))  cat("lambda:", lambda, "function:", ret, "Jacobian", ldet, "SSE", SSE, "\n")
+    if (get("verbose", envir=env))
+        cat("lambda:", lambda, "function:", ret, "Jacobian", ldet, "SSE",
+            SSE, "\n")
+    if (!is.finite(ret)) return(-Inf)
     ret
 }
 

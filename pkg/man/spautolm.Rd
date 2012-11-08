@@ -96,6 +96,7 @@ variable in making predictions for the fitting data.
   \item{parameters}{number of parameters estimated}
   \item{aliased}{if not NULL, details of aliased variables}
   \item{method}{Jacobian method chosen}
+  \item{family}{family chosen}
   \item{zero.policy}{zero.policy used}
   \item{weights}{case weights used}
   \item{interval}{the line search interval used}
@@ -104,6 +105,9 @@ variable in making predictions for the fitting data.
   \item{llprof}{if not NULL, a list with components lambda and ll of equal length}
   \item{lambda.se}{Numerical Hessian-based standard error of lambda}
   \item{fdHess}{Numerical Hessian-based variance-covariance matrix}
+  \item{X}{covariates used in model fitting}
+  \item{Y}{response used in model fitting}
+  \item{weights}{weights used in model fitting}
 }
 \references{Cliff, A. D., Ord, J. K. 1981 \emph{Spatial processes}, Pion;
 Ord, J. K. 1975 Estimation methods for models of spatial interaction,
