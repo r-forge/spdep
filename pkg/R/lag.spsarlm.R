@@ -139,6 +139,7 @@ lagsarlm <- function(formula, data = list(), listw,
 
         interval <- jacobianSetup(method, env, con, trs=trs,
             interval=interval)
+        assign("interval", interval, envir=env)
 
         nm <- paste(method, "set_up", sep="_")
         timings[[nm]] <- proc.time() - .ptime_start
@@ -261,7 +262,7 @@ lagsarlm <- function(formula, data = list(), listw,
 		ase=ase, rho.se=rho.se, LMtest=LMtest, 
 		resvar=varb, zero.policy=zero.policy, aliased=aliased,
                 listw_style=listw$style, interval=interval, fdHess=fdHess,
-                optimHess=con$optimHess, insert=!is.null(trs),
+                optimHess=con$optimHess, insert=!is.null(trs), trs=trs,
                 LLNullLlm=LL_null_lm,
                 timings=do.call("rbind", timings)[, c(1, 3)], 
                 f_calls=get("f_calls", envir=env),

@@ -161,6 +161,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action, etype="error",
 
         interval <- jacobianSetup(method, env, con, trs=trs,
             interval=interval)
+        assign("interval", interval, envir=env)
 
         nm <- paste(method, "set_up", sep="_")
         timings[[nm]] <- proc.time() - .ptime_start
@@ -308,7 +309,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action, etype="error",
 		lambda.se=lambda.se, LMtest=LMtest, zero.policy=zero.policy, 
 		aliased=aliased, LLNullLlm=LL_null_lm, Hcov=Hcov, Vs=Vs,
                 interval=interval, fdHess=fdHess,
-                optimHess=con$optimHess, insert=!is.null(trs),
+                optimHess=con$optimHess, insert=!is.null(trs), trs=trs,
                 timings=do.call("rbind", timings)[, c(1, 3)], 
                 f_calls=get("f_calls", envir=env),
                 hf_calls=get("hf_calls", envir=env), intern_classic=iC),

@@ -161,8 +161,10 @@ sacsarlm <- function(formula, data = list(), listw, listw2=NULL, na.action,
 
         interval1 <- jacobianSetup(method, env, con, trs=trs1,
             interval=interval1, which=1)
+        assign("interval1", interval1, envir=env)
         interval2 <- jacobianSetup(method, env, con, trs=trs2,
             interval=interval2, which=2)
+        assign("interval2", interval2, envir=env)
 
         nm <- paste(method, "set_up", sep="_")
         timings[[nm]] <- proc.time() - .ptime_start
@@ -338,14 +340,14 @@ sacsarlm <- function(formula, data = list(), listw, listw2=NULL, na.action,
             logLik_lm.model=logLik_lm.model, AIC_lm.model=AIC_lm.model,
             #lm.model=lm.model, 
 	    method=method, call=call, residuals=r, #lm.target=lm.target,
-            tarX=tarX, tary=tary, y=y, X=x,
+            tarX=tarX, tary=tary, y=y, X=x, W2X=WX, trs1=trs1, trs2=trs2,
 	    opt=optres, pars=pars, mxs=mxs, fitted.values=fit, #formula=formula,
 	    similar=get("similar", envir=env), rho.se=rho.se,
 	    lambda.se=lambda.se, zero.policy=zero.policy, 
 	    aliased=aliased, LLNullLlm=LL_null_lm,
             fdHess=fdHess, resvar=asyvar1, listw_style=listw$style,
-            optimHess=FALSE, insert=FALSE,
-            timings=do.call("rbind", timings)[, c(1, 3)]),
+            optimHess=FALSE, insert=FALSE, interval1=interval1,
+            interval2=interval2, timings=do.call("rbind", timings)[, c(1, 3)]),
             class=c("sarlm"))
         rm(env)
         GC <- gc()
@@ -407,7 +409,11 @@ sar_sac_hess_sse <- function(rho, lambda, beta, env) {
 
 f_sac_hess <- function(coefs, env) {
     rho <- coefs[1]
+    int <- get("interval1", envir=env)
+    if (rho <= int[1] || rho >= int[2]) return(-Inf)
     lambda <- coefs[2]
+    int <- get("interval2", envir=env)
+    if (lambda <= int[1] || lambda >= int[2]) return(-Inf)
     beta <- coefs[-(1:2)]
     SSE <- sar_sac_hess_sse(rho, lambda, beta, env)
     n <- get("n", envir=env)
@@ -419,6 +425,7 @@ f_sac_hess <- function(coefs, env) {
     if (get("verbose", envir=env)) cat("rho:", rho, "lambda:", lambda,
         " function:", ret, " Jacobian1:", ldet1, " Jacobian2:",
         ldet2, " SSE:", SSE, "\n")
+    if (!is.finite(ret)) return(-Inf)
    ret
 }
 

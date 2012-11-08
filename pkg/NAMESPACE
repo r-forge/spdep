@@ -138,6 +138,7 @@ S3method(anova, sarlm)
 S3method(predict, sarlm)
 S3method(impacts, sarlm)
 S3method(Hausman.test, sarlm)
+S3method(MCMCsamp, sarlm)
 
 S3method(print, summary.sarlm)
 S3method(print, sarlm.pred)
