@@ -102,6 +102,8 @@ variable in making predictions for the fitting data.
   \item{timings}{processing timings}
   \item{na.action}{(possibly) named vector of excluded or omitted observations if non-default na.action argument used}
   \item{llprof}{if not NULL, a list with components lambda and ll of equal length}
+  \item{lambda.se}{Numerical Hessian-based standard error of lambda}
+  \item{fdHess}{Numerical Hessian-based variance-covariance matrix}
 }
 \references{Cliff, A. D., Ord, J. K. 1981 \emph{Spatial processes}, Pion;
 Ord, J. K. 1975 Estimation methods for models of spatial interaction,
