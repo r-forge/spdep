@@ -143,12 +143,34 @@ spautolm <- function(formula, data = list(), listw, weights,
     LLNullLlm <- logLik(lm(Y ~ 1, weights=weights))
     nm <- paste(method, "output", sep="_")
     timings[[nm]] <- proc.time() - .ptime_start
+    .ptime_start <- proc.time()
+#    if (method != "eigen") {
+#        if (con$small >= n && con$small_asy) do_asy <- TRUE
+#        else do_asy <- FALSE
+#    } else do_asy <- TRUE
+    do_asy <- FALSE
+    if (is.null(con$fdHess)) {
+        con$fdHess <-  !do_asy #&& method != "eigen"
+        fdHess <- NULL
+    }
+    stopifnot(is.logical(con$fdHess))
+    lambda.se <- NULL
+
+    if (con$fdHess) {
+        coefs <- c(lambda, fit$coefficients)
+        fdHess <- getVcovmat(coefs, env, tol.solve=tol.solve,
+            optim=con$optimHess)
+        lambda.se <- sqrt(fdHess[1, 1])
+    }
+
+    timings[["fdHess"]] <- proc.time() - .ptime_start
     rm(env)
     GC <- gc()
     res <- list(fit=fit, lambda=lambda, LL=LL, LL0=LL0, call=match.call(),
         parameters=(ncol(X)+2), aliased=aliased, method=method,
         zero.policy=zero.policy, weights=weights, interval=interval,
-        timings=do.call("rbind", timings)[, c(1, 3)], LLNullLlm=LLNullLlm)
+        timings=do.call("rbind", timings)[, c(1, 3)], LLNullLlm=LLNullLlm,
+        fdHess=fdHess, lambda.se=lambda.se)
     if (!is.null(na.act))
 	res$na.action <- na.act
     if (is.null(llprof)) res$llprof <- llprof
@@ -355,6 +377,9 @@ print.summary.spautolm <- function(x, digits = max(5, .Options$digits - 3),
 		"LR test value:", format(signif(res$statistic, digits)),
 		"p-value:", format.pval(res$p.value, digits), 
 		"\n")
+        if (!is.null(x$lambda.se))
+            cat("Numerical Hessian standard error of lambda:",
+                format(signif(x$lambda.se, digits)), "\n")
 	cat("\nLog likelihood:", logLik(x), "\n")
 	if (x$adj.se) cat("Residual variance (sigma squared): ") 
 	else cat("ML residual variance (sigma squared): ") 
@@ -379,4 +404,44 @@ print.summary.spautolm <- function(x, digits = max(5, .Options$digits - 3),
     	cat("\n")
         invisible(x)
 }
+
+getVcovmat <- function(coefs, env, tol.solve=.Machine$double.eps, optim=FALSE) {
+    if (optim) {
+        opt <- optim(par=coefs, fn=f_spautolm_hess, env=env,
+            method="BFGS", hessian=TRUE)
+        mat <- opt$hessian
+    } else {
+        fd <- fdHess(coefs, f_spautolm_hess, env)
+        mat <- fd$Hessian
+    }
+    res <- solve(-(mat), tol.solve=tol.solve)
+    res
+}
+
+f_spautolm_hess <- function(coefs, env) {
+    lambda <- coefs[1]
+    beta <- coefs[-1]
+    X <- get("X", envir=env)
+    Y <- get("Y", envir=env)
+    fitted <- X %*% beta
+    residuals <- Y - fitted
+    dmmf <- eval(parse(text=get("family", envir=env)))
+    if (get("family", envir=env) == "SMA") IlW <- dmmf((get("I", envir=env) + 
+        lambda * get("W", envir=env)), get("Sweights", envir=env))
+    else IlW <- dmmf((get("I", envir=env) - lambda * get("W", envir=env)), 
+        get("Sweights", envir=env))
+    SSE <- c(crossprod(residuals, as.matrix(IlW %*% residuals)))
+    n <- get("n", envir=env)
+    s2 <- SSE/n
+    ldet <- do_ldet(lambda, env)
+    det <- ifelse(get("family", envir=env) == "CAR", 0.5*ldet, ldet)
+    ret <- (det + (1/2)*get("sum_lw", envir=env) - ((n/2)*log(2*pi)) - 
+        (n/2)*log(s2) - (1/(2*(s2)))*SSE)
+    if (get("verbose", envir=env))  cat("lambda:", lambda, "function:", ret, "Jacobian", ldet, "SSE", SSE, "\n")
+    ret
+}
+
+
+
+
 
