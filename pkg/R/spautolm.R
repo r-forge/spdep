@@ -408,9 +408,8 @@ print.summary.spautolm <- function(x, digits = max(5, .Options$digits - 3),
 
 getVcovmat <- function(coefs, env, tol.solve=.Machine$double.eps, optim=FALSE) {
     if (optim) {
-        opt <- optim(par=coefs, fn=f_spautolm_hess, env=env,
-            method="BFGS", hessian=TRUE)
-        mat <- opt$hessian
+        opt <- optimHess(par=coefs, fn=f_spautolm_hess, env=env)
+        mat <- opt
     } else {
         fd <- fdHess(coefs, f_spautolm_hess, env)
         mat <- fd$Hessian
