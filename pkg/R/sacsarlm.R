@@ -1,4 +1,4 @@
-# Copyright 2010-11 by Roger Bivand
+# Copyright 2010-12 by Roger Bivand
 sacsarlm <- function(formula, data = list(), listw, listw2=NULL, na.action, 
 	type="sac", method="eigen", quiet=NULL, zero.policy=NULL, 
 	tol.solve=1.0e-10, llprof=NULL, interval1=NULL, interval2=NULL,
