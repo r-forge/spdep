@@ -288,7 +288,7 @@ SEXP hess_lag_free(SEXP ptr) {
 SEXP R_ml_sse_env(SEXP env, SEXP coef) {
 
   SEXP res;
-  SEXP y, x, wy, WX;
+//  SEXP y, x, wy, WX;
   int i, k, n, p, np;
   double tol=1e-7, cyl, cxlqyl, sse;
   char *trans = "T";
