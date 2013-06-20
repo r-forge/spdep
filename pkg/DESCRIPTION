@@ -33,7 +33,7 @@ Authors@R: c(
 	person("Danlin", "Yu", role = "ctb"))
 Depends: R (>= 2.14.0), methods, sp (>= 0.9), boot, Matrix (>= 0.999375-9), MASS, nlme, maptools (>= 0.5-4), deldir, coda, splines
 Imports: LearnBayes
-Suggests: parallel, spam(>= 0.13-1), RANN, RColorBrewer, lattice
+Suggests: parallel, spam(>= 0.13-1), RANN, RColorBrewer, lattice, xtable
 Description: A collection of functions to create spatial weights matrix
   objects from polygon contiguities, from point patterns by distance and
   tessellations, for summarizing these objects, and for permitting their

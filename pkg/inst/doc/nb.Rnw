@@ -73,16 +73,7 @@ dev.null <- dev.off()
 cat("\\includegraphics[width=0.95\\textwidth]{", file, "}\n\n", sep="")
 @
 
-<<echo=FALSE,results=hide>>= 
-library(maptools)
-owd <- getwd()
-setwd(system.file("etc/shapes", package="spdep"))
-NY8 <- readShapeSpatial("NY8_utm18")
-library(spdep)
-setwd(system.file("etc/weights", package="spdep"))
-NY_nb <- read.gal("NY_nb.gal", region.id=row.names(NY8))
-setwd(owd)
-@
+\section{Introduction}
 
 Creating spatial weights is a necessary step in using areal data,
 perhaps just to check that there is no remaining spatial
@@ -104,6 +95,20 @@ Starting from the census tract queen contiguities, where all touching
 polygons are neighbours, used in \citet{WallerGotway:2004} and provided
 as a DBF file on their website, a GAL format file has been created and
 read into \RR.
+
+\begin{footnotesize}
+<<echo=TRUE>>= 
+library(maptools)
+owd <- getwd()
+setwd(system.file("etc/shapes", package="spdep"))
+NY8 <- readShapeSpatial("NY8_utm18")
+library(spdep)
+setwd(system.file("etc/weights", package="spdep"))
+NY_nb <- read.gal("NY_nb.gal", region.id=row.names(NY8))
+setwd(owd)
+@
+\end{footnotesize}
+
 For
 the sake of simplicity in showing how to create neighbour
 objects, we work on a subset of the map consisting of the
@@ -128,15 +133,6 @@ object extending the \code{SpatialPolygons} class as its first argument,
 and using heuristics identifies polygons sharing boundary points as
 neighbours. It also has a \code{snap} argument, to allow the shared
 boundary points to be a short distance from one another.
-  \index{subject}{Data set!New York leukemia}
-  \index{subject}{neighbours!spatial}
-  \index{subject}{neighbours!spatial!polygons}
-  \index{function}{poly2nb@{\code{poly2nb}, \pkg{spdep}}}
-  \index{subject}{polygons!contiguous neighbours}%
-  \index{subject}{polygons!contiguous neighbours!queen}%
-  \index{subject}{Class!SpatialPolygons@{\code{SpatialPolygons}, \pkg{sp}}}%
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
 
 
 \begin{footnotesize}
@@ -165,15 +161,6 @@ each other, with the conventional name of a `rook' relationship.
 Figure~\ref{fig:NB_queen} shows the crossed line differences that
 arise when polygons touch only at a single point, compared to the
 stricter rook criterion.
-  \index{subject}{Data set!New York leukemia}
-  \index{subject}{neighbours!spatial}
-  \index{subject}{neighbours!spatial!polygons}
-  \index{function}{poly2nb@{\code{poly2nb}, \pkg{spdep}}}
-  \index{subject}{polygons!contiguous neighbours}%
-  \index{subject}{polygons!contiguous neighbours!rook}%
-  \index{subject}{polygons!contiguous neighbours!queen}%
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
 
 
 \begin{footnotesize}
@@ -214,23 +201,13 @@ If we have access to a GIS such as GRASS or ArcGIS\texttrademark,
 we can export the \code{SpatialPolygonsDataFrame} object and use
 the topology engine in the GIS to find contiguities in the graph
 of polygon edges -- a shared edge will yield the same output as
-the rook relationship. Integration with GRASS was discussed in
-Sect.\,\ref{sect:GRASS}, and functions in \pkg{RArcInfo} and the
-equivalent \code{readOGR} function in \pkg{rgdal} for reading
-ArcGIS\texttrademark~coverages in Sects.\,\ref{coverage:here} and
-\ref{OGR:here}\footnote{A script to access
-ArcGIS\texttrademark~coverages using Python and R(D)COM using
-\code{readOGR} is on the book website.} can also be used for
-retrieving rook neighbours.
-  \index{subject}{CRAN!rgdal@\pkg{rgdal}}%
-  \index{function}{readOGR@{\code{readOGR}, \pkg{rgdal}}}%
-  \index{subject}{CRAN!RArcInfo@\pkg{RArcInfo}}%
+the rook relationship.
 
 This procedure does, however, depend on the topology of the set
 of polygons being clean, which holds for this subset, but not for
 the full eight-county data set. Not infrequently, there are small
 artefacts, such as slivers where boundary lines intersect or
-diverge by distances that cannot be seen on\linepbrk* plots, but which
+diverge by distances that cannot be seen on plots, but which
 require intervention to keep the geometries and data correctly
 associated. When these geometrical artefacts are present, the
 topology is not clean, because unambiguous shared polygon
@@ -240,19 +217,7 @@ data or used for another purpose. Topologies are usually cleaned
 in a GIS by `snapping' vertices closer than a threshold distance
 together, removing artefacts -- for example, snapping across a
 river channel where the correct boundary is the median line but
-the input polygons stop at the channel banks on each side.\index{subject}{Data set!New York leukemia}%
-  \index{subject}{neighbours!spatial}
-  \index{subject}{neighbours!spatial!polygons}
-  \index{subject}{polygons!contiguous neighbours!rook}%
-  \index{subject}{polygons!clean topology}%
-  \index{subject}{polygons!clean topology!snap}%
-  \index{subject}{ArcGIS@{{A}rc{GIS}\texttrademark}}%
-  \index{subject}{GRASS GIS}%
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
-  \index{subject}{CRAN!spgrass6@\pkg{spgrass6}}%
-  \index{function}{writeVECT6@{\code{writeVECT6}, \pkg{spgrass6}}}
-  \index{function}{vect2neigh@{\code{vect2neigh}, \pkg{spgrass6}}}The
+the input polygons stop at the channel banks on each side. The
 \code{poly2nb} function does have a \code{snap} argument, which
 may also be used when input data possess geometrical artefacts.
 
@@ -277,14 +242,6 @@ Similar approaches may also be used to read
 ArcGIS\texttrademark~coverage data by tallying the left neighbour
 and right neighbour arc indices with the polygons in the data
 set, using either \pkg{RArcInfo} or \pkg{rgdal}.
-  \index{subject}{neighbours!spatial}
-  \index{subject}{neighbours!spatial!polygons}
-  \index{subject}{polygons!contiguous neighbours!rook}%
-  \index{subject}{CRAN!RArcInfo@\pkg{RArcInfo}}%
-  \index{subject}{ArcGIS@{{A}rc{GIS}\texttrademark}}%
-  \index{subject}{CRAN!rgdal@\pkg{rgdal}}%
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
 
 In our Syracuse case, there are no exclaves or `islands'
 belonging to the data set, but not sharing boundary points within
@@ -294,11 +251,6 @@ missing neighbour links may be added interactively using the
 polygon background. The same method may be used for removing
 links which, although contiguity exists, may be considered void,
 such as across a mountain range.
-  \index{subject}{neighbours!spatial}
-  \index{subject}{Methods!edit@\code{edit}}%
-  \index{subject}{edit@\code{edit}|see{Methods, \code{edit}}}%
-  \index{function}{edit.nb@{\code{edit.nb}, \pkg{spdep}}}
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
 
 
 \section{Creating Graph-Based Neighbours}
@@ -313,14 +265,6 @@ construct, for example population-weighted centroids. Once
 representative points are available, the criteria for
 neighbourhood can be extended from just contiguity to include
 graph measures, distance thresholds, and $k$-nearest neighbours.
-  \index{subject}{neighbours!spatial}
-  \index{subject}{polygons!centroid}%
-  \index{subject}{points!neighbours}%
-  \index{subject}{points!neighbours!distance bands}%
-  \index{subject}{points!neighbours!$k$-nearest}%
-  \index{subject}{points!neighbours!graph measures}%
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
 
 The most direct graph representation of neighbours is to make a
 Delaunay triangulation of the points, shown in the first panel in
@@ -337,16 +281,6 @@ circles centred on the points, of radius equal to the points'
 nearest neighbour distances, intersect in two places
 \citep{avis+horton:1985}.\footnote{Functions for graph-based
 neighbours were kindly contributed by Nicholas \hbox{Lewin-Koh.}}
-
-  \index{subject}{neighbours!spatial}
-  \index{subject}{neighbours!spatial!points}
-  \index{subject}{points!neighbours}%
-  \index{subject}{points!neighbours!graph measures}%
-  \index{subject}{points!neighbours!triangulation}%
-  \index{subject}{points!neighbours!sphere of influence}%
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
-  \index{subject}{Data set!New York leukemia}
 
 
 \begin{footnotesize}
@@ -390,23 +324,7 @@ Delauney triangulation neighbours; (\textbf{b}) Sphere of
 influence neighbours; (\textbf{c}) Gabriel graph neighbours;
 (\textbf{d}) Relative graph neighbours} \label{fig:NB_graph}\vspace*{-12pt}
 \end{figure}
-  \index{subject}{Data set!New York leukemia}
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{function}{tri2nb@{\code{tri2nb}, \pkg{spdep}}}
-  \index{function}{graph2nb@{\code{graph2nb}, \pkg{spdep}}}
-  \index{function}{soi.graph@{\code{soi.graph}, \pkg{spdep}}}
-  \index{function}{gabrielneigh@{\code{gabrielneigh}, \pkg{spdep}}}
-  \index{function}{relativeneigh@{\code{relativeneigh}, \pkg{spdep}}}
-  \index{subject}{points!neighbours}%
-  \index{subject}{neighbours!spatial!points}
-  \index{subject}{points!neighbours!graph measures}%
-  \index{subject}{points!neighbours!triangulation}%
-  \index{subject}{points!neighbours!relative}%
-  \index{subject}{points!neighbours!Gabriel}%
-  \index{subject}{points!neighbours!sphere of influence}%
-  \index{subject}{tripack@\pkg{tripack}|see{CRAN, \pkg{tripack}}}%
-  \index{subject}{CRAN!tripack@\pkg{tripack}}%
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
+
 Delaunay triangulation neighbours and SOI neighbours are
 symmetric by design -- if $i$ is a neighbour of $j$, then $j$ is
 a neighbour of $i$. The Gabriel graph is also a subgraph of the
@@ -414,7 +332,7 @@ Delaunay triangulation, retaining a different set of neighbours
 \citep{matula+sokal:80}. It does not, however, guarantee
 symmetry; the same applies to Relative graph neighbours
 \citep{toussaint:80}. The \code{graph2nb} function takes a
-\code{sym} argument to insert links to restore\linepbrk* symmetry, but the
+\code{sym} argument to insert links to restore symmetry, but the
 graphs then no longer exactly fulfil their neighbour criteria.
 All the graph-based neighbour schemes always ensure that all
 the points will have at least one neighbour. Subgraphs of the
@@ -427,13 +345,6 @@ which points belong (after enforcing symmetry, because the
 algorithm assumes that the graph is not directed). When there are
 more than one graph component, the matrix representation of the
 spatial weights can become block-diagonal if observations are appropriately sorted.
-  \index{subject}{Data set!New York leukemia}
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{neighbours!spatial}
-  \index{subject}{neighbours!spatial!points}
-  \index{function}{is.symmetric.nb@{\code{is.symmetric.nb}, \pkg{spdep}}}
-  \index{function}{n.comp.nb@{\code{n.comp.nb}, \pkg{spdep}}}
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
 
 \begin{footnotesize}
 <<echo=TRUE>>= 
@@ -456,15 +367,6 @@ The \code{knearneigh} returns an intermediate form converted to
 an \code{nb} object by \code{knn2nb}; \code{knearneigh} can also
 take a \code{longlat} argument to handle geographical
 coordinates.
-  \index{subject}{neighbours!spatial}
-  \index{subject}{neighbours!spatial!points}
-  \index{subject}{points!neighbours}%
-  \index{subject}{points!neighbours!$k$-nearest}%
-  \index{function}{knn2nb@{\code{knn2nb}, \pkg{spdep}}}
-  \index{function}{knearneigh@{\code{knearneigh}, \pkg{spdep}}}
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
-  \index{subject}{Data set!New York leukemia}
 
 
 \begin{footnotesize}
@@ -504,15 +406,10 @@ $k=1$ neighbours; (\textbf{b}) $k=2$ neighbours; (\textbf{c})
 $k=4$ neighbours} \label{fig:NB_knn}
 \end{figure}
 
-  \index{subject}{points!neighbours!$k$-nearest}%
-  \index{function}{knn2nb@{\code{knn2nb}, \pkg{spdep}}}
-  \index{function}{knearneigh@{\code{knearneigh}, \pkg{spdep}}}
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{Data set!New York leukemia}
 Figure~\ref{fig:NB_knn} shows the neighbour relationships for $k
 = 1, 2, 4$, with many components for $k=1$. If need be,
 $k$-nearest neighbour objects can be made symmetrical using the
-\code{make.sym.nb} function. The $k=1$ object is also\linepbrk* useful in
+\code{make.sym.nb} function. The $k=1$ object is also useful in
 finding the minimum distance at which all areas have a
 distance-based neighbour. Using the \code{nbdists} function, we
 can calculate a list of vectors of distances corresponding to the
@@ -523,15 +420,6 @@ the areas are linked to at least one neighbour. The
 interpoint distance, with arguments \code{d1} and \code{d2}
 setting the lower and upper distance bounds; it can also take a
 \code{longlat} argument to handle geographical coordinates.
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{neighbours!spatial}
-  \index{subject}{neighbours!spatial!points}
-  \index{subject}{points!neighbours}%
-  \index{subject}{points!neighbours!distance bands}%
-  \index{function}{dnearneigh@{\code{dnearneigh}, \pkg{spdep}}}
-  \index{function}{nbdists@{\code{nbdists}, \pkg{spdep}}}
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
-  \index{subject}{Data set!New York leukemia}
 
 
 \begin{footnotesize}
@@ -601,11 +489,6 @@ neighbours: frequencies of numbers of neighbours by census tract}
 \label{fig:NB_dnn_cards}
 \end{figure}
 
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{points!neighbours}%
-  \index{subject}{neighbours!spatial!points}
-  \index{subject}{points!neighbours!distance bands}%
-  \index{subject}{Data set!New York leukemia}
 Figure~\ref{fig:NB_dnn} shows how the numbers of distance-based
 neighbours increase with moderate increases in distance. Moving
 from $0.75$ times the minimum all-included distance, to the
@@ -621,14 +504,6 @@ Syracuse, the census tracts are of similar areas, but were we to
 try to use the distance-based neighbour criterion on the
 eight-county study area, the smallest distance securing at least
 one neighbour for every areal entity is over 38\,km.
-  \index{subject}{neighbours!spatial}
-  \index{subject}{neighbours!spatial!points}
-  \index{subject}{points!neighbours}%
-  \index{subject}{points!neighbours!distance bands}%
-  \index{function}{nbdists@{\code{nbdists}, \pkg{spdep}}}
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
-  \index{subject}{Data set!New York leukemia}
 
 
 \begin{footnotesize}
@@ -649,11 +524,6 @@ their own ways by convention; in particular, it seems that ecologists
 frequently use distance bands. If many distance bands are used, they
 approach the variogram, although the underlying understanding of spatial
 autocorrelation seems to be by contagion rather than continuous.
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{points!neighbours}%
-  \index{subject}{points!neighbours!distance bands}%
-  \index{subject}{neighbours!spatial!points}
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
 
 
 \section{Higher-Order Neighbours}
@@ -668,14 +538,6 @@ links traversed, but not permitting cycles, which could risk making $i$ a
 neighbour of $i$ itself \citep[][p. 203]{osullivan+unwin:03}. The
 \code{nblag} function takes an existing neighbour list
 and returns a list of lists, from first to \code{maxlag} order neighbours.
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{neighbours!spatial!higher order}
-  \index{subject}{polygons!contiguous neighbours}%
-  \index{subject}{points!neighbours}%
-  \index{subject}{polygons!contiguous neighbours!higher order}%
-  \index{subject}{points!neighbours!higher order}%
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
-  \index{subject}{Data set!New York leukemia}
 
 
 \begin{footnotesize}
@@ -727,15 +589,6 @@ simulations, because, since all areal entities have equal numbers
 of neighbours, and there are no edges, the structure of the graph
 is as neutral as can be achieved. Neighbours can either be of
 type rook or queen.
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{grid}%
-  \index{subject}{grid!neighbours}%
-  \index{subject}{grid!neighbours!rook}%
-  \index{subject}{grid!neighbours!queen}%
-  \index{subject}{neighbours!spatial}
-  \index{subject}{neighbours!spatial!grid}
-  \index{function}{cell2nb@{\code{cell2nb}, \pkg{spdep}}}
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
 
 
 \begin{footnotesize}
@@ -745,7 +598,6 @@ cell2nb(7, 7, type="rook", torus=FALSE)
 @
 \end{footnotesize}
 
-  \index{subject}{Data set!Meuse bank}
 When a regular, rectangular grid is not complete, then we can use
 knowledge of the cell size stored in the grid topology to create
 an appropriate list of neighbours, using a tightly bounded
@@ -757,17 +609,6 @@ sparse, list based representation shows its strength. Handling a
 $281 \times 281$ matrix for the eight-county census tracts is
 feasible, easy for a $63 \times 63$ matrix for Syracuse census
 tracts, but demanding for a 3,$103 \times 3$,103 matrix.
-  \index{subject}{Class!nb@{\code{nb}, \pkg{spdep}}}%
-  \index{subject}{grid}%
-  \index{subject}{grid!neighbours}%
-  \index{subject}{grid!incomplete!neighbours}%
-  \index{subject}{neighbours!spatial}
-  \index{subject}{neighbours!spatial!grid}
-  \index{subject}{points!neighbours!distance bands}%
-  \index{function}{dnearneigh@{\code{dnearneigh}, \pkg{spdep}}}
-  \index{function}{card@{\code{card}, \pkg{spdep}}}
-  \index{subject}{CRAN!spdep@\pkg{spdep}}%
-  \index{subject}{Data set!Meuse bank}
 
 \begin{footnotesize}
 <<echo=TRUE>>= 
@@ -780,11 +621,9 @@ mg_nb
 table(card(mg_nb))
 @
 \end{footnotesize}
-  \index{subject}{Data set!Meuse bank}
 
 
 \begin{thebibliography}{}
-
 
 \bibitem[Avis and Horton, 1985]{avis+horton:1985}
 Avis, D. and Horton, J. (1985).
