@@ -1,3 +1,13 @@
+2013-06-21 12:07  rsbivand
+
+	* man/impacts.sarlm.Rd, man/lagmess.Rd, man/lm.morantest.exact.Rd,
+	  man/localmoran.exact.Rd, man/spautolm.Rd, man/tolerance.nb.Rd,
+	  man/trW.Rd: changing over-long help page lines
+
+2013-06-20 17:07  rsbivand
+
+	* ChangeLog, inst/ChangeLog: tidy
+
 2013-06-20 17:02  rsbivand
 
 	* DESCRIPTION, inst/doc/SpatialFiltering.Rnw,
