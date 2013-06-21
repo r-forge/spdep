@@ -151,7 +151,13 @@ improves the fit of the GLM model.
 <<echo=TRUE>>= 
 NYlistwW <- nb2listw(NY_nb, style = "W")
 set.seed(111)
+<<echo=TRUE,eval=FALSE>>= 
 nyME <- ME(Cases~PEXPOSURE+PCTAGE65P+PCTOWNHOME, data=NY8, offset=log(POP8), family="poisson", listw=NYlistwW, alpha=0.5)
+<<echo=FALSE,eval=TRUE>>=
+bsfn <- system.file("doc/backstore/nyME_res.RData", package="spdep")
+load(bsfn)
+@
+<<echo=TRUE>>=
 nyME
 NY8$eigen_24 <- fitted(nyME)[,1]
 NY8$eigen_223 <- fitted(nyME)[,2]
@@ -170,7 +176,6 @@ library(RColorBrewer)
 #gry <- brewer.pal(9, "Greys")[-1]
 spplot(NY8, c("eigen_24", "eigen_223"), col.regions=grey.colors(6, 0.95, 0.55, 2.2), cuts=5)
 <<zfig>>
-<<figreset>>
 @ 
 \caption{Maps
 of the two eigenvalues selected for inclusion in the Poisson

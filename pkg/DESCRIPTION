@@ -1,6 +1,6 @@
 Package: spdep
-Version: 0.5-57
-Date: 2013-06-20
+Version: 0.5-58
+Date: 2013-06-21
 Title: Spatial dependence: weighting schemes, statistics and models
 Encoding: latin1
 Authors@R: c(
