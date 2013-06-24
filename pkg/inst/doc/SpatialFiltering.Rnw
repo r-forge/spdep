@@ -107,10 +107,10 @@ and \citet{griffith+peres-neto:06}.
 \begin{footnotesize}
 <<echo=TRUE>>= 
 library(maptools)
+library(spdep)
 owd <- getwd()
 setwd(system.file("etc/shapes", package="spdep"))
 NY8 <- readShapeSpatial("NY8_utm18")
-library(spdep)
 setwd(system.file("etc/weights", package="spdep"))
 NY_nb <- read.gal("NY_nb.gal", region.id=row.names(NY8))
 setwd(owd)
