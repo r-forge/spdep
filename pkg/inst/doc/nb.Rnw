@@ -29,7 +29,11 @@
 \def\SS{\texttt{S}\xspace}
 \SweaveOpts{keep.source=FALSE}
 
-\title{Creating Neighbours} 
+\title{Creating Neighbours\footnote{This vignette formed pp. 239--251 of the first edition of Bivand, R. S.,
+Pebesma, E. and G\'{o}mez-Rubio V. (2008) Applied Spatial Data Analysis with R,
+Springer-Verlag, New York. It was retired from the second edition (2013) to
+accommodate material on other topics, and is made available in this form
+with the understanding of the publishers.}} 
 \author{Roger Bivand} 
 
 \begin{document} 
