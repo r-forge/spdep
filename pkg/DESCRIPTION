@@ -1,6 +1,6 @@
 Package: spdep
-Version: 0.5-61
-Date: 2013-07-22
+Version: 0.5-62
+Date: 2013-07-26
 Title: Spatial dependence: weighting schemes, statistics and models
 Encoding: latin1
 Authors@R: c(
@@ -31,9 +31,9 @@ Authors@R: c(
 	person("Markus", "Reder", role = "ctb"),
 	person("Michael", "Tiefelsdorf", role = "ctb"),
 	person("Danlin", "Yu", role = "ctb"))
-Depends: R (>= 2.14.0), methods, sp (>= 0.9), boot, Matrix (>= 0.999375-9), MASS, nlme, maptools (>= 0.5-4), deldir, coda, splines
-Imports: LearnBayes
-Suggests: parallel, spam(>= 0.13-1), RANN, RColorBrewer, lattice, xtable
+Depends: R (>= 2.14.0), methods, sp (>= 0.9), Matrix (>= 0.999375-9)
+Imports: LearnBayes, deldir, boot, splines, coda, nlme, MASS
+Suggests: parallel, spam(>= 0.13-1), RANN, RColorBrewer, lattice, xtable, boot, maptools (>= 0.5-4), foreign
 Description: A collection of functions to create spatial weights matrix
   objects from polygon contiguities, from point patterns by distance and
   tessellations, for summarizing these objects, and for permitting their
