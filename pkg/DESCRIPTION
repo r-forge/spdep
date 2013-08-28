@@ -31,6 +31,8 @@ Authors@R: c(
 	person("Markus", "Reder", role = "ctb"),
 	person("Michael", "Tiefelsdorf", role = "ctb"),
 	person("Danlin", "Yu", role = "ctb"))
+Author: Roger Bivand <Roger.Bivand@nhh.no>
+Maintainer: Roger Bivand <Roger.Bivand@nhh.no>
 Depends: R (>= 2.14.0), methods, sp (>= 0.9), Matrix (>= 0.999375-9)
 Imports: LearnBayes, deldir, boot, splines, coda, nlme, MASS
 Suggests: parallel, spam(>= 0.13-1), RANN, RColorBrewer, lattice, xtable, maptools (>= 0.5-4), foreign

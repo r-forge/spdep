@@ -4,6 +4,8 @@ importFrom(stats, model.matrix, model.response, aggregate)
 
 importFrom(stats, optimize, optim, nlminb)
 
+importFrom(stats, influence.measures)
+
 importFrom(nlme, fdHess)
 
 importFrom(deldir, deldir)
@@ -19,6 +21,9 @@ importFrom(splines, interpSpline)
 import(Matrix)
 #import(MCMCpack)
 importFrom(LearnBayes, rwmetrop)
+
+import(sp)
+import(methods)
 
 #importClassesFrom(spam, spam)
 #importMethodsFrom(spam, Math, Math2)
