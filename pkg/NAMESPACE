@@ -85,6 +85,8 @@ export(aple, aple.mc, aple.plot, localAple)
 
 export(trW, impacts, lagmess, sacsarlm)
 
+export(mom_calc, mom_calc_int2)
+
 export(do_ldet, eigen_setup, mcdet_setup, cheb_setup, spam_setup,
         Matrix_setup, LU_setup, Matrix_J_setup, spam_update_setup,
         moments_setup, SE_classic_setup, SE_whichMin_setup, SE_interp_setup,
