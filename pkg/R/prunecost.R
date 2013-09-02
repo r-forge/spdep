@@ -12,6 +12,7 @@ prunecost <- function(edges, data,
                ssw(data, j, method, p, cov, inverted)))
   }, mc.cores=ifelse(is.null(getOption('mc.cores')),
          detectCores(), options('mc.cores'))))
+# if "windows" options('mc.cores'=1) in AAA.R RSB 130902
   return(sswt - sswp)
 }
 

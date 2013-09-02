@@ -1,4 +1,4 @@
-# Copyright 2001-10 by Roger Bivand 
+# Copyright 2001-13 by Roger Bivand 
 #
 
 .spdepOptions <- new.env(FALSE, globalenv())
@@ -7,6 +7,8 @@ assign("zeroPolicy", FALSE, envir = .spdepOptions)
 assign("verbose", FALSE, envir = .spdepOptions)
 assign("cl", NULL, envir = .spdepOptions)
 assign("rlecuyerSeed", rep(12345, 6), envir = .spdepOptions)
+# fix RSB 130902 nbcosts.R, prunecost.R
+if (.Platform$OS.type == "windows") options('mc.cores'=1)
 
 #.conflicts.OK <- TRUE
 
