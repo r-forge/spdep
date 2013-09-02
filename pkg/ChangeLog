@@ -1,3 +1,12 @@
+2013-09-02 08:39  rsbivand
+
+	* R/AAA.R, R/nbcosts.R, R/prunecost.R: block windows mc.cores > 1
+	  (temp fix)
+
+2013-09-02 08:07  rsbivand
+
+	* ChangeLog, inst/ChangeLog: tidy
+
 2013-09-02 08:06  rsbivand
 
 	* DESCRIPTION, R/AAA.R, R/nbcosts.R, R/prunecost.R: block windows
