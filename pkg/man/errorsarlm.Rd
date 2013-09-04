@@ -177,6 +177,24 @@ COL.SDEMW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
 summary(COL.SDEMW.eig, correlation=TRUE)
 COL.SLX <- lmSLX(CRIME ~ INC + HOVAL, data=COL.OLD, listw=lw)
 summary(COL.SLX)
+\donttest{
+crds <- cbind(COL.OLD$X, COL.OLD$Y)
+mdist <- sqrt(sum(diff(apply(crds, 2, range))^2))
+dnb <- dnearneigh(crds, 0, mdist)
+dists <- nbdists(dnb, crds)
+f <- function(x, form, data, dnb, dists, verbose) {
+  glst <- lapply(dists, function(d) 1/(d^x))
+  lw <- nb2listw(dnb, glist=glst, style="B")
+  res <- logLik(lmSLX(form=form, data=data, listw=lw))
+  if (verbose) cat("power:", x, "logLik:", res, "\n")
+  res
+}
+opt <- optimize(f, interval=c(0.1, 4), form=CRIME ~ INC + HOVAL, data=COL.OLD, dnb=dnb, dists=dists, verbose=TRUE, maximum=TRUE)
+glst <- lapply(dists, function(d) 1/(d^opt$maximum))
+lw <- nb2listw(dnb, glist=glst, style="B")
+SLX <- lmSLX(CRIME ~ INC + HOVAL, data=COL.OLD, listw=lw)
+summary(SLX)
+}
 NA.COL.OLD <- COL.OLD
 NA.COL.OLD$CRIME[20:25] <- NA
 COL.err.NA <- errorsarlm(CRIME ~ INC + HOVAL, data=NA.COL.OLD,

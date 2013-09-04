@@ -380,17 +380,6 @@ lmSLX <- function(formula, data = list(), listw, na.action, zero.policy=NULL) {
 	xcolnames <- colnames(x)
 	K <- ifelse(xcolnames[1] == "(Intercept)", 2, 1)
         Wvars <- ""
-	if (m > 1 || (m == 1 && K == 1)) {
-		for (k in K:m) {
-			wx <- lag.listw(listw, data[[xcolnames[k]]], 
-			    zero.policy=zero.policy)
-			if (any(is.na(wx))) 
-			    stop("NAs in lagged independent variable")
-                        Wvark <- paste("lag.", xcolnames[k], sep="")
-			data[[Wvark]] <- wx
-                        Wvars <- paste(Wvars, "+", Wvark)
-		}
-	}
 	if (K == 2) {
         # unnormalized weight matrices
                	if (!(listw$style == "W")) {
@@ -402,6 +391,17 @@ lmSLX <- function(formula, data = list(), listw, na.action, zero.policy=NULL) {
                         Wvars <- paste(Wvars, "+", Wvark)
                	} 
         }   
+	if (m > 1 || (m == 1 && K == 1)) {
+		for (k in K:m) {
+			wx <- lag.listw(listw, data[[xcolnames[k]]], 
+			    zero.policy=zero.policy)
+			if (any(is.na(wx))) 
+			    stop("NAs in lagged independent variable")
+                        Wvark <- paste("lag.", xcolnames[k], sep="")
+			data[[Wvark]] <- wx
+                        Wvars <- paste(Wvars, "+", Wvark)
+		}
+	}
         dfo <- as.character(formula)
         nfo <- formula(paste(dfo[2], dfo[1], paste(dfo[3], Wvars)))
         lm.model <- lm(nfo, data=data, na.action=na.action)
