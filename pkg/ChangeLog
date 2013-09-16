@@ -1,3 +1,13 @@
+2013-09-16 08:39  rsbivand
+
+	* man/droplinks.Rd,
+	  man/errorsarlm.Rd: tidy
+
+2013-09-16 08:26  rsbivand
+
+	* ChangeLog,
+	  inst/ChangeLog: tidy
+
 2013-09-13 09:04  rsbivand
 
 	* R/knearneigh.R:
