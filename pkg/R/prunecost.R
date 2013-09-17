@@ -2,26 +2,35 @@ prunecost <- function(edges, data,
                       method=c("euclidean", "maximum", "manhattan",
                         "canberra", "binary", "minkowski",
                         "mahalanobis"), p=2, cov, inverted=FALSE) {
-# fix RSB 130902 nbcosts.R, prunecost.R
   sswt <- ssw(data, unique(as.integer(edges)),
               method, p, cov, inverted)
-  if (.Platform$OS.type == "windows") {
+  if ((!require(parallel)) | (nrow(edges)<300)) 
     sswp <- sapply(1:nrow(edges), function(i) {
       pruned.ids <- prunemst(rbind(edges[i, ], edges[-i, ]),
                            only.nodes=TRUE)
-      sum(sapply(pruned.ids, function(j) 
+      sum(sapply(pruned.ids, function(j)
                ssw(data, j, method, p, cov, inverted)))
     })
-  } else {
-    require(parallel)
-    sswp <- simplify2array(mclapply(1:nrow(edges), function(i) {
-      pruned.ids <- prunemst(rbind(edges[i, ], edges[-i, ]),
-                           only.nodes=TRUE)
-      sum(sapply(pruned.ids, function(j) 
-               ssw(data, j, method, p, cov, inverted)))
-    }, mc.cores=ifelse(is.null(getOption('mc.cores')),
-         detectCores(), options('mc.cores'))))
-  }
+  else {
+    if (.Platform$OS.type == "windows") {
+      cl <- makeCluster(getOption("cl.cores", 2))
+      clusterEvalQ(cl, library(spdep))
+      sswp <- parSapply(cl, 1:nrow(edges), function(i) {
+        pruned.ids <- prunemst(rbind(edges[i, ], edges[-i, ]),
+                             only.nodes=TRUE)
+        sum(sapply(pruned.ids, function(j) 
+                 ssw(data, j, method, p, cov, inverted)))
+      })
+    }
+    else 
+      sswp <- simplify2array(mclapply(1:nrow(edges), function(i) { 
+        pruned.ids <- prunemst(rbind(edges[i, ], edges[-i, ]),
+                             only.nodes=TRUE)
+        sum(sapply(pruned.ids, function(j)
+                 ssw(data, j, method, p, cov, inverted)))        
+      }, mc.cores=ifelse(is.null(getOption('mc.cores')),
+                  detectCores(), options('mc.cores'))))
+  } 
   return(sswt - sswp)
 }
 

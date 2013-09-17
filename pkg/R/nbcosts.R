@@ -1,17 +1,27 @@
 nbcosts <- function(nb, data, method=c("euclidean", "maximum", "manhattan",
                                 "canberra", "binary", "minkowski",
                                 "mahalanobis"), p=2, cov, inverted=FALSE) {
-# fix RSB 130902 nbcosts.R, prunecost.R
-  if (.Platform$OS.type == "windows") {
+  if ((!require(parallel)) | (length(nb)<300))
     clist <- lapply(1:length(nb), function(i)
-      nbcost(data, i, nb[[i]], method, p, cov, inverted))
-  } else {
-    require(parallel)
-    clist <- mclapply(1:length(nb), function(i)
                     nbcost(data, i, nb[[i]], method,
-                           p, cov, inverted),
-                    mc.cores=ifelse(is.null(getOption('mc.cores')),
-                        detectCores(), options('mc.cores')))
+                           p, cov, inverted))
+  else {
+    if (.Platform$OS.type == "windows") {
+      cl <- makeCluster(getOption("cl.cores", 2))
+      clusterEvalQ(cl, library(spdep))
+      clist <- do.call(c, clusterApply(
+        cl, x = splitIndices(1:length(nb), length(cl)), 
+          fun=lapply, function(i) 
+                      nbcost(data, i, nb[[i]], method,
+                             p, cov, inverted)))
+    }
+    else 
+      clist <- mclapply(1:length(nb), function(i) 
+                   nbcost(data, i, nb[[i]], method,
+                           p, cov, inverted), 
+         mc.cores=ifelse(is.null(getOption('mc.cores')),
+                  detectCores(), options('mc.cores')))
+  
   }
   attr(clist, "call") <- match.call()
   attr(clist, "class") <- "nbdist"
