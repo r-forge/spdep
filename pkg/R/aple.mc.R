@@ -6,6 +6,13 @@ aple.mc <- function(x, listw, nsim, override_similarity_check=FALSE,
     }
     pre <- preAple(x=x, listw=listw,
         override_similarity_check=override_similarity_check, useTrace=useTrace)
+    
+#          parallel = getOption("boot.parallel"), 
+#                  c("no", "multicore", "snow"),
+#          ncpus = getOption("boot.ncpus", default=1L), cl = NULL)
+#RNGkind("L'Ecuyer-CMRG")
+#set.seed(1234)
+#mclapply(1:2, function(i) rpois(n=5, lambda=3), mc.set.seed=TRUE, mc.cores=2)
     cl <- get("cl", envir = .spdepOptions)
     if (!is.null(cl) && length(cl) > 1L) {
         nnsim <- boot_wrapper_in(cl, nsim)

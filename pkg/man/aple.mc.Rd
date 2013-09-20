@@ -32,14 +32,20 @@ boot_out <- aple.mc(as.vector(scale(wheat$yield_detrend, scale=FALSE)),
 plot(boot_out)
 boot_out
 library(parallel)
-cl <- makeCluster(detectCores())
-set.ClusterOption(cl)
-set.rlecuyerSeedOption(1:6)
-boot_out <- aple.mc(as.vector(scale(wheat$yield_detrend, scale=FALSE)),
- nb2listw(nbr12, style="W"), nsim=500)
+nc <- detectCores(logical=FALSE)
+if (!is.na(nc)) nc <- 1L
+invisible(set.coresOption(nc))
+if (get.mcOption()) {
+} else {
+  cl <- makeCluster(nc)
+  set.ClusterOption(cl)
+  set.rlecuyerSeedOption(1:6)
+  boot_out <- aple.mc(as.vector(scale(wheat$yield_detrend, scale=FALSE)),
+    nb2listw(nbr12, style="W"), nsim=500)
+  set.ClusterOption(NULL)
+  stopCluster(cl)
+}
 boot_out
-set.ClusterOption(NULL)
-stopCluster(cl)
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
