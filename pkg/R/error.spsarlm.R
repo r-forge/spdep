@@ -205,6 +205,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action, etype="error",
 	LMtest <- NULL
 	asyvar1 <- FALSE
         Hcov <- NULL
+        pWinternal <- NULL
         timings[["coefs"]] <- proc.time() - .ptime_start
         .ptime_start <- proc.time()
         assign("first_time", TRUE, envir=env)
@@ -255,9 +256,13 @@ errorsarlm <- function(formula, data = list(), listw, na.action, etype="error",
                         "CsparseMatrix")
                     B1 <- as(powerWeights(W=W, rho=lambda, order=con$pWOrder,
                         X=B, tol=tol.solve), "matrix")
+                    if (!attr(B1, "internal")$conv)
+                        pWinternal <- c(pWinternal, attr(B1, "internal"))
                     C <- x %*% R
                     C1 <- as(powerWeights(W=t(W), rho=lambda, order=con$pWOrder,
                         X=C, tol=tol.solve), "matrix")
+                    if (!attr(C1, "internal")$conv)
+                        pWinternal <- c(pWinternal, attr(C1, "internal"))
                     Hcov <- B1 %*% C1
                     attr(Hcov, "method") <- method
                     timings[["sparse_hcov"]] <- proc.time() - .ptime_start
@@ -313,7 +318,8 @@ errorsarlm <- function(formula, data = list(), listw, na.action, etype="error",
                 optimHess=con$optimHess, insert=!is.null(trs), trs=trs,
                 timings=do.call("rbind", timings)[, c(1, 3)], 
                 f_calls=get("f_calls", envir=env),
-                hf_calls=get("hf_calls", envir=env), intern_classic=iC),
+                hf_calls=get("hf_calls", envir=env), intern_classic=iC,
+                pWinternal=pWinternal),
                 class=c("sarlm"))
         rm(env)
         GC <- gc()
