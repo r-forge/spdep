@@ -254,15 +254,19 @@ errorsarlm <- function(formula, data = list(), listw, na.action, etype="error",
                     B <- tcrossprod(R, x)
                     W <- as(as_dgRMatrix_listw(get("listw", envir=env)),
                         "CsparseMatrix")
-                    B1 <- as(powerWeights(W=W, rho=lambda, order=con$pWOrder,
-                        X=B, tol=tol.solve), "matrix")
-                    if (!attr(B1, "internal")$conv)
-                        pWinternal <- c(pWinternal, attr(B1, "internal"))
+                    B0 <- powerWeights(W=W, rho=lambda, order=con$pWOrder,
+                        X=B, tol=tol.solve)
+                    if (!is.null(attr(B0, "internal")) &&
+                        !attr(B0, "internal")$conv)
+                        pWinternal <- c(pWinternal, attr(B0, "internal"))
+                    B1 <- as(B0, "matrix")
                     C <- x %*% R
-                    C1 <- as(powerWeights(W=t(W), rho=lambda, order=con$pWOrder,
-                        X=C, tol=tol.solve), "matrix")
-                    if (!attr(C1, "internal")$conv)
-                        pWinternal <- c(pWinternal, attr(C1, "internal"))
+                    C0 <- powerWeights(W=t(W), rho=lambda, order=con$pWOrder,
+                        X=C, tol=tol.solve)
+                    if (!is.null(attr(C0, "internal")) &&
+                        !attr(C0, "internal")$conv)
+                        pWinternal <- c(pWinternal, attr(C0, "internal"))
+                    C1 <- as(C0, "matrix")
                     Hcov <- B1 %*% C1
                     attr(Hcov, "method") <- method
                     timings[["sparse_hcov"]] <- proc.time() - .ptime_start
