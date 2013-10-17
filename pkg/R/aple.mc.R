@@ -7,21 +7,25 @@ aple.mc <- function(x, listw, nsim, override_similarity_check=FALSE,
     pre <- preAple(x=x, listw=listw,
         override_similarity_check=override_similarity_check, useTrace=useTrace)
     
-#          parallel = getOption("boot.parallel"), 
-#                  c("no", "multicore", "snow"),
-#          ncpus = getOption("boot.ncpus", default=1L), cl = NULL)
-#RNGkind("L'Ecuyer-CMRG")
-#set.seed(1234)
-#mclapply(1:2, function(i) rpois(n=5, lambda=3), mc.set.seed=TRUE, mc.cores=2)
-    cl <- get("cl", envir = .spdepOptions)
-    if (!is.null(cl) && length(cl) > 1L) {
-        nnsim <- boot_wrapper_in(cl, nsim)
-        lres <- clusterCall(cl, boot, x, statistic=aple.boot, R=nnsim,
-            sim="permutation", pre=pre)
-        res <- boot_wrapper_out(lres, match.call())
+# FIXME set seeds!!!
+    cores <- get.coresOption()
+    if (is.null(cores)) {
+        parallel <- "no"
     } else {
-        res <- boot(x, statistic=aple.boot, R=nsim, sim="permutation", pre=pre)
+        parallel <- ifelse (get.mcOption(), "multicore", "snow")
     }
+    ncpus <- ifelse(is.null(cores), 1L, cores)
+    cl <- NULL
+    if (parallel == "snow") {
+        cl <- get.ClusterOption()
+        if (is.null(cl)) {
+            parallel <- "no"
+            warning("no cluster in ClusterOption, parallel set to no")
+        }
+    }
+    res <- boot(x, statistic=aple.boot, R=nsim, sim="permutation", pre=pre,
+        parallel=parallel, ncpus=ncpus, cl=cl)
+
     res
 }
 

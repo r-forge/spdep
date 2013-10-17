@@ -74,7 +74,8 @@ set.coresOption <- function(value) {
             stopifnot(length(value) == 1)
             stopifnot(!is.na(value))
             if (!get.mcOption()) {
-                if (value) warning("multicore not available on Windows")
+                if (value && .Platform$OS.type == "windows")
+                    warning("multicore not available on Windows")
             } else {
 	        assign("cores", value, envir = .spdepOptions)
             }
