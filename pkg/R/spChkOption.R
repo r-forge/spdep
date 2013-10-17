@@ -39,14 +39,14 @@ set.ClusterOption <- function(cl) {
                 stop ("cluster required")
             clusterEvalQ(cl, library(spdep))
         }
-        if (is.null(cl)) clusterEvalQ(get.ClusterOption(),
-            detach(package:spdep))
-	assign("cl", cl, envir = .spdepOptions)
+        if (is.null(cl) && !is.null(get.ClusterOption()))
+            clusterEvalQ(get.ClusterOption(), detach(package:spdep))
+	assign("cluster", cl, envir = .spdepOptions)
         invisible(NULL)
 }
 
 get.ClusterOption  <- function() {
-	get("cl", envir = .spdepOptions)
+	get("cluster", envir = .spdepOptions)
 }
 
 set.mcOption <- function(value) {
