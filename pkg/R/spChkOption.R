@@ -73,12 +73,7 @@ set.coresOption <- function(value) {
             stopifnot(is.integer(value))
             stopifnot(length(value) == 1)
             stopifnot(!is.na(value))
-            if (!get.mcOption()) {
-                if (value && .Platform$OS.type == "windows")
-                    warning("multicore not available on Windows")
-            } else {
-	        assign("cores", value, envir = .spdepOptions)
-            }
+	    assign("cores", value, envir = .spdepOptions)
         }
 	res
 }
@@ -87,17 +82,6 @@ get.coresOption  <- function() {
 	get("cores", envir = .spdepOptions)
 }
 
-
-get.rlecuyerSeedOption  <- function() {
-	get("rlecuyerSeed", envir = .spdepOptions)
-}
-
-set.rlecuyerSeedOption  <- function(seed) {
-    if (length(seed) != 6L) stop("Six integer values required")
-    if (storage.mode(seed) != "integer") seed <- as.integer(seed)
-    assign("rlecuyerSeed", seed, envir = .spdepOptions)
-    invisible(NULL)
-}
 
 chkIDs <- function (x, listw) 
 {

@@ -7,7 +7,6 @@ aple.mc <- function(x, listw, nsim, override_similarity_check=FALSE,
     pre <- preAple(x=x, listw=listw,
         override_similarity_check=override_similarity_check, useTrace=useTrace)
     
-# FIXME set seeds!!!
     cores <- get.coresOption()
     if (is.null(cores)) {
         parallel <- "no"
