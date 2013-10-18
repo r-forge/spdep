@@ -35,12 +35,8 @@ get.ZeroPolicyOption <- function() {
 
 set.ClusterOption <- function(cl) {
 	if (!is.null(cl)) {
-            if (!inherits(cl, "cluster")) 
-                stop ("cluster required")
-            clusterEvalQ(cl, library(spdep))
+            if (!inherits(cl, "cluster")) stop ("cluster required")
         }
-        if (is.null(cl) && !is.null(get.ClusterOption()))
-            clusterEvalQ(get.ClusterOption(), detach(package:spdep))
 	assign("cluster", cl, envir = .spdepOptions)
         invisible(NULL)
 }
