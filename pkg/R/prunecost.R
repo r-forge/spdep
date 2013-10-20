@@ -4,34 +4,58 @@ prunecost <- function(edges, data,
                         "mahalanobis"), p=2, cov, inverted=FALSE) {
   sswt <- ssw(data, unique(as.integer(edges)),
               method, p, cov, inverted)
-  if ((!require(parallel)) | (nrow(edges)<300)) 
-    sswp <- sapply(1:nrow(edges), function(i) {
-      pruned.ids <- prunemst(rbind(edges[i, ], edges[-i, ]),
-                           only.nodes=TRUE)
-      sum(sapply(pruned.ids, function(j)
-               ssw(data, j, method, p, cov, inverted)))
-    })
-  else {
-    if (.Platform$OS.type == "windows") {
-      cl <- makeCluster(getOption("cl.cores", 2))
-      clusterEvalQ(cl, library(spdep))
-      sswp <- parSapply(cl, 1:nrow(edges), function(i) {
-        pruned.ids <- prunemst(rbind(edges[i, ], edges[-i, ]),
-                             only.nodes=TRUE)
-        sum(sapply(pruned.ids, function(j) 
-                 ssw(data, j, method, p, cov, inverted)))
-      })
+    cores <- get.coresOption()
+    if (is.null(cores)) {
+        parallel <- "no"
+    } else {
+        parallel <- ifelse (get.mcOption(), "multicore", "snow")
     }
-    else 
-      sswp <- simplify2array(mclapply(1:nrow(edges), function(i) { 
-        pruned.ids <- prunemst(rbind(edges[i, ], edges[-i, ]),
+    ncpus <- ifelse(is.null(cores), 1L, cores)
+    cl <- NULL
+    if (parallel == "snow") {
+        cl <- get.ClusterOption()
+        if (is.null(cl)) {
+            parallel <- "no"
+            warning("no cluster in ClusterOption, parallel set to no")
+        }
+    }
+    if (nrow(edges)<300) parallel <- "no"
+# FIXME why no splitIndices
+    if (parallel == "snow") {
+        parallel <- "no"
+        warning("no parallel calculations available")
+    }
+    if (parallel == "snow") {
+#        require(parallel)
+#        sI <- splitIndices(nrow(edges), length(cl))
+#    if (.Platform$OS.type == "windows") {
+#      cl <- makeCluster(getOption("cl.cores", 2))
+#      clusterEvalQ(cl, library(spdep))
+#        sswp <- parSapply(cl, sI, sapply, function(i) {
+#            pruned.ids <- prunemst(rbind(edges[i, ], edges[-i, ]),
+#                             only.nodes=TRUE)
+#            sum(sapply(pruned.ids, function(j) 
+#                 ssw(data, j, method, p, cov, inverted)))
+#        })
+    } else if (parallel == "multicore") {
+        require(parallel)
+        sI <- splitIndices(nrow(edges), ncpus)
+        out <- mclapply(sI, sapply, function(i) { 
+            pruned.ids <- prunemst(rbind(edges[i, ], edges[-i, ]),
                              only.nodes=TRUE)
-        sum(sapply(pruned.ids, function(j)
+            sum(sapply(pruned.ids, function(j)
                  ssw(data, j, method, p, cov, inverted)))        
-      }, mc.cores=ifelse(is.null(getOption('mc.cores')),
-                  detectCores(), options('mc.cores'))))
-  } 
-  return(sswt - sswp)
+            }, mc.cores=ncpus)
+        sswp <- do.call("c", out)
+    } else {
+        sswp <- sapply(1:nrow(edges), function(i) {
+            pruned.ids <- prunemst(rbind(edges[i, ], edges[-i, ]),
+                           only.nodes=TRUE)
+            sum(sapply(pruned.ids, function(j)
+               ssw(data, j, method, p, cov, inverted)))
+        })
+    }
+    return(sswt - sswp)
 }
 
 ssw <- function(data, id, method=c("euclidean", "maximum", "manhattan",
