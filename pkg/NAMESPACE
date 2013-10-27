@@ -85,7 +85,9 @@ export(mstree, nbcosts, nbcost, plot.mst, plot.skater, prunecost, ssw, prunemst,
 
 export(aple, aple.mc, aple.plot, localAple)
 
-export(trW, impacts, lagmess, sacsarlm)
+export(trW, impacts, intImpacts)
+
+export(lagmess, sacsarlm)
 
 export(mom_calc, mom_calc_int2)
 
