@@ -20,23 +20,22 @@ prunecost <- function(edges, data,
         }
     }
     if (nrow(edges)<300) parallel <- "no"
-# FIXME why no splitIndices
+#    if (parallel == "snow") {
+#        parallel <- "no"
+#        warning("no parallel calculations available")
+#    }
     if (parallel == "snow") {
-        parallel <- "no"
-        warning("no parallel calculations available")
-    }
-    if (parallel == "snow") {
-#        require(parallel)
-#        sI <- splitIndices(nrow(edges), length(cl))
+        require(parallel)
+        sI <- splitIndices(nrow(edges), length(cl))
 #    if (.Platform$OS.type == "windows") {
 #      cl <- makeCluster(getOption("cl.cores", 2))
 #      clusterEvalQ(cl, library(spdep))
-#        sswp <- parSapply(cl, sI, sapply, function(i) {
-#            pruned.ids <- prunemst(rbind(edges[i, ], edges[-i, ]),
-#                             only.nodes=TRUE)
-#            sum(sapply(pruned.ids, function(j) 
-#                 ssw(data, j, method, p, cov, inverted)))
-#        })
+        sswp <- do.call("c", parLapply(cl, sI, sapply, function(i) {
+            pruned.ids <- prunemst(rbind(edges[i, ], edges[-i, ]),
+                             only.nodes=TRUE)
+            sum(sapply(pruned.ids, function(j) 
+                 ssw(data, j, method, p, cov, inverted)))
+        }))
     } else if (parallel == "multicore") {
         require(parallel)
         sI <- splitIndices(nrow(edges), ncpus)

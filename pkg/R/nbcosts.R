@@ -29,29 +29,23 @@ nbcosts <- function(nb, data, method=c("euclidean", "maximum", "manhattan",
         }
     }
     if (length(nb)<300) parallel <- "no"
-    if (parallel == "snow") {
-        parallel <- "no"
-        warning("no parallel calculations available")
-    }
     
     if (parallel == "snow") {
-#        require(parallel)
-#        method <- match.arg(method)
-#        data <- as.matrix(data)
-#        sI <- splitIndices(length(nb), length(cl))
-#        if (method=="mahalanobis") {
-#            out <- parLapply(cl, X = sI, fun=function(I) {lapply(I,
-#                FUN=function(i) {mahalanobis(data[nb[[i]],,drop=FALSE],
-#                    data[i,,drop=FALSE], cov, inverted)})}, data=data,
-#                     nb=nb, p=p, cov=cov, inverted=inverted)
-#        } else {
-#            out <- parLapply(cl, X = sI, fun=function(I) {lapply(I,
-#                FUN=function(i) {id.neigh <- nb[[i]];
-#                dt <- rbind(data[i,,drop=FALSE], data[id.neigh,,drop=FALSE]);
-#                dist(dt, method=method, p=p)[1:length(id.neigh)]})},
-#                data=data, nb=nb, method=method, p=p)
-#        }
-#        clist <- do.call("c", out)
+        require(parallel)
+        sI <- splitIndices(length(nb), length(cl))
+         env <- new.env()
+         assign("nb", nb, envir=env)
+         assign("data", data, envir=env)
+         assign("method", method, envir=env)
+         assign("p", p, envir=env)
+         assign("cov", cov, envir=env)
+         assign("inverted", inverted, envir=env)
+         clusterExport(cl, varlist=c("nb", "data", "method", "p", "cov",
+             "inverted"), envir=env)
+         out <- clusterApply(cl, x = sI, fun=lapply, function(i) {
+ 	     nbcost(data, i, nb[[i]], method, p, cov, inverted)})
+        clist <- do.call("c", out)
+        rm(env)
     } else if (parallel == "multicore") {
         require(parallel)
         sI <- splitIndices(length(nb), ncpus)
