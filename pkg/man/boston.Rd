@@ -56,6 +56,8 @@ of influence neighbours list as \code{boston.soi}.
   }
 }
 
+\note{Details of the tract shapefile to follow}
+
 \source{
  \url{http://lib.stat.cmu.edu/datasets/boston_corrected.txt}
 }
@@ -86,6 +88,14 @@ gp0 <- lm(log(CMEDV) ~ CRIM + ZN + INDUS + CHAS + I(NOX^2) + I(RM^2) +
 summary(gp0)
 logLik(gp0)
 lm.morantest(hr0, nb2listw(boston.soi))
+\dontrun{
+require(maptools)
+boston.c <- readShapePoly(system.file("etc/shapes/boston_tracts.shp",
+  package="spdep")[1], ID="poltract",
+  proj4string=CRS(paste("+proj=longlat +datum=NAD27 +no_defs +ellps=clrk66",
+  "+nadgrids=@conus,@alaska,@ntv2_0.gsb,@ntv1_can.dat")))
+boston_nb <- poly2nb(boston.c)
+}
 \dontrun{gp1 <- errorsarlm(log(CMEDV) ~ CRIM + ZN + INDUS + CHAS + I(NOX^2)
  + I(RM^2) +  AGE + log(DIS) + log(RAD) + TAX + PTRATIO + B + log(LSTAT),
  data=boston.c, nb2listw(boston.soi), method="Matrix", 
