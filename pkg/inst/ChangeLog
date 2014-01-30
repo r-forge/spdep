@@ -1,3 +1,44 @@
+2014-01-30 20:12  rsbivand
+
+	* DESCRIPTION,
+	  inst/etc/shapes/boston_tracts.dbf,
+	  inst/etc/shapes/boston_tracts.prj,
+	  inst/etc/shapes/boston_tracts.shp,
+	  inst/etc/shapes/boston_tracts.shx, man/boston.Rd: adding boston
+	  tract polygons
+
+2014-01-17 12:48  rsbivand
+
+	* DESCRIPTION,
+	  R/knearneigh.R, man/knearneigh.Rd: duplicate points in
+	  knearneigh
+
+2014-01-13 10:38  rsbivand
+
+	* data/wheat.rda,
+	  data/wheat.txt, inst/etc/shapes/wheat.dbf, man/wheat.Rd:
+	  bug in wheat data
+
+2013-12-04 21:33  rsbivand
+
+	* DESCRIPTION,
+	  R/nb2blocknb.R, man/nb2blocknb.Rd: NULL nb in nb2blocknb
+
+2013-11-05 10:43  rsbivand
+
+	* DESCRIPTION,
+	  R/spautolm.R: fix non-fdHess se in spautolm
+
+2013-10-29 18:13  rsbivand
+
+	* DESCRIPTION:
+	  socket cluster for skater
+
+2013-10-29 18:10  rsbivand
+
+	* ChangeLog,
+	  inst/ChangeLog: socket cluster for skater
+
 2013-10-29 18:09  rsbivand
 
 	* DESCRIPTION,
