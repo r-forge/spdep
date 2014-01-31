@@ -1,5 +1,5 @@
 % Copyright 2003 by Roger S. Bivand
-\encoding{latin1}
+\encoding{UTF-8}
 \name{EBImoran.mc}
 \alias{EBImoran.mc}
 \alias{EBImoran}

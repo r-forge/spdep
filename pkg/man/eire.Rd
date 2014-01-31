@@ -1,5 +1,5 @@
 % Copyright 2002 by Roger S. Bivand
-\encoding{latin1}
+\encoding{UTF-8}
 \name{eire}
 \alias{eire}
 \alias{eire.df}
