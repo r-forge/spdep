@@ -36,7 +36,7 @@ It is also technically possible to make heteroskedasticity corrections to standa
 A Simple Test for Heteroscedasticity and Random Coefficient Variation.
 \emph{Econometrica} \bold{47}, 1287--1294
 
-W. Kr‰mer & H. Sonnberger (1986),
+W. Kr√§mer & H. Sonnberger (1986),
 \emph{The Linear Regression Model under Test}. Heidelberg: Physica.
 
 L. Anselin (1988) \emph{Spatial econometrics: methods and models.}
