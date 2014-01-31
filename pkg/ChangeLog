@@ -1,3 +1,12 @@
+2014-01-31 12:33  rsbivand
+
+	* DESCRIPTION, NAMESPACE, man/EBImoran.mc.Rd, man/bptest.sarlm.Rd,
+	  man/eire.Rd: all to UTF-8
+
+2014-01-31 09:40  rsbivand
+
+	* ChangeLog, inst/ChangeLog: tidy
+
 2014-01-31 09:39  rsbivand
 
 	* man/boston.Rd: decription of Boston tracts
