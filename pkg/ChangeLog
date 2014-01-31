@@ -1,3 +1,11 @@
+2014-01-31 14:07  rsbivand
+
+	* man/EBImoran.mc.Rd, man/bptest.sarlm.Rd, man/eire.Rd: now UTF-8
+
+2014-01-31 12:34  rsbivand
+
+	* ChangeLog, inst/ChangeLog: tidy
+
 2014-01-31 12:33  rsbivand
 
 	* DESCRIPTION, NAMESPACE, man/EBImoran.mc.Rd, man/bptest.sarlm.Rd,
