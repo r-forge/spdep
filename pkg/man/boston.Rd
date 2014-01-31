@@ -159,7 +159,9 @@ df <- boston.c[mm,]
 row.names(df) <- df$TRACT
 row.names(BOSTON_SMSA2) <- as.character(as.integer(row.names(BOSTON_SMSA2)))
 ## create SpatialPolygonsDataFrame
-BOSTON_SMSA3 <- SpatialPolygonsDataFrame(BOSTON_SMSA2, data=data.frame(poltract=row.names(BOSTON_SMSA2), row.names=row.names(BOSTON_SMSA2)))
+BOSTON_SMSA3 <- SpatialPolygonsDataFrame(BOSTON_SMSA2,
+ data=data.frame(poltract=row.names(BOSTON_SMSA2),
+ row.names=row.names(BOSTON_SMSA2)))
 BOSTON_SMSA4 <- spCbind(BOSTON_SMSA3, df)
 mm1 <- match(boston.c$TRACT, row.names(BOSTON_SMSA4))
 BOSTON_SMSA5 <- BOSTON_SMSA4[mm1,]
