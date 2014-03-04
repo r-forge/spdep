@@ -1,4 +1,4 @@
-# Copyright 2009-2012 by Roger Bivand
+# Copyright 2009-2014 by Roger Bivand
 
 trW <- function(W=NULL, m=30, p=16, type="mult", listw=NULL, momentsSymmetry=TRUE) {
 # returns traces
@@ -356,6 +356,12 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
         }
         attr(res, "method") <- "trace"
     } else {
+# added checks 140304
+        stopifnot(length(listw$neighbours) == n)
+        V <- listw2mat(listw)
+        e <- eigen(V, only.values = TRUE)$values
+        if (is.complex(e)) interval <- 1/(range(Re(e)))
+	else interval <- 1/(range(e))
         SW <- invIrW(listw, rho)
         if (type == "lag") res <- lagImpactsExact(SW, P, n)
         else if (type == "mixed" || type == "sacmixed")
@@ -365,11 +371,9 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
         if (!is.null(R)) {
             samples <- mvrnorm(n=R, mu=mu, Sigma=Sigma, tol=tol,
                 empirical=empirical)
-            if (!is.null(interval)) {
-                check <- ((samples[,irho] > interval[1]) & 
-                    (samples[,irho] < interval[2]))
-                if (any(!check)) samples <- samples[check,]
-            }
+            check <- ((samples[,irho] > interval[1]) & 
+                (samples[,irho] < interval[2]))
+            if (any(!check)) samples <- samples[check,]
             timings[["impacts_samples"]] <- proc.time() - .ptime_start
             .ptime_start <- proc.time()
 # type, iicept, icept, SW, n, listw
