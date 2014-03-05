@@ -147,7 +147,7 @@ impacts.stsls <- function(obj, ..., tr=NULL, R=NULL, listw=NULL,
     res
 }
 
-impacts.gmsar <- function(obj, ..., tr=NULL, R=NULL, listw=NULL,
+impacts.gmsar <- function(obj, ..., n=NULL, tr=NULL, R=NULL, listw=NULL,
   tol=1e-6, empirical=FALSE, Q=NULL) {
     if (!is.null(obj$listw_style) && obj$listw_style != "W") 
         stop("Only row-standardised weights supported")
@@ -164,7 +164,11 @@ impacts.gmsar <- function(obj, ..., tr=NULL, R=NULL, listw=NULL,
         bnames <- names(beta)
     }
     p <- length(beta)
-    n <- length(obj$residuals)
+# allow n passthrough 140305 Angela Parenti
+    if (is.null(n)) n <- length(obj$residuals)
+    stopifnot(is.integer(n))
+    stopifnot(length(n) == 1)
+    stopifnot(is.finite(n))
     mu <- c(rho, beta)
     Sigma <- obj$secstep_var
     irho <- 1

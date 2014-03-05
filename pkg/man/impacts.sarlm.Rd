@@ -17,7 +17,7 @@
  tol = 1e-06, empirical = FALSE, Q=NULL)
 \method{impacts}{stsls}(obj, \dots, tr, R = NULL, listw = NULL,
  tol = 1e-06, empirical = FALSE, Q=NULL)
-\method{impacts}{gmsar}(obj, \dots, tr, R = NULL, listw = NULL,
+\method{impacts}{gmsar}(obj, \dots, n = NULL, tr = NULL, R = NULL, listw = NULL,
  tol = 1e-06, empirical = FALSE, Q=NULL)
 \method{plot}{lagImpact}(x, ..., choice="direct", trace=FALSE, density=TRUE)
 \method{print}{lagImpact}(x, ..., reportQ=NULL)
@@ -30,8 +30,9 @@ intImpacts(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames, interval,
   \item{obj}{A sarlm spatial regression object created by \code{lagsarlm}; in \code{HPDinterval.lagImpact}, a lagImpact object}
   \item{\dots}{Arguments passed through to methods in the \pkg{coda} package}
   \item{tr}{A vector of traces of powers of the spatial weights matrix created using \code{trW}, for approximate impact measures; if not given, \code{listw} must be given for exact measures (for small to moderate spatial weights matrices); the traces must be for the same spatial weights as were used in fitting the spatial regression}
-  \item{R}{If given, simulations are used to compute distributions for the impact measures, returned as \code{mcmc} objects; the objects are used for convenience but are not output by an MCMC process}
   \item{listw}{If \code{tr} is not given, a spatial weights object as created by \code{nb2listw}; they must be the same spatial weights as were used in fitting the spatial regression}
+  \item{n}{defaults to \code{length(obj$residuals)}; in the method for \code{gmsar} objects it may be used in panel settings to compute the impacts for cross-sectional weights only, suggested by Angela Parenti}
+  \item{R}{If given, simulations are used to compute distributions for the impact measures, returned as \code{mcmc} objects; the objects are used for convenience but are not output by an MCMC process}
   \item{useHESS}{Use the Hessian approximation (if available) even if the asymptotic coefficient covariance matrix is available; used for comparing methods}
   \item{tol}{Argument passed to \code{mvrnorm}: tolerance (relative to largest variance) for numerical lack of positive-definiteness in the coefficient covariance matrix}
   \item{empirical}{Argument passed to \code{mvrnorm} (default FALSE): if true, the coefficients and their covariance matrix specify the empirical not population mean and covariance matrix}
@@ -44,7 +45,7 @@ intImpacts(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames, interval,
   \item{trace}{Argument passed to \code{plot.mcmc}: plot trace plots}
   \item{density}{Argument passed to \code{plot.mcmc}: plot density plots}
   \item{prob}{Argument passed to \code{HPDinterval.mcmc}: a numeric scalar in the interval (0,1) giving the target probability content of the intervals}
-  \item{rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
+  \item{rho, beta, P, mu, Sigma, irho, drop2beta, bnames,
     interval, type, icept, iicept, p, mess}{internal arguments shared inside impacts methods}
 }
 
