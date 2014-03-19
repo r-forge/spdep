@@ -150,7 +150,7 @@ with an introduction to spatial econometrics. In: Ullah A, Giles DEA
 pp. 237-289; Cressie, N. A. C. 1993 \emph{Statistics for spatial data}, Wiley, New York; LeSage J and RK Pace (2009) Introduction to Spatial Econometrics. CRC Press, Boca Raton.}
 \author{Roger Bivand \email{Roger.Bivand@nhh.no}}
 
-\seealso{\code{\link{lm}}, \code{\link{lagsarlm}}, \code{\link{similar.listw}}, \code{\link{predict.sarlm}},
+\seealso{\code{\link{lm}}, \code{\link{lagsarlm}}, \code{\link{similar.listw}}, \code{\link{summary.sarlm}}, \code{\link{predict.sarlm}},
 \code{\link{residuals.sarlm}}, \code{\link{do_ldet}}
 }
 
