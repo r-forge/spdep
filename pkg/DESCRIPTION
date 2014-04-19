@@ -1,6 +1,6 @@
 Package: spdep
-Version: 0.5-73
-Date: 2014-04-03
+Version: 0.5-74
+Date: 2014-04-19
 Title: Spatial dependence: weighting schemes, statistics and models
 Encoding: UTF-8
 Authors@R: c(
@@ -17,6 +17,7 @@ Authors@R: c(
 	person("Yongwan", "Chun", role = "ctb"),
 	person("Carsten", "Dormann", role = "ctb"),
 	person("Stéphane", "Dray", role = "ctb"),
+	person("Virgilio", "Gómez-Rubio", role = "ctb"),
 	person("Rein", "Halbersma", role = "ctb"),
 	person("Elias", "Krainski", role = "ctb"),
 	person("Pierre", "Legendre", role = "ctb"),

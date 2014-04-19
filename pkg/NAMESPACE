@@ -102,6 +102,8 @@ export(MCMCsamp)
 
 export(tolerance.nb, Rotation)
 
+export(lee.mc, lee, lee.test)
+
 #import(maptools)
 
 S3method(print, nb)
