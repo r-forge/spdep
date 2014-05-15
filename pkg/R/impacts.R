@@ -116,8 +116,9 @@ impacts <- function(obj, ...)
 
 impacts.stsls <- function(obj, ..., tr=NULL, R=NULL, listw=NULL,
   tol=1e-6, empirical=FALSE, Q=NULL) {
-    if (!is.null(obj$listw_style) && obj$listw_style != "W") 
-        stop("Only row-standardised weights supported")
+    if (is.null(listw) && !is.null(obj$listw_style) && 
+            obj$listw_style != "W")
+            stop("Only row-standardised weights supported")
     rho <- obj$coefficients[1]
     beta <- obj$coefficients[-1]
     icept <- grep("(Intercept)", names(beta))
@@ -149,9 +150,10 @@ impacts.stsls <- function(obj, ..., tr=NULL, R=NULL, listw=NULL,
 
 impacts.gmsar <- function(obj, ..., n=NULL, tr=NULL, R=NULL, listw=NULL,
   tol=1e-6, empirical=FALSE, Q=NULL) {
-    if (!is.null(obj$listw_style) && obj$listw_style != "W") 
-        stop("Only row-standardised weights supported")
     stopifnot(obj$type == "SARAR") 
+    if (is.null(listw) && !is.null(obj$listw_style) && 
+            obj$listw_style != "W")
+            stop("Only row-standardised weights supported")
     rho <- obj$coefficients[1]
     beta <- obj$coefficients[-1]
     icept <- grep("(Intercept)", names(beta))
@@ -284,7 +286,6 @@ intImpacts <- function(rho, beta, P, n, mu, Sigma, irho, drop2beta, bnames,
     timings <- list()
     .ptime_start <- proc.time()
     if (is.null(listw)) {
-
 
         q <- length(tr)-1L
         g <- rho^(0:q)
@@ -427,8 +428,9 @@ impacts.sarlm <- function(obj, ..., tr=NULL, R=NULL, listw=NULL, useHESS=NULL,
   tol=1e-6, empirical=FALSE, Q=NULL) {
     if (obj$type == "error")
         stop("impact measures not for error models")
-    if (!is.null(obj$listw_style) && obj$listw_style != "W") 
-        stop("Only row-standardised weights supported")
+    if (is.null(listw) && !is.null(obj$listw_style) && 
+            obj$listw_style != "W")
+            stop("Only row-standardised weights supported")
     rho <- obj$rho
     beta <- obj$coefficients
     s2 <- obj$s2
