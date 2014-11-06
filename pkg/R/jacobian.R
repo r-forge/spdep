@@ -207,7 +207,8 @@ eigen_ldet <- function(coef, env, which=1) {
 }
 
 spam_setup <- function(env, pivot="MMD", which=1) {
-  if (requireNamespace("spam", quietly = TRUE)) { 
+#    if (!require(spam)) stop("spam not available")
+  if (requireNamespace("spam", quietly = TRUE)) {
     if (which == 1) {
         if (get("listw", envir=env)$style %in% c("W", "S") &&
             get("can.sim", envir=env)) {
@@ -228,14 +229,15 @@ spam_setup <- function(env, pivot="MMD", which=1) {
     assign("I", I, envir=env)
     assign("pivot", pivot, envir=env)
     assign("method", "spam", envir=env)
-    invisible(NULL)
   } else {
     stop("spam not available")
   }
+  invisible(NULL)
 }
 
 spam_ldet <- function(coef, env, which=1) {
-  if (requireNamespace("spam", quietly = TRUE)) { 
+  if (requireNamespace("spam", quietly = TRUE)) {
+#    if (!require(spam)) stop("spam not available")
     if (which == 1) {
         csrw <- get("csrw", envir=env)
     } else {
@@ -250,14 +252,15 @@ spam_ldet <- function(coef, env, which=1) {
     } else {
         Jacobian <- 2*J1
     }
-    Jacobian
+    return(Jacobian)
   } else {
     stop("spam not available")
   }
 }
 
 spam_update_setup <- function(env, in_coef=0.1, pivot="MMD", which=1) {
-  if (requireNamespace("spam", quietly = TRUE)) { 
+#    if (!require(spam)) stop("spam not available")
+  if (requireNamespace("spam", quietly = TRUE)) {
     if (which == 1) {
         if (get("listw", envir=env)$style %in% c("W", "S") &&
             get("can.sim", envir=env)) {
@@ -283,14 +286,15 @@ spam_update_setup <- function(env, in_coef=0.1, pivot="MMD", which=1) {
         assign("csrwchol2", csrwchol, envir=env)
     }
     assign("method", "spam_update", envir=env)
-    invisible(NULL)
   } else {
     stop("spam not available")
   }
+  invisible(NULL)
 }
 
 spam_update_ldet <- function(coef, env, which=1) {
-  if (requireNamespace("spam", quietly = TRUE)) { 
+#    if (!require(spam)) stop("spam not available")
+  if (requireNamespace("spam", quietly = TRUE)) {
     if (which == 1) {
         csrw <- get("csrw", envir=env)
         cchol <- get("csrwchol", envir=env)
@@ -310,7 +314,7 @@ spam_update_ldet <- function(coef, env, which=1) {
             Jacobian <- 2*J1
         }
     }
-    Jacobian
+    return(Jacobian)
   } else {
     stop("spam not available")
   }

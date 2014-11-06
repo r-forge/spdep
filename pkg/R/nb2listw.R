@@ -156,8 +156,9 @@ similar.listw_Matrix <- function(listw) {
 
 
 similar.listw_spam <- function(listw) {
-  if (requireNamespace("spam", quietly = TRUE)) { 
-        	nbsym <- attr(listw$neighbours, "sym")
+    if (requireNamespace("spam", quietly = TRUE)) {
+#        if (!require(spam)) stop("spam not available")
+	nbsym <- attr(listw$neighbours, "sym")
 	if(is.null(nbsym)) nbsym <- is.symmetric.nb(listw$neighbours, FALSE)
 	if (!nbsym) 
 		stop("Only symmetric nb can yield similar to symmetric weights")
@@ -194,10 +195,10 @@ similar.listw_spam <- function(listw) {
 		sim0 <- qq1 %*% ww1 %*% qq1
 		res <- (eff.n/Q) * sim0
 	} else stop("Conversion not suitable for this weights style")
-	res
-  } else {
-    stop("spam not available")
-  }
+	return(res)
+    } else {
+        stop("spam not available")
+    }
 }
 
 
