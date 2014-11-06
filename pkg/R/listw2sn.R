@@ -2,14 +2,17 @@
 #
 
 as.spam.listw <- function(listw) {
-    if (!require(spam)) stop("spam not available")
+  if (requireNamespace("spam", quietly = TRUE)) { 
     N <- length(listw$neighbours)
     W_sn <- listw2sn(listw)
     rpts <- as.integer(cumsum(c(1, card(listw$neighbours))))
     W <- new("spam", entries=W_sn$weights, colindices=W_sn$to,
         rowpointers=rpts, dimension=as.integer(c(N, N)))
-    stopifnot(validspamobject(W))
+    stopifnot(spam::validspamobject(W))
     W
+  } else {
+    stop("spam not available")
+  }
 }
 
 listw2U_spam <- function(lw) 0.5 * (lw + t(lw))

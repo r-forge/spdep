@@ -30,6 +30,7 @@ GMerrorsar <- function(#W, y, X,
         if (is.null(zero.policy))
             zero.policy <- get("zeroPolicy", envir = .spdepOptions)
         stopifnot(is.logical(zero.policy))
+        if (class(formula) != "formula") formula <- as.formula(formula)
 	mt <- terms(formula, data = data)
 	mf <- lm(formula, data, na.action=na.action, method="model.frame")
 	na.act <- attr(mf, "na.action")
@@ -468,6 +469,7 @@ gstsls<-function (formula, data = list(), listw, listw2=NULL,
     else if (!inherits(listw2, "listw")) 
         stop("No 2nd neighbourhood list")
 
+    if (class(formula) != "formula") formula <- as.formula(formula)
     mt <- terms(formula, data = data)
     mf <- lm(formula, data, na.action = na.fail, method = "model.frame")
     na.act <- attr(mf, "na.action")
