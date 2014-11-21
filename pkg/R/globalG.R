@@ -56,7 +56,7 @@ globalG.test <- function(x, listw, zero.policy=NULL,
 	statistic <- (G - E.G) / sqrt(var.G)
 	names(statistic) <- "standard deviate"
 	method <- "Getis-Ord global G statistic"
-	if (alternative == "two.sided") PrG <- 2 * pnorm(-abs(statistic), 
+	if (alternative == "two.sided") PrG <- 2 * pnorm(abs(statistic), 
 		lower.tail=FALSE)
         else if (alternative == "greater")
             PrG <- pnorm(statistic, lower.tail=FALSE)
