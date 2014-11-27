@@ -97,7 +97,7 @@ variable in making predictions for the fitting data.
     \item{coefficients}{ML coefficient estimates}
     \item{SSE}{ML sum of squared errors}
     \item{s2}{ML residual variance}
-    \item{imat}{ML coefficient covariance matrix}
+    \item{imat}{ML coefficient covariance matrix (before multiplying by s2)}
     \item{signal\_trend}{non-spatial component of fitted.values}
     \item{signal\_stochastic}{spatial component of fitted.values}
     \item{fitted.values}{sum of non-spatial and spatial components of fitted.values}
@@ -141,7 +141,11 @@ esar0 <- errorsarlm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata,
 summary(esar0)
 system.time(esar1f <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
  data=nydata, listw=listw_NY, family="SAR", method="eigen", verbose=TRUE))
-summary(esar1f)
+res <- summary(esar1f)
+print(res)
+sqrt(diag(res$resvar))
+sqrt(diag(esar1f$fit$imat)*esar1f$fit$s2)
+sqrt(diag(esar1f$fdHess))
 system.time(esar1M <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
  data=nydata, listw=listw_NY, family="SAR", method="Matrix", verbose=TRUE))
 summary(esar1M)
