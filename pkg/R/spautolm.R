@@ -25,6 +25,7 @@ spautolm <- function(formula, data = list(), listw, weights,
         stopifnot(is.logical(zero.policy))
 
     if (family == "SMA" && method != "eigen") stop("SMA only for eigen method")
+    if (method == "spam" || method == "spam_update") stop("spam not supported as method")
     mf <- match.call(expand.dots = FALSE)
     m <- match(c("formula", "data", "weights", "na.action"), names(mf), 0)
     mf <- mf[c(1, m)]
