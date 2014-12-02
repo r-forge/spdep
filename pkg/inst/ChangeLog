@@ -1,3 +1,39 @@
+2014-12-02 12:32  rsbivand
+
+	* DESCRIPTION,
+	  R/globalG.R, R/read.gal.R, src/card.c, src/nbdists.c,
+	  vignettes/sids.Rnw: read.gal() not assigning 0 to nb object
+
+2014-11-27 10:38  rsbivand
+
+	* man/spautolm.Rd:
+	  spautolm docs
+
+2014-11-21 08:43  rsbivand
+
+	* DESCRIPTION,
+	  R/globalG.R, man/globalG.test.Rd: globalG two.sided
+
+2014-11-06 13:43  rsbivand
+
+	* DESCRIPTION,
+	  R/jacobian.R, R/knearneigh.R, R/listw2sn.R, R/nb2listw.R:
+	  formula and requireNamespace
+
+2014-11-06 12:28  rsbivand
+
+	* DESCRIPTION,
+	  R/SpatialFiltering.R, R/aple.mc.R, R/error.spsarlm.R,
+	  R/impacts.R, R/jacobian.R, R/knearneigh.R, R/kpgm_new.R,
+	  R/lag.spsarlm.R, R/listw2sn.R, R/mess.R, R/nb2listw.R,
+	  R/nbcosts.R, R/prunecost.R, R/s2sls.R, R/sacsarlm.R: formula
+	  and requireNamespace
+
+2014-09-17 19:31  rsbivand
+
+	* ChangeLog,
+	  inst/ChangeLog: tidy
+
 2014-08-31 21:34  rsbivand
 
 	* R/tri2nb.R:
