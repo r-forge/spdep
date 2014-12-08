@@ -24,7 +24,7 @@ lagmess <- function(formula, data = list(), listw, zero.policy=NULL,
     stopifnot(all(is.finite(X)))
     nullLL <- logLik(lm(formula, data, na.action=na.action))
 
-    W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
+    W <- as(listw, "CsparseMatrix")
     Y <- powerWeightsMESS(W, y, q=q)
 
     v <- 0:(q-1)

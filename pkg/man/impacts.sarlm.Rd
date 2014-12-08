@@ -89,7 +89,7 @@ lobj <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw)
 summary(lobj)
 mobj <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw, type="mixed")
 summary(mobj)
-W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
+W <- as(listw, "CsparseMatrix")
 trMatc <- trW(W, type="mult")
 trMC <- trW(W, type="MC")
 impacts(lobj, listw=listw)
@@ -121,7 +121,7 @@ mobj3 <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw, type="mixed",
 method="spam", control=list(fdHess=TRUE))
 summary(impacts(mobj3, tr=trMatc, R=1000), zstats=TRUE, short=TRUE)
 data(boston)
-Wb <- as(as_dgRMatrix_listw(nb2listw(boston.soi)), "CsparseMatrix")
+Wb <- as(nb2listw(boston.soi), "CsparseMatrix")
 trMatb <- trW(Wb, type="mult")
 gp2mMi <- lagsarlm(log(CMEDV) ~ CRIM + ZN + INDUS + CHAS + I(NOX^2) + 
 I(RM^2) +  AGE + log(DIS) + log(RAD) + TAX + PTRATIO + B + log(LSTAT), 

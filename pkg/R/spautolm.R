@@ -83,7 +83,7 @@ spautolm <- function(formula, data = list(), listw, weights,
     assign("verbose", verbose, envir=env)
     assign("listw", listw, envir=env)
     assign("sum_lw", sum_lw, envir=env)
-    W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
+    W <- as(listw, "CsparseMatrix")
     if (family == "CAR") if (!isTRUE(all.equal(W, t(W))))
         warning("Non-symmetric spatial weights in CAR model")
     assign("W", W, envir=env)

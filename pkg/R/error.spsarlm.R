@@ -222,8 +222,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action, etype="error",
                     p1 <- 1L:pp
                     R <- chol2inv(lm.model$qr$qr[p1, p1, drop = FALSE])
                     B <- tcrossprod(R, x)
-                    W <- as(as_dgRMatrix_listw(get("listw", envir=env)),
-                        "CsparseMatrix")
+                    W <- as(get("listw", envir=env), "CsparseMatrix")
                     B0 <- powerWeights(W=W, rho=lambda, order=con$pWOrder,
                         X=B, tol=tol.solve)
                     if (!is.null(attr(B0, "internal")) &&

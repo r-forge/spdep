@@ -39,7 +39,7 @@ A numeric vector of \code{m} traces, with \dQuote{timings} and \dQuote{type} att
 \examples{
 example(columbus)
 listw <- nb2listw(col.gal.nb)
-W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
+W <- as(listw, "CsparseMatrix")
 system.time(trMat <- trW(W, type="mult"))
 str(trMat)
 set.seed(1100)
@@ -52,7 +52,7 @@ for(i in 3:length(trMC)) {
   trMC[i]+2*attr(trMC, "sd")[i])
 }
 listwS <- similar.listw(listw)
-W <- as(as(as_dgRMatrix_listw(listwS), "CsparseMatrix"), "symmetricMatrix")
+W <- as(as(listwS, "CsparseMatrix"), "symmetricMatrix")
 system.time(trmom <- trW(W, m=24, type="moments"))
 str(trmom)
 all.equal(trMat[1:24], trmom, check.attributes=FALSE)

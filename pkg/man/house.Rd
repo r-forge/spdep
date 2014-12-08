@@ -69,7 +69,7 @@ Its projection is \code{CRS(+init=epsg:2834)}, the Ohio North State Plane.
 # house <- spTransform(house, CRS("+init=epsg:2834"))
 # library(spdep)
 # LO_nb <- graph2nb(soi.graph(tri2nb(coordinates(house)), coordinates(house)))
-# W <- as(as_dgRMatrix_listw(nb2listw(LO_nb)), "CsparseMatrix")
+# W <- as(nb2listw(LO_nb), "CsparseMatrix")
 # trMat <- trW(W, type="mult")
 }
 data(house)

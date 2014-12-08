@@ -1,5 +1,9 @@
-# Copyright 2006-7 by Roger Bivand
+# Copyright 2006-14 by Roger Bivand
 #
+
+setAs("listw", "CsparseMatrix", function(from) {as(as_dgRMatrix_listw(from), "CsparseMatrix")})
+
+
 
 as_dgRMatrix_listw <- function(listw) {
 	if(!inherits(listw, "listw")) stop("not a listw object")

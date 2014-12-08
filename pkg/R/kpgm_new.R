@@ -152,7 +152,7 @@ GMerrorsar <- function(#W, y, X,
             rest.se <- sqrt(diag(invxpx))
         }
 
-        W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
+        W <- as(listw, "CsparseMatrix")
         lambda.se <- NULL
         if (!arnoldWied && se.lambda) {
 # produce an std for "rho" following Kelejian-Prucha (2004)
@@ -395,7 +395,7 @@ print.summary.gmsar<-function (x, digits = max(5, .Options$digits - 3), signif.s
         if (arnoldWied) {
             stopifnot(!is.null(X))
             invXtX <- chol2inv(qr.R(qr(X)))
-            W <- as(as_dgRMatrix_listw(listw), "CsparseMatrix")
+            W <- as(listw, "CsparseMatrix")
             WX <- W %*% X
         }
 	n <- length(u)

@@ -4,6 +4,7 @@
 \alias{as_dsCMatrix_I}
 \alias{as_dsCMatrix_IrW}
 \alias{Jacobian_W}
+\alias{coerce,listw,CsparseMatrix-method}
 
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Interface between Matrix class objects and weights lists}
@@ -33,9 +34,10 @@ Jacobian_W(W, rho)
 
 \examples{
 example(NY_data)
-W <- as_dsTMatrix_listw(listw_NY)
-I <- as_dsCMatrix_I(dim(W)[1])
-W <- as(W, "CsparseMatrix")
+W <- as(listw_NY, "CsparseMatrix")
+W1 <- as_dsTMatrix_listw(listw_NY)
+I <- as_dsCMatrix_I(dim(W1)[1])
+W2 <- as(W1, "CsparseMatrix")
 rho <- 0.1
 c(determinant(I - rho * W, logarithm=TRUE)$modulus)
 sum(log(1 - rho * eigenw(listw_NY)))

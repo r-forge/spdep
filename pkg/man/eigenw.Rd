@@ -71,7 +71,7 @@ nc$nc
 table(nc$comp.id)
 k3eigSG <- subgraph_eigenw(k3, style="W")
 all.equal(sort(k3eig), k3eigSG)
-W <- as(as_dgRMatrix_listw(nb2listw(k3, style="W")), "CsparseMatrix")
+W <- as(nb2listw(k3, style="W"), "CsparseMatrix")
 I <- diag(length(k3))
 Jl <- sum(log(abs(diag(slot(lu(I - rho * W), "U")))))
 # LU Jacobian equals complex eigenvalue Jacobian

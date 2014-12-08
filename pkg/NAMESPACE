@@ -29,6 +29,8 @@ import(methods)
 #importMethodsFrom(spam, Math, Math2)
 #importFrom(spam, validspamobject)
 
+exportMethods(coerce)
+
 export(EBImoran.mc, probmap, choynowski, EBest, EBlocal, LR.sarlm, 
 	LR1.sarlm, Wald1.sarlm, airdist, card, rookcell, 
 	queencell, mrc2vi, vi2mrc, cell2nb, n.comp.nb, diffnb,
