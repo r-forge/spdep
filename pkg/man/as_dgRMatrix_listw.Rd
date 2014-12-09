@@ -39,10 +39,10 @@ W1 <- as_dsTMatrix_listw(listw_NY)
 I <- as_dsCMatrix_I(dim(W1)[1])
 W2 <- as(W1, "CsparseMatrix")
 rho <- 0.1
-c(determinant(I - rho * W, logarithm=TRUE)$modulus)
+c(determinant(I - rho * W2, logarithm=TRUE)$modulus)
 sum(log(1 - rho * eigenw(listw_NY)))
-n <- dim(W)[1]
-nW <- - W
+n <- dim(W2)[1]
+nW <- - W2
 nChol <- Cholesky(nW, Imult=8)
 .f <- if(package_version(packageDescription("Matrix")$Version) >
            "0.999375-30") 2 else 1
