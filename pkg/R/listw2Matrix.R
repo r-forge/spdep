@@ -16,6 +16,7 @@ as_dgRMatrix_listw <- function(listw) {
 	res <- new("dgRMatrix", j=z[[1]], p=p0, Dim=as.integer(c(n, n)),
 		x=z[[2]])
         colnames(res) <- attr(listw$neighbours, "region.id")
+        rownames(res) <- colnames(res)
 	res
 }
 
