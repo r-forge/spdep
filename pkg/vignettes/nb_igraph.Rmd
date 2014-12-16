@@ -16,7 +16,5 @@ library(spdep)
 ```{r results='asis'}
 ```
 
-```{r resetOptions}
-## Set options back to original options
-options(op)
+```{r}
 ```
