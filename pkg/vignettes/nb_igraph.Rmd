@@ -1,0 +1,22 @@
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Spatial weights objects as sparse matrices and graphs}
+-->
+# Spatial weights objects as sparse matrices and graphs
+======================================================
+This vignette shows how.
+
+```{r setOptions, message=FALSE}
+library(spdep)
+```
+
+```{r}
+```
+
+```{r results='asis'}
+```
+
+```{r resetOptions}
+## Set options back to original options
+options(op)
+```
