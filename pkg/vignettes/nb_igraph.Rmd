@@ -6,12 +6,11 @@
 ======================================================
 This vignette shows how.
 
-```{r message=FALSE}
+```{r}
 library(sp)
 library(spdep)
 library(maptools)
-columbus <- readShapePoly(system.file("etc/shapes/columbus.shp",
- package="spdep")[1])
+columbus <- readShapePoly(system.file("etc/shapes/columbus.shp", package="spdep")[1])
 nb_q <- poly2nb(columbus)
 coords <- coordinates(columbus)
 ```
