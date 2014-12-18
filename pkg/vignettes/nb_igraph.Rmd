@@ -4,35 +4,90 @@
 -->
 # Spatial weights objects as sparse matrices and graphs
 ======================================================
-This vignette shows how.
+
+## Introduction
+======================================================
+
+Since the **spdep** package was created, *spatial weights* objects have been constructed as lists with three components and a few attributes, in old-style class `listw` objects. The first component of a `listw` object is an `nb` object, a list of `n` integer vectors, with at least a character vector `region.id` attribute with `n` unique values (like the `row.names` of a `data.frame` object); `n` is the number of spatial entities. Component `i` of this list contains the integer identifiers of the neighbours of `i` as a sorted vector with no duplication and values in `1:n`; if `i` has no neighbours, the component is a vector of length `1` with value `0L`. The `nb` object may contain an attribute indicating whether it is symmetric or not, that is whether `i` is a neighbour of `j` implies that `j` is a neighbour of `i`. Some neighbour definitions are symmetric by construction, such as contiguities or distance thresholds, others are asymmetric, such as `k`-nearest neighbours. The `nb` object redundantly stores both `i`-`j` and `j`-`i` links.
+
+The second component of a `listw` object is a list of `n` numeric vectors, each of the same length as the corresponding non-zero vectors in the `nb`object. These give the values of the spatial weights for each `i`-`j` neighbour pair. It is often the case that while the neighbours are symmetric by construction, the weights are not, as for example when weights are *row-standardised* by dividing each row of input weights by the count of neighbours or cardinality of the neighbour set of `i`. In the `nb2listw`function, it is also possible to pass through general weights, such as inverse distances, shares of boundary lengths and so on.
+
+The third component of a `listw` object records the `style` of the weights as a character code, with `"B"` for binary weights taking values zero or one (only one is recorded), `"W"` for row-standardised weights, and so on. In order to subset `listw` objects, knowledge of the `style` may be necessary
+
+It is obvious that this is similar to the way in which sparse matrices are stored, either by row - like the `listw` object, or by column. The key insight is that storing zero values is unnecessary, as we only need to store the row and column locations of non-zero values. Early on, a Netlib library was used to provide limited support in **spdep** for sparse matrices, followed by functionality in **SparseM**, **spam**, and **Matrix**. 
+
+### **spdep** depends on **Matrix**
+
+Since **Matrix** is a recommended package, its functionality has increasingly been used over time, and it has become one of two packages on which **spdep** depends. This is reported on loading:
 
 ```{r}
-library(sp)
 library(spdep)
+```
+
+### Getting some data
+
+The legacy Columbus OH data set has 49 spatial entities, polygons, defined as the boundaries of policing districts in the city. **spdep** suggests **maptools** for portability, but in regular applications, **rgdal** should be used, because it handles coordinate reference systems more gracefully. We see that the shapefile-based entity IDs are zero-based:
+
+```{r}
 library(maptools)
 columbus <- readShapePoly(system.file("etc/shapes/columbus.shp", package="spdep")[1])
-nb_q <- poly2nb(columbus)
-coords <- coordinates(columbus)
+row.names(columbus)[1:10]
 ```
+
+### Finding contiguous neighbours and droppping links
+
+Contiguous neighbours are often used for polygonal spatial entities, here with the **poly2nb** function defaulting to the *queen* criterion - entities are neighbours if they share a boundary point. We see that the entity IDs are copied across to the `nb` object:
+
+```{r}
+nb_q <- poly2nb(columbus)
+nb_q
+attr(nb_q, "region.id")[1:10]
+is.symmetric.nb(nb_q)
+```
+
+In order to make the object more complicated, let us drop the neighbour links for the 21st entity (noting that the print method reports the ID of the entity with no neighbours, not its number in `1:n`), and plot the resulting map of neighbours:
 
 ```{r}
 col2 <- droplinks(nb_q, 21)
+nb_q[[21]]
+col2[[21]]
+col2
+is.symmetric.nb(col2)
+coords <- coordinates(columbus)
 plot(nb_q, coords, col="grey")
 plot(col2, coords, add=TRUE)
 ```
 
-```{r}
-res <- n.comp.nb(col2)
-table(res$comp.id)
-```
+## Using sparse matrices to represent spatial weights
+======================================================
 
+At present only `listw` objects can be coerced to objects of classes defined in **Matrix**. Because the `style` is lost on coercion, it may not be possible to reconstruct spatial weights as the sparse matrix representation does not preserve it. We will start with symmetric binary weights, first creating a spatial weights object, and signalling that one entity has no neighbours with the `zero.policy` argument (default false). The matrix and graph representations of no-neighbour entities are not obvious.
 
 ```{r}
 nb_B <- nb2listw(col2, style="B", zero.policy=TRUE)
-B <- as(nb_B, "symmetricMatrix")
-nb_B1 <- mat2listw(as(B, "dgTMatrix"))
-all.equal(nb_B1$neighbours, col2)
+nb_B$style
 ```
+
+### Symmetric sparse matrices
+
+**spdep** provides coercion methods from `listw` to the `"symmetricMatrix"`, `"RsparseMatrix"` and `"CsparseMatrix"` classes defined in **Matrix**. The `"RsparseMatrix"` is the representation that is most similar to `listw`, as it is row-based, but it is used less frequently in operations on sparse matrices. The entity IDs are passed using sparse matrix row and column names at present. Here we believe that our `listw` object can be represented as a symmetric matrix, storing only a triangle rather than both `i`-`j` and `j`-`i` weights. The coercion method does check whether symmetry is present before proceeding:
+
+```{r}
+B <- as(nb_B, "symmetricMatrix")
+str(B)
+rownames(B)[1:10]
+```
+Let us now try to retreive the list of neighbours from the symmetric sparse matrix. At present, we have to coerce from one **Matrix** internal representation to another in order to get to the `"dgCMatrix"` format used inside `mat2listw`, so we coerce to `"dgTMatrix"` from `"dsTMatrix"`. The style is not retreived automatically, but is set to `"M"` to indicate conversion from a matrix. The neighbour links are retreived correctly, as are the IDs, but there are unimportant differences in attributes (we check the attributes to make sure that the IDs agree):
+
+```{r}
+nb_B1 <- mat2listw(as(B, "dgTMatrix"))
+nb_B1$style
+all.equal(nb_B1$neighbours, col2)
+attr(nb_B1$neighbours, "region.id")[1:10]
+```
+
+### Log determinants (symmetric weights) used in spatial regression
+
 
 
 ```{r}
@@ -46,6 +101,7 @@ nChol <- Cholesky(nW, Imult=8)
 n * log(rho) + (2 * c(determinant(update(nChol, nW, 1/rho))$modulus))
 ```
 
+### Asymmetric sparse matrices
 
 
 ```{r}
@@ -59,6 +115,7 @@ r2 <- lag(nb_W, x, zero.policy=TRUE)
 all.equal(r1, r2, check.attributes=FALSE)
 ```
 
+### Log determinants (asymmetric weights) used in spatial regression
 
 
 ```{r}
@@ -68,7 +125,15 @@ LU <- lu(I - rho * W)
 sum(log(abs(diag(slot(LU, "U")))))
 sum(log(1 - rho * eigenw(nb_W)))
 ```
+### Log determinants: symmetric by similarity
 
+```{r}
+```
+
+## Using **igraph** for spatial weights as graphs
+======================================================
+
+### Converting from symmetric adjacency matrix to graph
 
 ```{r}
 class(B)
@@ -78,7 +143,7 @@ g1 <- graph.adjacency(B, mode="undirected")
 class(g1)
 object.size(g1)
 ```
-
+### Converting from graph to symmetric adjacency matrix
 
 ```{r}
 B1 <- get.adjacency(g1)
@@ -86,6 +151,15 @@ class(B1)
 object.size(B1)
 all.equal(B, as(as(B1, "dgTMatrix"), "symmetricMatrix"))
 ```
+
+### Graph components in **spdep**
+
+```{r}
+res <- n.comp.nb(col2)
+table(res$comp.id)
+```
+
+### Graph components in **igraph**
 
 ```{r}
 c1 <- clusters(g1)
@@ -101,9 +175,6 @@ c1W <- clusters(g1W)
 all.equal(c1W$membership, res$comp.id)
 ```
 
-
-```{r}
-```
 
 ```{r}
 ```
