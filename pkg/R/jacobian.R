@@ -352,8 +352,7 @@ Matrix_setup <- function(env, Imult, super=as.logical(NA), which=1) {
         assign("pChol2", pChol, envir=env)
         assign("nChol2", nChol, envir=env)
     }
-    .f <- if (package_version(packageDescription("Matrix")$Version) >
-           "0.999375-30") 2 else 1
+    .f <- 2
     assign(".f", .f, envir=env)
     assign("method", "Matrix", envir=env)
     invisible(NULL)
@@ -473,8 +472,7 @@ Matrix_J_setup <- function(env, super=FALSE, which=1) {
     }
     I <- as_dsCMatrix_I(get("n", envir=env))
     assign("I", I, envir=env)
-    .f <- if (package_version(packageDescription("Matrix")$Version) >
-           "0.999375-30") 2 else 1
+    .f <- 2
     assign(".f", .f, envir=env)
     assign("super", super, envir=env)
     assign("method", "Matrix_J", envir=env)

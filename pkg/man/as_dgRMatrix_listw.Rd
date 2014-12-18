@@ -5,6 +5,8 @@
 \alias{as_dsCMatrix_IrW}
 \alias{Jacobian_W}
 \alias{coerce,listw,CsparseMatrix-method}
+\alias{coerce,listw,RsparseMatrix-method}
+\alias{coerce,listw,symmetricMatrix-method}
 
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Interface between Matrix class objects and weights lists}
@@ -34,21 +36,17 @@ Jacobian_W(W, rho)
 
 \examples{
 example(NY_data)
-W <- as(listw_NY, "CsparseMatrix")
-W1 <- as_dsTMatrix_listw(listw_NY)
-I <- as_dsCMatrix_I(dim(W1)[1])
-W2 <- as(W1, "CsparseMatrix")
+W_C <- as(listw_NY, "CsparseMatrix")
+W_R <- as(listw_NY, "RsparseMatrix")
+W_S <- as(listw_NY, "symmetricMatrix")
+n <- nrow(W_S)
+I <- Diagonal(n)
 rho <- 0.1
-c(determinant(I - rho * W2, logarithm=TRUE)$modulus)
+c(determinant(I - rho * W_S, logarithm=TRUE)$modulus)
 sum(log(1 - rho * eigenw(listw_NY)))
-n <- dim(W2)[1]
-nW <- - W2
+nW <- - W_S
 nChol <- Cholesky(nW, Imult=8)
-.f <- if(package_version(packageDescription("Matrix")$Version) >
-           "0.999375-30") 2 else 1
-n * log(rho) + (.f * c(determinant(update(nChol, nW, 1/rho))$modulus))
-rho <- seq(0.01, 0.1, 0.01)
-n * log(rho) + Matrix:::ldetL2up(nChol, nW, 1/rho)
+n * log(rho) + (2 * c(determinant(update(nChol, nW, 1/rho))$modulus))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

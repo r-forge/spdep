@@ -2,7 +2,8 @@
 #
 
 setAs("listw", "CsparseMatrix", function(from) {as(as_dgRMatrix_listw(from), "CsparseMatrix")})
-
+setAs("listw", "RsparseMatrix", function(from) {as_dgRMatrix_listw(from)})
+setAs("listw", "symmetricMatrix", function(from) {as_dsTMatrix_listw(from)})
 
 
 as_dgRMatrix_listw <- function(listw) {
@@ -33,6 +34,8 @@ as_dsTMatrix_listw <- function(listw) {
 
 	res <- new("dsTMatrix", i=z[[1]], j=z[[2]], Dim=as.integer(c(n, n)),
 		x=z[[3]])
+        colnames(res) <- attr(listw$neighbours, "region.id")
+        rownames(res) <- colnames(res)
 	res
 }
 
