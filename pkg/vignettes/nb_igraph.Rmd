@@ -77,13 +77,13 @@ B <- as(nb_B, "symmetricMatrix")
 str(B)
 rownames(B)[1:10]
 ```
-Let us now try to retreive the list of neighbours from the symmetric sparse matrix. At present, we have to coerce from one **Matrix** internal representation to another in order to get to the `"dgCMatrix"` format used inside `mat2listw`, so we coerce to `"dgTMatrix"` from `"dsTMatrix"`. The style is not retreived automatically, but is set to `"M"` to indicate conversion from a matrix. The neighbour links are retreived correctly, as are the IDs, but there are unimportant differences in attributes (we check the attributes to make sure that the IDs agree):
+Let us now try to retreive the list of neighbours from the symmetric sparse matrix. At present, we have to coerce from one **Matrix** internal representation to another in order to get to the `"dgCMatrix"` format used inside `mat2listw`, so we coerce to `"dgTMatrix"` from `"dsTMatrix"`. The style is not retreived automatically, but is set to `"M"` to indicate conversion from a matrix. The neighbour links are retreived correctly, as are the IDs:
 
 ```{r}
 nb_B1 <- mat2listw(as(B, "dgTMatrix"))
 nb_B1$style
-all.equal(nb_B1$neighbours, col2)
-attr(nb_B1$neighbours, "region.id")[1:10]
+all.equal(nb_B1$neighbours, col2, check.attributes=FALSE)
+all.equal(attr(nb_B1$neighbours, "region.id"), attr(nb_B$neighbours, "region.id"))
 ```
 
 ### Log determinants (symmetric weights) used in spatial regression
@@ -91,11 +91,17 @@ attr(nb_B1$neighbours, "region.id")[1:10]
 
 
 ```{r}
+rho <- 0.1
+sum(log(1 - rho * eigenw(nb_B)))
+```
+
+```{r}
 n <- nrow(B)
 I <- Diagonal(n)
-rho <- 0.1
 c(determinant(I - rho * B, logarithm=TRUE)$modulus)
-sum(log(1 - rho * eigenw(nb_B)))
+```
+
+```{r}
 nW <- -B
 nChol <- Cholesky(nW, Imult=8)
 n * log(rho) + (2 * c(determinant(update(nChol, nW, 1/rho))$modulus))
@@ -107,7 +113,10 @@ n * log(rho) + (2 * c(determinant(update(nChol, nW, 1/rho))$modulus))
 ```{r}
 nb_W <- nb2listw(col2, style="W", zero.policy=TRUE)
 W <- as(nb_W, "CsparseMatrix")
-n <- nrow(W)
+str(W)
+```
+
+```{r}
 set.seed(1)
 x <- runif(n)
 r1 <- as.numeric(W %*% x)
@@ -128,6 +137,15 @@ sum(log(1 - rho * eigenw(nb_W)))
 ### Log determinants: symmetric by similarity
 
 ```{r}
+```
+
+### Using `arpack` in **igraph** for finding some eigenvalues
+
+```{r}
+1/range(eigenw(nb_B))
+library(igraph)
+f2 <- function(x, extra=NULL) {as.vector(B %*% x)}
+1/arpack(f2, sym=TRUE, options=list(n=n, nev=2, ncv=8, which="BE", maxiter=200))$values
 ```
 
 ## Using **igraph** for spatial weights as graphs
