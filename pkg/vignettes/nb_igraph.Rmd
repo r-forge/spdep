@@ -74,6 +74,7 @@ nb_B$style
 
 ```{r}
 B <- as(nb_B, "symmetricMatrix")
+all(B == t(B))
 str(B)
 rownames(B)[1:10]
 ```
@@ -88,18 +89,23 @@ all.equal(attr(nb_B1$neighbours, "region.id"), attr(nb_B$neighbours, "region.id"
 
 ### Log determinants (symmetric weights) used in spatial regression
 
-
+An initial reason for implementing support for sparse weights matrices in **spdep** was to permit the calculation of the log determinant term in spatial regressions for larger data sets. Using the eigenvalue approach with for example `eigenw` is limited by the need to operate on dense matrices in memory to solve the eigenproblem:
 
 ```{r}
 rho <- 0.1
 sum(log(1 - rho * eigenw(nb_B)))
 ```
 
+When `n` is large, this may become impractical and/or time-consuming, but does permit the rapid calculation of values of the log determinant for differing values of the spatial coefficient \( \rho \). The **Matrix** package provides many `determinant` methods, here for a `"dsCMatrix"` resulting from subtracting a `"dsCMatrix"`, the product of a scalar and a `"dsTMatrix"`, from a `"ddiMatrix"`. The value of the log determinant follows, calling a sparse Cholesky decomposition internally for suitable input matrices.
+
 ```{r}
 n <- nrow(B)
 I <- Diagonal(n)
+class(I - rho * B)
 c(determinant(I - rho * B, logarithm=TRUE)$modulus)
 ```
+
+The computation of a sparse Cholesky decomposition for each value of the spatial coefficient \( \rho \) may be avoided by updating a pre-computed object; this approach provides fast and accurate log determinants for larger (but not very large) data sets:
 
 ```{r}
 nW <- -B
@@ -109,12 +115,15 @@ n * log(rho) + (2 * c(determinant(update(nChol, nW, 1/rho))$modulus))
 
 ### Asymmetric sparse matrices
 
+The use of row-standardisation leads to asymmetry even if the underlying neighbours are symmetric, unless all entities have matching numbers of neighbours (for example a regular grid on a torus):
 
 ```{r}
 nb_W <- nb2listw(col2, style="W", zero.policy=TRUE)
 W <- as(nb_W, "CsparseMatrix")
 str(W)
+all(W == t(W))
 ```
+The `lag` method for `listw` objects is often used to create spatially lagged values, and returns the same values as the vector given by the product of the sparse general matrix and an input numeric vector. Note that by setting `zero.policy` to `TRUE`, the spatial lag of entity 21, which has no neighbours, is zero by construction:
 
 ```{r}
 set.seed(1)
@@ -122,30 +131,67 @@ x <- runif(n)
 r1 <- as.numeric(W %*% x)
 r2 <- lag(nb_W, x, zero.policy=TRUE)
 all.equal(r1, r2, check.attributes=FALSE)
+plot(x, r1)
+c(x[21], r1[21])
 ```
 
 ### Log determinants (asymmetric weights) used in spatial regression
 
+Calculating the log determinant for asymmetric weights (here with symmetric neighbours and symmetry induced by non-constant numbers of neighbours) may be carried out using eigenvalues as before, but the result may be a complex vector (here it is not, as discussed below). The appropriate `determinant` method for `"dgCMatrix"` objects uses an LU decomposition internally: 
 
 ```{r}
-I <- Diagonal(n)
 rho <- 0.5
+sum(log(1 - rho * eigenw(nb_W)))
+class(I - rho * W)
+c(determinant(I - rho * W, logarithm=TRUE)$modulus)
+```
+
+We can show the internal workings of the method as:
+
+```{r}
 LU <- lu(I - rho * W)
 sum(log(abs(diag(slot(LU, "U")))))
-sum(log(1 - rho * eigenw(nb_W)))
 ```
+
 ### Log determinants: symmetric by similarity
 
+The `nb2listw` function stores components that can be employed to transform the asymmetric weights matrix to symmetry by similarity, permitting the same log determinant to be computed using less costly numerical methods. The `"W"` style used the cardinalities of neighbour sets (row sums) to introduce row standardisation, and they are stored as an attribute:
+
 ```{r}
+d <- attr(nb_W$weights, "comp")$d
+all.equal(d, card(col2))
 ```
+If we first restore the row-standarised matrix to its binary form (which must be symmetric), we can pre- and post-multiply by the square roots of the inverted neighbour counts, yielding a symmetric matrix with the appropriate properties:
+
+```{r}
+dW <- Diagonal(n, d) %*% W
+all(dW == t(dW))
+isd <- Diagonal(n, 1/sqrt(d))
+isd[21,21]
+Ws <- as(isd %*% dW %*% isd, "symmetricMatrix")
+rowSums(Ws)[21]
+class(Ws)
+c(determinant(I - rho * Ws, logarithm=TRUE)$modulus)
+```
+As can be seen, the division by the square root of zero for entity 21 is not a problem as the row of `Ws` is zero. The transformation by similarity permits the use of numerical methods for sparse symmetric matrices (and equivalently for eigenvalues and dense matrices). Note that this transformation is not available for intrinsically asymmetric neighbours, or for intrinsically asymmetric general weights.
 
 ### Using `arpack` in **igraph** for finding some eigenvalues
+
+In spatial regression, the domain of the spatial coefficient is given by the inverse of the maximum and minimum eigenvalues. When `n` is moderate, we have the eigenvalues anyway, so the interval for line search is available without extra effort. When `n` is somewhat larger, use may be made of the `arpack` function in **igraph**
 
 ```{r}
 1/range(eigenw(nb_B))
 library(igraph)
 f2 <- function(x, extra=NULL) {as.vector(B %*% x)}
 1/arpack(f2, sym=TRUE, options=list(n=n, nev=2, ncv=8, which="BE", maxiter=200))$values
+```
+
+
+```{r}
+1/range(eigenw(nb_W))
+f2 <- function(x, extra=NULL) {as.vector(W %*% x)}
+1/arpack(f2, sym=FALSE, options=list(n=n, nev=1, ncv=8, which="LR", maxiter=200))$values
+1/arpack(f2, sym=FALSE, options=list(n=n, nev=1, ncv=8, which="SR", maxiter=200))$values
 ```
 
 ## Using **igraph** for spatial weights as graphs
