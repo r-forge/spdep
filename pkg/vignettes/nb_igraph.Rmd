@@ -131,7 +131,7 @@ x <- runif(n)
 r1 <- as.numeric(W %*% x)
 r2 <- lag(nb_W, x, zero.policy=TRUE)
 all.equal(r1, r2, check.attributes=FALSE)
-plot(x, r1)
+plot(x, r1, ylim=c(0,1))
 c(x[21], r1[21])
 ```
 
@@ -173,11 +173,11 @@ rowSums(Ws)[21]
 class(Ws)
 c(determinant(I - rho * Ws, logarithm=TRUE)$modulus)
 ```
-As can be seen, the division by the square root of zero for entity 21 is not a problem as the row of `Ws` is zero. The transformation by similarity permits the use of numerical methods for sparse symmetric matrices (and equivalently for eigenvalues and dense matrices). Note that this transformation is not available for intrinsically asymmetric neighbours, or for intrinsically asymmetric general weights.
+As can be seen, the division by the square root of zero for entity 21 is not a problem as the row of `dW` is zero. The transformation by similarity permits the use of numerical methods for sparse symmetric matrices (and equivalently for eigenvalues and dense matrices). Note that this transformation is not available for intrinsically asymmetric neighbours, or for intrinsically asymmetric general weights.
 
 ### Using `arpack` in **igraph** for finding some eigenvalues
 
-In spatial regression, the domain of the spatial coefficient is given by the inverse of the maximum and minimum eigenvalues. When `n` is moderate, we have the eigenvalues anyway, so the interval for line search is available without extra effort. When `n` is somewhat larger, use may be made of the `arpack` function in **igraph**
+In spatial regression, the domain of the spatial coefficient is given by the inverse of the maximum and minimum eigenvalues. When `n` is moderate, we have the eigenvalues anyway, so the interval for line search is available without extra effort. When `n` is somewhat larger, use may be made of the `arpack` function in **igraph**.
 
 ```{r}
 1/range(eigenw(nb_B))
