@@ -186,6 +186,7 @@ f2 <- function(x, extra=NULL) {as.vector(B %*% x)}
 1/arpack(f2, sym=TRUE, options=list(n=n, nev=2, ncv=8, which="BE", maxiter=200))$values
 ```
 
+In this case, the results are trivial with small `n` and a symmetric sparse matrix. It can be challenging to find the `maxiter=` cutoff for larger `n`; the `which="BE"` argument takes both ends here.
 
 ```{r}
 1/range(eigenw(nb_W))
@@ -193,11 +194,15 @@ f2 <- function(x, extra=NULL) {as.vector(W %*% x)}
 1/arpack(f2, sym=FALSE, options=list(n=n, nev=1, ncv=8, which="LR", maxiter=200))$values
 1/arpack(f2, sym=FALSE, options=list(n=n, nev=1, ncv=8, which="SR", maxiter=200))$values
 ```
+For asymmetric matrices, we need to go to each end separately, so finding the domain bounds can be hard. Using row-standardisation has the nice feature of setting the upper bound to unity, and there are graph methods for finding out whether the lower bound is -1.
+
 
 ## Using **igraph** for spatial weights as graphs
 ======================================================
 
 ### Converting from symmetric adjacency matrix to graph
+
+First we'll see how to get from sparse matrices to graphs. The mode of a symmetric matrix is `"undirected"` by definition:
 
 ```{r}
 class(B)
@@ -209,6 +214,8 @@ object.size(g1)
 ```
 ### Converting from graph to symmetric adjacency matrix
 
+We can also convert this graph pack to the same matrix, but note that `get.adjacency` chooses a particular class of sparse matrix to be returned, so that the conversion process typically leads many matrices to fewer graph types, and back to fewer matrix types:
+
 ```{r}
 B1 <- get.adjacency(g1)
 class(B1)
@@ -216,12 +223,16 @@ object.size(B1)
 all.equal(B, as(as(B1, "dgTMatrix"), "symmetricMatrix"))
 ```
 
+A simple example of using **igraph** to do the same as an existing **spdep** function is Nicholas Lewin-Koh's `n.comp.nb` from the early days of the package. It is useful to know whether an `nb` object is divided up into separate subgraphs, and which entities are members of which such subgraph.
+
 ### Graph components in **spdep**
 
 ```{r}
 res <- n.comp.nb(col2)
 table(res$comp.id)
 ```
+
+The same result can be obtained using the `clusters` function in **igraph**:
 
 ### Graph components in **igraph**
 
@@ -231,6 +242,8 @@ c1$no == res$nc
 all.equal(c1$membership, res$comp.id)
 all.equal(c1$csize, c(table(res$comp.id)), check.attributes=FALSE)
 ```
+
+The same holds for the row-standardised variant:
 
 ```{r}
 W <- as(nb2listw(col2, style="W", zero.policy=TRUE), "CsparseMatrix")
