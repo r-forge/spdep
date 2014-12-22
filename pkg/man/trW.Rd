@@ -70,6 +70,8 @@ system.time(trmom <- trW(listw=listwS, m=24, type="moments"))
 str(trmom)
 library(parallel)
 nc <- detectCores(logical=FALSE)
+# set nc to 1L here
+if (nc > 1L) nc <- 1L
 coresOpt <- get.coresOption()
 invisible(set.coresOption(nc))
 if(!get.mcOption()) {
