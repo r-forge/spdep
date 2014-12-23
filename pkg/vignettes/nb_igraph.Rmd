@@ -223,18 +223,18 @@ object.size(B1)
 all.equal(B, as(as(B1, "dgTMatrix"), "symmetricMatrix"))
 ```
 
-A simple example of using **igraph** to do the same as an existing **spdep** function is Nicholas Lewin-Koh's `n.comp.nb` from the early days of the package. It is useful to know whether an `nb` object is divided up into separate subgraphs, and which entities are members of which such subgraph.
-
 ### Graph components in **spdep**
+
+A simple example of using **igraph** to do the same as an existing **spdep** function is Nicholas Lewin-Koh's `n.comp.nb` from the early days of the package. It is useful to know whether an `nb` object is divided up into separate subgraphs, and which entities are members of which such subgraph.
 
 ```{r}
 res <- n.comp.nb(col2)
 table(res$comp.id)
 ```
 
-The same result can be obtained using the `clusters` function in **igraph**:
-
 ### Graph components in **igraph**
+
+The same result can be obtained using the `clusters` function in **igraph**:
 
 ```{r}
 c1 <- clusters(g1)
@@ -251,12 +251,27 @@ g1W <- graph.adjacency(W, mode="directed", weighted="W")
 c1W <- clusters(g1W)
 all.equal(c1W$membership, res$comp.id)
 ```
-
+### Shortest paths in weights matrices
 
 ```{r}
+is.connected(g1)
+dg1 <- diameter(g1)
+dg1
+sp_mat <- shortest.paths(g1)
+str(sp_mat)
 ```
 
 ```{r}
+nbl10 <- nblag(col2, maxlag=10)
+vals <- sapply(nbl10, function(x) sum(card(x)))
+zero <- which(vals == 0)
+zero[1]-1
+lmat <- lapply(nbl10[1:(zero[1]-1)], nb2mat, style="B", zero.policy=TRUE)
+mat <- matrix(0, n, n)
+for (i in seq(along=lmat)) mat = mat + i*lmat[[i]]
+mat[mat==0] <- Inf
+diag(mat) <- 0
+all.equal(mat, sp_mat, check.attributes=FALSE)
 ```
 
 ```{r}
