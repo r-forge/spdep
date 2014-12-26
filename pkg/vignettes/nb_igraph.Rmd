@@ -251,7 +251,9 @@ g1W <- graph.adjacency(W, mode="directed", weighted="W")
 c1W <- clusters(g1W)
 all.equal(c1W$membership, res$comp.id)
 ```
-### Shortest paths in weights matrices
+### Shortest paths in weights matrices: **igraph**
+
+Finding shortest paths between spatial entities across a given graph is a way to express closeness. If the graph is connected, that is that it is possible to traverse the graph edges from any node to any other, the longest shortest path is then a useful measure. In **igraph**, the `is.connected` function tells us tells us that our graph is not connected, as we know from the figure above. The diameter measure is then the diameter of the largest component subgraph. Note that this generates an `n` x `n` matrix:
 
 ```{r}
 is.connected(g1)
@@ -261,11 +263,19 @@ sp_mat <- shortest.paths(g1)
 str(sp_mat)
 ```
 
+### Shortest paths in weights matrices: **spdep**
+
+If we do the same in **spdep**, using `nblag` to a maximum number of lag orders - the diameter, but which is unknown in advance (the largest lag order for which the number of links is greater than zero), we run into the problem of how to represent missing neighbour information. 
+
 ```{r}
 nbl10 <- nblag(col2, maxlag=10)
 vals <- sapply(nbl10, function(x) sum(card(x)))
 zero <- which(vals == 0)
 zero[1]-1
+```
+If we insert zero into the weights matrix where there is no connection using `zero.policy=TRUE`, we generate a zero shortest path. If we are to create a matrix that matches the one produced by `shortest.paths`, we need to set all these non-structural zeros to infinity (the length of the path between unconnected nodes), and re-instate structural zeros on the diagonal:
+
+```{r}
 lmat <- lapply(nbl10[1:(zero[1]-1)], nb2mat, style="B", zero.policy=TRUE)
 mat <- matrix(0, n, n)
 for (i in seq(along=lmat)) mat = mat + i*lmat[[i]]
@@ -274,7 +284,10 @@ diag(mat) <- 0
 all.equal(mat, sp_mat, check.attributes=FALSE)
 ```
 
+### Cyclical graphs
+
 ```{r}
+is.dag(g1)
 ```
 
 ```{r}
