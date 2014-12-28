@@ -287,13 +287,18 @@ all.equal(mat, sp_mat, check.attributes=FALSE)
 ### Cyclical graphs
 
 ```{r}
-comps_id <- split(vertex.attributes(g1)$name, as.factor(c1$membership))
-lcomps <- lapply(comps_id, function(x) induced.subgraph(g1, vid=x))
+g1d <- as.directed(g1, mode="mutual")
+c1d <- clusters(g1d)
+comps_id <- split(vertex.attributes(g1d)$name, as.factor(c1d$membership))
+lcomps <- lapply(comps_id, function(x) induced.subgraph(g1d, vid=x))
 sapply(lcomps, is.directed)
 sapply(lcomps, is.dag)
 ```
 
 ```{r}
+lcomps1 <- decompose.graph(g1d)
+sapply(lcomps1, is.directed)
+sapply(lcomps1, is.dag)
 ```
 
 ```{r}
