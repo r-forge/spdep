@@ -302,6 +302,8 @@ sapply(lcomps1, is.dag)
 ```
 
 ```{r}
+#load("USC_lw.RData")
+#spdep:::find_q1_q2(USC_lw)
 ```
 
 ```{r}
