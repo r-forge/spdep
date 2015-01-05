@@ -1,6 +1,6 @@
 Package: spdep
 Version: 0.5-80
-Date: 2014-12-12
+Date: 2015-01-05
 Title: Spatial Dependence: Weighting Schemes, Statistics and Models
 Encoding: UTF-8
 Authors@R: c(
