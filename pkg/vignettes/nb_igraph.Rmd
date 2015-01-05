@@ -16,6 +16,8 @@ The third component of a `listw` object records the `style` of the weights as a 
 
 It is obvious that this is similar to the way in which sparse matrices are stored, either by row - like the `listw` object, or by column. The key insight is that storing zero values is unnecessary, as we only need to store the row and column locations of non-zero values. Early on, a Netlib library was used to provide limited support in **spdep** for sparse matrices, followed by functionality in **SparseM**, **spam**, and **Matrix**. 
 
+Note that this vignette is preliminary at this stage.
+
 ### **spdep** depends on **Matrix**
 
 Since **Matrix** is a recommended package, its functionality has increasingly been used over time, and it has become one of two packages on which **spdep** depends. This is reported on loading:
@@ -194,7 +196,7 @@ f2 <- function(x, extra=NULL) {as.vector(W %*% x)}
 1/arpack(f2, sym=FALSE, options=list(n=n, nev=1, ncv=8, which="LR", maxiter=200))$values
 1/arpack(f2, sym=FALSE, options=list(n=n, nev=1, ncv=8, which="SR", maxiter=200))$values
 ```
-For asymmetric matrices, we need to go to each end separately, so finding the domain bounds can be hard. Using row-standardisation has the nice feature of setting the upper bound to unity, and there are graph methods for finding out whether the lower bound is -1.
+For asymmetric matrices, we need to go to each end separately, so finding the domain bounds can be hard. Using row-standardisation has the nice feature of setting the upper bound to unity, and there are graph methods for finding out whether the lower bound is `-1`.
 
 
 ## Using **igraph** for spatial weights as graphs
@@ -286,44 +288,27 @@ all.equal(mat, sp_mat, check.attributes=FALSE)
 
 ### Smirnov/Anselin (2009) cyclical matrices
 
-```{r}
-g1d <- as.directed(g1, mode="mutual")
-c1d <- clusters(g1d)
-comps_id <- split(vertex.attributes(g1d)$name, as.factor(c1d$membership))
-lcomps <- lapply(comps_id, function(x) induced.subgraph(g1d, vid=x))
-sapply(lcomps, is.directed)
-sapply(lcomps, is.dag)
-```
+Another area in which a graph representation might prove useful is in trying to establish the domain of the spatial coefficient when spatial weights are row-standardised. In that case by construction we know that the maximum eigenvalue is `1`. If there are multiple blocks, that is graph components, where the numbers of nodes per block are greater than 1, then each will have a maximum eigenvalue of `1`. The remaining problems are the numbers of zero eigenvalues (at least the singleton graph components), and whether any non-singleton component fulfills the condition termed by Smirnov and Anselin (2009) a *cyclical matrix*, for which the minimum eigenvalue is `-1`. The term *cyclical* appears to be used in many different ways, and it is not clear that its use here after Smirnov and Anselin (2009, pp. 2984-2985) indicates which meaning should be used to find the relevant graph function. The definition used here is that a block matrix (subgraph) is *cyclical* if: "for every location, every pair of its neighbours are not connected". That is, if w[i,j] and w[i,k] are greater than zero, w[j,k] must be zero to meet the condition.
+
+The internal function `find_q1_q2` returns the number of non-singleton components, and the number of these that meet this condition. It does this for each block/subgraph by testing the condition until it meets w[j,k] > 0, at which point it breaks. Smirnov and Anselin (2009) state that rook neighbours on a regular grid meet the condition:
 
 ```{r}
-lcomps1 <- decompose.graph(g1d)
-sapply(lcomps1, is.directed)
-sapply(lcomps1, is.dag)
+nb_r <- cell2nb(7, 7, type="rook")
+nb_rW <- nb2listw(nb_r, style="W")
+spdep:::find_q1_q2(nb_rW)
 ```
+
+One block/graph component is found, and this one meets the *cyclical matrix* condition, as also shown by the domain:
 
 ```{r}
-#load("USC_lw.RData")
-#spdep:::find_q1_q2(USC_lw)
+1/range(Re(eigenw(similar.listw(nb_rW))))
 ```
+
+This does not apply to the spatial weights we have been using above, with two non-singleton components, neither meeting the *cyclical matrix* condition:
 
 ```{r}
+spdep:::find_q1_q2(nb_W)
+1/range(Re(eigenw(similar.listw(nb_W))))
 ```
 
-```{r}
-```
-
-```{r}
-```
-
-```{r}
-```
-
-```{r}
-```
-
-```{r}
-```
-
-```{r}
-```
-
+By construction, all two-node connected graph components also meet the condition, as the eigenvalues sum to zero, and the maximum is unity, so the minimum must be `-1`.

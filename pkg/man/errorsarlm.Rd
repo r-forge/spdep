@@ -216,12 +216,13 @@ system.time(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  lw, method="eigen", control=list(LAPACK=TRUE)))
 system.time(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  lw, method="eigen", control=list(compiled_sse=TRUE)))
-system.time(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
- lw, method="Matrix_J", control=list(super=TRUE)))
-system.time(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
- lw, method="Matrix_J", control=list(super=FALSE)))
-system.time(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
- lw, method="Matrix_J", control=list(super=as.logical(NA))))
+system.time(try(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ lw, method="Matrix_J", control=list(super=TRUE), quiet=FALSE), silent=TRUE))
+system.time(try(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ lw, method="Matrix_J", control=list(super=FALSE), quiet=FALSE), silent=TRUE))
+system.time(try(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ lw, method="Matrix_J", control=list(super=as.logical(NA)), quiet=FALSE), 
+ silent=TRUE))
 system.time(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  lw, method="Matrix", control=list(super=TRUE)))
 system.time(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
