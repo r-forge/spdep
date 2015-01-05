@@ -284,7 +284,7 @@ diag(mat) <- 0
 all.equal(mat, sp_mat, check.attributes=FALSE)
 ```
 
-### Cyclical graphs
+### Smirnov/Anselin (2009) cyclical matrices
 
 ```{r}
 g1d <- as.directed(g1, mode="mutual")
