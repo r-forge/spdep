@@ -279,7 +279,7 @@ spam_update_setup <- function(env, in_coef=0.1, pivot="MMD", which=1) {
     n <- get("n", envir=env)
     I <- spam::diag.spam(1, n, n)
     assign("I", I, envir=env)
-    csrwchol <- chol((I - in_coef * csrw), pivot=pivot)
+    csrwchol <- spam::chol((I - in_coef * csrw), pivot=pivot)
     if (which == 1) {
         assign("csrwchol", csrwchol, envir=env)
     } else {

@@ -4,7 +4,7 @@
 
 SEXP nbdists(SEXP nb, SEXP x, SEXP np, SEXP dim, SEXP lonlat)
 {
-	int i, j, j1, k, /* m,*/ n, d, pc=0, ll, first_value, li;
+	int i, j, j1, k, /* m,*/ n, d, pc=0, ll, first_value;
 	SEXP ans;
         SEXP class;
 	double lon1[1], lon2[1], lat1[1], lat2[1], gc[1];
