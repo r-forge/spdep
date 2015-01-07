@@ -244,15 +244,12 @@ all.equal(ocoef, coefficients(COL.errW.eig))
 system.time(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  lw, method="spam", control=list(spamPivot="RCM")))
 all.equal(ocoef, coefficients(COL.errW.eig))
-# the "spam_update" methods fail when run in check for unknown reasons
-system.time(t0 <- try(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL,
- data=COL.OLD, lw, method="spam_update", control=list(spamPivot="MMD"),
- quiet=FALSE)))
-if (class(t0) != "try-error") print(all.equal(ocoef, coefficients(COL.errW.eig)))
-system.time(t0 <- try(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL,
- data=COL.OLD, lw, method="spam_update", control=list(spamPivot="RCM"),
- quiet=FALSE)))
-if (class(t0) != "try-error") print(all.equal(ocoef, coefficients(COL.errW.eig)))
+system.time(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ lw, method="spam_update", control=list(spamPivot="MMD")))
+all.equal(ocoef, coefficients(COL.errW.eig))
+system.time(COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
+ lw, method="spam_update", control=list(spamPivot="RCM")))
+all.equal(ocoef, coefficients(COL.errW.eig))
 }
 }
 \keyword{spatial}
