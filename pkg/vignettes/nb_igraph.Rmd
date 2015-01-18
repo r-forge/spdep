@@ -222,8 +222,7 @@ We can also convert this graph pack to the same matrix, but note that `get.adjac
 B1 <- get.adjacency(g1)
 class(B1)
 object.size(B1)
-all(B == as(as(B1, "dgTMatrix"), "symmetricMatrix"))
-#all.equal(B, as(as(B1, "dgTMatrix"), "symmetricMatrix"))
+all.equal(B, as(as(B1, "dgTMatrix"), "symmetricMatrix"))
 ```
 
 ### Graph components in **spdep**
