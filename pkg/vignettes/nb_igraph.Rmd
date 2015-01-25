@@ -41,8 +41,6 @@ Contiguous neighbours are often used for polygonal spatial entities, here with t
 ```{r}
 nb_q <- poly2nb(columbus)
 nb_q
-nb_q <- poly2nb(columbus)
-nb_q
 attr(nb_q, "region.id")[1:10]
 is.symmetric.nb(nb_q)
 ```
