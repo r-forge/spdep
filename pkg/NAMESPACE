@@ -108,6 +108,8 @@ export(MCMCsamp)
 
 export(tolerance.nb, Rotation)
 
+export(lextrB, lmaxB)
+
 export(lee.mc, lee, lee.test)
 
 #import(maptools)
