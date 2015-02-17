@@ -1,4 +1,4 @@
-lmaxB <- function(lw, zero.policy=TRUE, control=list()) {
+l_max <- function(lw, zero.policy=TRUE, control=list()) {
     tol <- control$tol
     if (is.null(tol)) tol <- .Machine$double.eps^(1/2)
     stopifnot(is.numeric(tol))
@@ -13,24 +13,35 @@ lmaxB <- function(lw, zero.policy=TRUE, control=list()) {
     if (is.null(maxiter)) maxiter <- 6L*(n-2L)
     stopifnot(is.integer(maxiter))
     stopifnot(length(maxiter) == 1)
+    if (lw$style != "B") message("l_max: weights style is", lw$style)
+    if (!is.symmetric.glist(lw$neighbours, lw$weights))
+        message("l_max: asymmetric weights")
 # must in principle be binary listw object
-    mustBeB <- control$mustBeB
-    if (is.null(mustBeB)) mustBeB <- TRUE
-    stopifnot(is.logical(mustBeB))
-    stopifnot(length(mustBeB) == 1)
-    if (mustBeB) {
-        stopifnot(lw$style == "B")
-    } else {
-        can.sim <- FALSE
-	if (lw$style %in% c("W", "S")) {
-	    stopifnot(can.be.simmed(lw))
-            lw <- similar.listw(lw)
-        } else if (lw$style %in% c("B", "C", "U")) {
-            stopifnot(is.symmetric.glist(lw$neighbours, lw$weights))
-        }
-    }
+#    mustBeB <- control$mustBeB
+#    if (is.null(mustBeB)) mustBeB <- TRUE
+#    stopifnot(is.logical(mustBeB))
+#    stopifnot(length(mustBeB) == 1)
+# must in principle be symmetric
+#    mustBeSym <- control$mustBeSym
+#    if (is.null(mustBeSym)) mustBeSym <- TRUE
+#    stopifnot(is.logical(mustBeSym))
+#    stopifnot(length(mustBeSym) == 1)
+#    if (mustBeB) {
+#        stopifnot(lw$style == "B")
+#    } else {
+#        if (mustBeSym) {
+#            can.sim <- FALSE
+#	    if (lw$style %in% c("W", "S")) {
+#	        stopifnot(can.be.simmed(lw))
+#                lw <- similar.listw(lw)
+#            } else if (lw$style %in% c("B", "C", "U")) {
+#                stopifnot(is.symmetric.glist(lw$neighbours, lw$weights))
+#            }
+#        }
+#    }
 # size of neighbour sets
-    ni <- card(lw$neighbours)
+#    ni <- card(lw$neighbours)
+    ni <- sapply(lw$weights, sum)
 # initialize variables
     constant <- sum(ni^2)
     nil <- ni/constant
@@ -101,7 +112,7 @@ lextrB <- function(lw, zero.policy=TRUE, control=list()) {
   stopifnot(is.logical(useC))
   stopifnot(length(useC) == 1)
   control$useC <- useC
-  resl1 <- lmaxB(lw=lw, zero.policy=zero.policy, control=control)
+  resl1 <- l_max(lw=lw, zero.policy=zero.policy, control=control)
   if (attr(resl1, "msg") != "converged") warning("lextrB: lmaxB not converged")
   resln_2.1 <- lminC_2.1(lw=lw, y=attr(resl1, "e1")/c(resl1),
     zero.policy=zero.policy, control=control)
