@@ -1,6 +1,4 @@
 lmaxB <- function(lw, zero.policy=TRUE, control=list()) {
-# must be binary listw object
-    stopifnot(lw$style == "B")
     tol <- control$tol
     if (is.null(tol)) tol <- .Machine$double.eps^(1/2)
     stopifnot(is.numeric(tol))
@@ -15,6 +13,22 @@ lmaxB <- function(lw, zero.policy=TRUE, control=list()) {
     if (is.null(maxiter)) maxiter <- 6L*(n-2L)
     stopifnot(is.integer(maxiter))
     stopifnot(length(maxiter) == 1)
+# must in principle be binary listw object
+    mustBeB <- control$mustBeB
+    if (is.null(mustBeB)) mustBeB <- TRUE
+    stopifnot(is.logical(mustBeB))
+    stopifnot(length(mustBeB) == 1)
+    if (mustBeB) {
+        stopifnot(lw$style == "B")
+    } else {
+        can.sim <- FALSE
+	if (lw$style %in% c("W", "S")) {
+	    stopifnot(can.be.simmed(lw))
+            lw <- similar.listw(lw)
+        } else if (lw$style %in% c("B", "C", "U")) {
+            stopifnot(is.symmetric.glist(lw$neighbours, lw$weights))
+        }
+    }
 # size of neighbour sets
     ni <- card(lw$neighbours)
 # initialize variables
