@@ -108,7 +108,7 @@ export(MCMCsamp)
 
 export(tolerance.nb, Rotation)
 
-export(lextrB, l_max)
+export(lextrB, lextrW, l_max)
 
 export(lee.mc, lee, lee.test)
 

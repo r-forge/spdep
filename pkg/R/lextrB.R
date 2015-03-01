@@ -13,32 +13,10 @@ l_max <- function(lw, zero.policy=TRUE, control=list()) {
     if (is.null(maxiter)) maxiter <- 6L*(n-2L)
     stopifnot(is.integer(maxiter))
     stopifnot(length(maxiter) == 1)
-    if (lw$style != "B") message("l_max: weights style is", lw$style)
-    if (!is.symmetric.glist(lw$neighbours, lw$weights))
-        message("l_max: asymmetric weights")
-# must in principle be binary listw object
-#    mustBeB <- control$mustBeB
-#    if (is.null(mustBeB)) mustBeB <- TRUE
-#    stopifnot(is.logical(mustBeB))
-#    stopifnot(length(mustBeB) == 1)
-# must in principle be symmetric
-#    mustBeSym <- control$mustBeSym
-#    if (is.null(mustBeSym)) mustBeSym <- TRUE
-#    stopifnot(is.logical(mustBeSym))
-#    stopifnot(length(mustBeSym) == 1)
-#    if (mustBeB) {
-#        stopifnot(lw$style == "B")
-#    } else {
-#        if (mustBeSym) {
-#            can.sim <- FALSE
-#	    if (lw$style %in% c("W", "S")) {
-#	        stopifnot(can.be.simmed(lw))
-#                lw <- similar.listw(lw)
-#            } else if (lw$style %in% c("B", "C", "U")) {
-#                stopifnot(is.symmetric.glist(lw$neighbours, lw$weights))
-#            }
-#        }
-#    }
+    if (lw$style != "B" && trace)
+      cat("l_max: weights style is: ", lw$style, "\n")
+    if (!is.symmetric.glist(lw$neighbours, lw$weights) && trace)
+        cat("l_max: asymmetric weights\n")
 # size of neighbour sets
 #    ni <- card(lw$neighbours)
     ni <- sapply(lw$weights, sum)
@@ -87,6 +65,7 @@ l_max <- function(lw, zero.policy=TRUE, control=list()) {
     lambda1
 }
 
+
 lextrB <- function(lw, zero.policy=TRUE, control=list()) {
 # must be binary listw object
   stopifnot(lw$style == "B")
@@ -113,7 +92,7 @@ lextrB <- function(lw, zero.policy=TRUE, control=list()) {
   stopifnot(length(useC) == 1)
   control$useC <- useC
   resl1 <- l_max(lw=lw, zero.policy=zero.policy, control=control)
-  if (attr(resl1, "msg") != "converged") warning("lextrB: lmaxB not converged")
+  if (attr(resl1, "msg") != "converged") warning("lextrB: l_max not converged")
   resln_2.1 <- lminC_2.1(lw=lw, y=attr(resl1, "e1")/c(resl1),
     zero.policy=zero.policy, control=control)
   if (attr(resln_2.1, "msg") != "converged") warning("lextrB: 2.1 not converged")
@@ -122,7 +101,7 @@ lextrB <- function(lw, zero.policy=TRUE, control=list()) {
   lambda.n <- lminC_2.3(lw, resln_2.2, attr(resln_2.1, "sse"), 
     zero.policy=zero.policy, control=control)
   if (attr(lambda.n, "msg") != "converged") warning("lextrB: 2.3 not converged")
-  res <- c(lambda_n=lambda.n, lambda_1=resl1)
+  res <- c(lambda_n=c(lambda.n), lambda_1=c(resl1))
   attr(res, "en1") <- cbind(en=attr(lambda.n, "en"),
     e1=attr(resl1, "e1")/c(resl1))
   res

@@ -52,7 +52,7 @@ SEXP lmin21(SEXP nb, SEXP y, SEXP cy, SEXP card) {
 SEXP lmin22(SEXP nb, SEXP y, SEXP cy, SEXP card, SEXP beta) {
     int i, j, k, nswitch=0, n=length(card), pc=0;
     SEXP ans;
-    double t1, t2, ytemp;
+    double t1, t2, ytemp, yhat;
     double *Y, *CY, *B;
 
     Y = (double *) R_alloc((size_t) n, sizeof(double));
@@ -73,7 +73,8 @@ SEXP lmin22(SEXP nb, SEXP y, SEXP cy, SEXP card, SEXP beta) {
 
     for (i=0; i<n; i++) {
         t1 = fabs(Y[i] - CY[i]);
-        t2 = fabs(B[0] + B[1]*CY[i] - CY[i]);
+        yhat = B[0] + B[1]*CY[i];
+        t2 = fabs(yhat - CY[i]);
         for (j=0; j<INTEGER_POINTER(card)[i]; j++) {
             k = INTEGER_POINTER(VECTOR_ELT(nb, i))[j]-ROFFSET;
             t1 = t1 + fabs(Y[k] - CY[k]);
@@ -82,7 +83,7 @@ SEXP lmin22(SEXP nb, SEXP y, SEXP cy, SEXP card, SEXP beta) {
         if (t1 <= t2) {
             nswitch++;
             ytemp = Y[i];
-            Y[i] = B[0] + B[1]*CY[i];
+            Y[i] = yhat;
             for (j=0; j<INTEGER_POINTER(card)[i]; j++) {
                 k = INTEGER_POINTER(VECTOR_ELT(nb, i))[j]-ROFFSET;
                 CY[k] = CY[k] - ytemp + Y[i];
@@ -102,7 +103,7 @@ SEXP lmin22(SEXP nb, SEXP y, SEXP cy, SEXP card, SEXP beta) {
 SEXP lmin23(SEXP nb, SEXP y, SEXP cy, SEXP card, SEXP beta, SEXP tol) {
     int i, j, k, nswitch=0, n=length(card), pc=0;
     SEXP ans;
-    double tmp, var;
+    double tmp, var, yhat;
     double *Y, *CY, *B;
 
     Y = (double *) R_alloc((size_t) n, sizeof(double));
@@ -121,11 +122,12 @@ SEXP lmin23(SEXP nb, SEXP y, SEXP cy, SEXP card, SEXP beta, SEXP tol) {
     SET_VECTOR_ELT(ans, 1, NEW_INTEGER(1));
 
     for (i=0; i<n; i++) {
-        var = fabs(Y[i] - (B[0] + B[1]*CY[i]));
+        yhat = B[0] + B[1]*CY[i];
+        var = fabs(Y[i] - yhat);
         if (var > NUMERIC_POINTER(tol)[0]) {
             nswitch++;
             tmp = Y[i];
-            Y[i] = B[0] + B[1]*CY[i];
+            Y[i] = yhat;
             for (j=0; j<INTEGER_POINTER(card)[i]; j++) {
                 k = INTEGER_POINTER(VECTOR_ELT(nb, i))[j]-ROFFSET;
                 CY[k] = CY[k] - tmp + Y[i];
@@ -142,3 +144,48 @@ SEXP lmin23(SEXP nb, SEXP y, SEXP cy, SEXP card, SEXP beta, SEXP tol) {
     return(ans);
 }
 
+SEXP lmin3(SEXP nb, SEXP ev1, SEXP ev1_lag, SEXP n_nei, SEXP beta, SEXP tol) {
+    int i, j, k, nswitch=0, n=length(n_nei), pc=0;
+    SEXP ans;
+    double tmp, var, yhat, ntmp;
+    double *Y, *CY, *B;
+
+    Y = (double *) R_alloc((size_t) n, sizeof(double));
+    CY = (double *) R_alloc((size_t) n, sizeof(double));
+    B = (double *) R_alloc((size_t) length(beta), sizeof(double));
+
+    for (i=0; i<n; i++) {
+        Y[i] = NUMERIC_POINTER(ev1)[i];
+        CY[i] = NUMERIC_POINTER(ev1_lag)[i];
+    }
+    for (i=0; i<length(beta); i++) {
+        B[i] = NUMERIC_POINTER(beta)[i];
+    }
+    PROTECT(ans = NEW_LIST(2)); pc++;
+    SET_VECTOR_ELT(ans, 0, NEW_NUMERIC(n));
+    SET_VECTOR_ELT(ans, 1, NEW_INTEGER(1));
+
+    for (i=0; i<n; i++) {
+        yhat = B[0] + B[1]*CY[i];
+        var = fabs(Y[i] - yhat);
+        if (var > NUMERIC_POINTER(tol)[0]) {
+            nswitch++;
+            tmp = Y[i];
+            Y[i] = yhat;
+            for (j=0; j<INTEGER_POINTER(n_nei)[i]; j++) {
+                k = INTEGER_POINTER(VECTOR_ELT(nb, i))[j]-ROFFSET;
+                ntmp = sqrt(INTEGER_POINTER(n_nei)[i] *
+                    INTEGER_POINTER(n_nei)[k]);
+                CY[k] = CY[k] - (tmp/ntmp) + (Y[i]/ntmp);
+            }
+        }
+    }
+
+    for (i=0; i<n; i++) {
+        NUMERIC_POINTER(VECTOR_ELT(ans, 0))[i] = Y[i];
+    }
+
+    INTEGER_POINTER(VECTOR_ELT(ans, 1))[0] = nswitch;
+    UNPROTECT(pc); /* ans */
+    return(ans);
+}
