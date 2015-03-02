@@ -1,11 +1,13 @@
 \name{lextrB}
 \alias{lextrB}
+\alias{lextrW}
 \alias{l_max}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Find extreme eigenvalues of binary symmetric spatial weights}
-\description{The functions find extreme eigenvalues of binary symmetric spatial weights, particularly when these form planar graphs. \code{l_max} finds the largest eigenvalue using Rayleigh quotient methods of any \dQuote{listw} object. \code{lextrB} first calls \code{l_max}, and uses its output to find the smallest eigenvalue in addition for binary symmetric spatial weights.}
+\description{The functions find extreme eigenvalues of binary symmetric spatial weights, particularly when these form planar graphs. \code{l_max} finds the largest eigenvalue using Rayleigh quotient methods of any \dQuote{listw} object. \code{lextrB} first calls \code{l_max}, and uses its output to find the smallest eigenvalue in addition for binary symmetric spatial weights. \code{lextrW} extends these to find the smallest eigenvalue for intrinsically symmetric row-standardized matrices (transformed to symmetric through similarity internally).}
 \usage{
 lextrB(lw, zero.policy = TRUE, control = list())
+lextrW(lw, zero.policy=TRUE, control=list())
 l_max(lw, zero.policy=TRUE, control=list())
 }
 %- maybe also 'usage' for other objects documented here.
@@ -19,7 +21,7 @@ l_max(lw, zero.policy=TRUE, control=list())
   \item{trace}{report values in while loops, default NULL assuming FALSE; logical}
   \item{tol}{tolerance for breaking while loops, default \code{.Machine$double.eps^(1/2)}; numeric}
   \item{maxiter}{maximum number of iterations in while loops, default \code{6 * (length(lw$neighbours) - 2}; integer}
-  \item{useC}{use C code, default TRUE, logical (only in \code{lextrB})}
+  \item{useC}{use C code, default TRUE, logical (not in \code{l_max})}
 }
 }
 \value{
@@ -50,6 +52,17 @@ c(l_max(nb2listw(k5, style="B")))
 max(Re(eigenw(nb2listw(k5, style="B"))))
 c(l_max(nb2listw(k5, style="C")))
 max(Re(eigenw(nb2listw(k5, style="C"))))
+ab.listw <- nb2listw(boston.soi, style="W")
+er <- range(eigenw(similar.listw(ab.listw)))
+er
+res_1 <- lextrW(ab.listw)
+c(res_1)
+if (require(igraph)) {
+  B <- as(similar.listw(ab.listw), "symmetricMatrix")
+  ar1 <- arpack(f2, sym=TRUE, options=list(n=n, nev=2, ncv=8,
+    which="BE", maxiter=300))
+  print(ar1$values)
+}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
