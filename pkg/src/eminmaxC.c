@@ -22,6 +22,7 @@ SEXP lmin21(SEXP nb, SEXP y, SEXP cy, SEXP card) {
     SET_VECTOR_ELT(ans, 1, NEW_INTEGER(1));
 
     for (i=0; i<n; i++) {
+      if (INTEGER_POINTER(card)[i] > 0) {
         t1 = fabs(Y[i] - CY[i]);
         t2 = fabs(-2*CY[i]);
         for (j=0; j<INTEGER_POINTER(card)[i]; j++) {
@@ -38,6 +39,7 @@ SEXP lmin21(SEXP nb, SEXP y, SEXP cy, SEXP card) {
                 CY[k] = CY[k] - ytemp + Y[i];
             }
         }
+      }
     }
 
     for (i=0; i<n; i++) {
@@ -72,6 +74,7 @@ SEXP lmin22(SEXP nb, SEXP y, SEXP cy, SEXP card, SEXP beta) {
     SET_VECTOR_ELT(ans, 1, NEW_INTEGER(1));
 
     for (i=0; i<n; i++) {
+      if (INTEGER_POINTER(card)[i] > 0) {
         t1 = fabs(Y[i] - CY[i]);
         yhat = B[0] + B[1]*CY[i];
         t2 = fabs(yhat - CY[i]);
@@ -89,6 +92,7 @@ SEXP lmin22(SEXP nb, SEXP y, SEXP cy, SEXP card, SEXP beta) {
                 CY[k] = CY[k] - ytemp + Y[i];
             }
         }
+      }
     }
 
     for (i=0; i<n; i++) {
@@ -122,6 +126,7 @@ SEXP lmin23(SEXP nb, SEXP y, SEXP cy, SEXP card, SEXP beta, SEXP tol) {
     SET_VECTOR_ELT(ans, 1, NEW_INTEGER(1));
 
     for (i=0; i<n; i++) {
+      if (INTEGER_POINTER(card)[i] > 0) {
         yhat = B[0] + B[1]*CY[i];
         var = fabs(Y[i] - yhat);
         if (var > NUMERIC_POINTER(tol)[0]) {
@@ -133,6 +138,7 @@ SEXP lmin23(SEXP nb, SEXP y, SEXP cy, SEXP card, SEXP beta, SEXP tol) {
                 CY[k] = CY[k] - tmp + Y[i];
             }
         }
+      }
     }
 
     for (i=0; i<n; i++) {
@@ -166,6 +172,7 @@ SEXP lmin3(SEXP nb, SEXP ev1, SEXP ev1_lag, SEXP n_nei, SEXP beta, SEXP tol) {
     SET_VECTOR_ELT(ans, 1, NEW_INTEGER(1));
 
     for (i=0; i<n; i++) {
+      if (INTEGER_POINTER(n_nei)[i] > 0) {
         yhat = B[0] + B[1]*CY[i];
         var = fabs(Y[i] - yhat);
         if (var > NUMERIC_POINTER(tol)[0]) {
@@ -179,6 +186,7 @@ SEXP lmin3(SEXP nb, SEXP ev1, SEXP ev1_lag, SEXP n_nei, SEXP beta, SEXP tol) {
                 CY[k] = CY[k] - (tmp/ntmp) + (Y[i]/ntmp);
             }
         }
+      }
     }
 
     for (i=0; i<n; i++) {

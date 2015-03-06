@@ -4,7 +4,7 @@
 \alias{l_max}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Find extreme eigenvalues of binary symmetric spatial weights}
-\description{The functions find extreme eigenvalues of binary symmetric spatial weights, particularly when these form planar graphs. \code{l_max} finds the largest eigenvalue using Rayleigh quotient methods of any \dQuote{listw} object. \code{lextrB} first calls \code{l_max}, and uses its output to find the smallest eigenvalue in addition for binary symmetric spatial weights. \code{lextrW} extends these to find the smallest eigenvalue for intrinsically symmetric row-standardized matrices (transformed to symmetric through similarity internally).}
+\description{The functions find extreme eigenvalues of binary symmetric spatial weights, when these form planar graphs; general weights are not permiited. \code{l_max} finds the largest eigenvalue using Rayleigh quotient methods of any \dQuote{listw} object. \code{lextrB} first calls \code{l_max}, and uses its output to find the smallest eigenvalue in addition for binary symmetric spatial weights. \code{lextrW} extends these to find the smallest eigenvalue for intrinsically symmetric row-standardized matrices (transformed to symmetric through similarity internally).}
 \usage{
 lextrB(lw, zero.policy = TRUE, control = list())
 lextrW(lw, zero.policy=TRUE, control=list())
@@ -12,7 +12,7 @@ l_max(lw, zero.policy=TRUE, control=list())
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{lw}{a binary symmetric \code{listw} object from, for example, \code{nb2listw} with style \dQuote{B} for \code{lextrB}; for \code{l_max}, the object may be asymmetric and does not have to be binary}
+  \item{lw}{a binary symmetric \code{listw} object from, for example, \code{nb2listw} with style \dQuote{B} for \code{lextrB} and style \dQuote{W} for \code{lextrW}; for \code{l_max}, the object may be asymmetric and does not have to be binary}
   \item{zero.policy}{default NULL, use global option value; if TRUE assign zero to the lagged value of zones without neighbours, if FALSE assign NA}
   \item{control}{a list of control arguments}
 }

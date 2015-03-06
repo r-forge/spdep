@@ -1,3 +1,5 @@
+# Copyright 2015 by Roger S. Bivand, Yongwan Chun and Daniel A. Griffith
+
 l_max <- function(lw, zero.policy=TRUE, control=list()) {
     tol <- control$tol
     if (is.null(tol)) tol <- .Machine$double.eps^(1/2)
@@ -19,6 +21,7 @@ l_max <- function(lw, zero.policy=TRUE, control=list()) {
         cat("l_max: asymmetric weights\n")
 # size of neighbour sets
 #    ni <- card(lw$neighbours)
+# size of generalised neighbour weights
     ni <- sapply(lw$weights, sum)
 # initialize variables
     constant <- sum(ni^2)
@@ -69,6 +72,8 @@ l_max <- function(lw, zero.policy=TRUE, control=list()) {
 lextrB <- function(lw, zero.policy=TRUE, control=list()) {
 # must be binary listw object
   stopifnot(lw$style == "B")
+  if (!is.symmetric.glist(lw$neighbours, lw$weights))
+    stop("lextrB: asymmetric weights\n")
   tol <- control$tol
   if (is.null(tol)) tol <- .Machine$double.eps^(1/2)
   stopifnot(is.numeric(tol))
@@ -80,7 +85,15 @@ lextrB <- function(lw, zero.policy=TRUE, control=list()) {
   stopifnot(is.logical(trace))
   stopifnot(length(trace) == 1)
 # n number of observations
-  n <- as.integer(length(lw$neighbours))
+  lwcard <- card(lw$neighbours)
+  n <- as.integer(length(lwcard))
+#  wsums <- sapply(lw$weights, sum)
+#  stopifnot(all(as.numeric(lwcard) == as.numeric(wsums)))
+#  stopifnot(all(unlist(lw$weights) == 1))
+  stopifnot(attr(lw$weights, "mode") == "binary")
+#  m <- sum(lwcard)
+#  if (m > ((3*n) - 6))
+#    warning("Graph not planar (Euler's relation corollary 1)")
   maxiter <- control$maxiter
   if (is.null(maxiter)) maxiter <- 6L*(n-2L)
   stopifnot(is.integer(maxiter))
@@ -93,12 +106,12 @@ lextrB <- function(lw, zero.policy=TRUE, control=list()) {
   control$useC <- useC
   resl1 <- l_max(lw=lw, zero.policy=zero.policy, control=control)
   if (attr(resl1, "msg") != "converged") warning("lextrB: l_max not converged")
-  resln_2.1 <- lminC_2.1(lw=lw, y=attr(resl1, "e1")/c(resl1),
+  resln_2.1 <- lminC_2.1(lw=lw, y=attr(resl1, "e1")/c(resl1), crd=lwcard,
     zero.policy=zero.policy, control=control)
   if (attr(resln_2.1, "msg") != "converged") warning("lextrB: 2.1 not converged")
-  resln_2.2 <- lminC_2.2(lw, resln_2.1, zero.policy=zero.policy,
+  resln_2.2 <- lminC_2.2(lw, resln_2.1, crd=lwcard, zero.policy=zero.policy,
     control=control)
-  lambda.n <- lminC_2.3(lw, resln_2.2, attr(resln_2.1, "sse"), 
+  lambda.n <- lminC_2.3(lw, resln_2.2, attr(resln_2.1, "sse"), crd=lwcard,
     zero.policy=zero.policy, control=control)
   if (attr(lambda.n, "msg") != "converged") warning("lextrB: 2.3 not converged")
   res <- c(lambda_n=c(lambda.n), lambda_1=c(resl1))
@@ -107,7 +120,7 @@ lextrB <- function(lw, zero.policy=TRUE, control=list()) {
   res
 }
 
-lminC_2.3 <- function(lw, y, sse.new, zero.policy=TRUE,
+lminC_2.3 <- function(lw, y, sse.new, crd, zero.policy=TRUE,
   control=list(
   trace=TRUE,
   tol=.Machine$double.eps^(1/2),
@@ -130,7 +143,7 @@ lminC_2.3 <- function(lw, y, sse.new, zero.policy=TRUE,
   iter <- 0L
   while(keepgoing4) {
     iter <- iter + 1L
-    lm.y <- lm.fit(x=cbind(1,cy), y=y)#lm(y ~ cy)
+    lm.y <- .lm.fit(x=cbind(1,cy), y=y)#lm(y ~ cy)
     sse.new <- crossprod(lm.y$residuals)#summary(lm.y)$sigma
     beta <- lm.y$coefficients
  
@@ -138,7 +151,7 @@ lminC_2.3 <- function(lw, y, sse.new, zero.policy=TRUE,
 ### n.switch4 y
     ttol <- tol
     if (control$useC) {
-      crd <- card(lw$neighbours)
+#      crd <- card(lw$neighbours)
       uCres23 <- .Call("lmin23", lw$neighbours, y, cy, crd, beta, ttol,
         PACKAGE="spdep")
       y <- uCres23[[1]]
@@ -147,11 +160,13 @@ lminC_2.3 <- function(lw, y, sse.new, zero.policy=TRUE,
       n.switch4 <- 0L
       for (i in 1:n) {
         neis <- lw$neighbours[[i]] 
-        if (abs(y[i] - (beta[1] + beta[2] * cy[i])) > ttol) {
-          tmp <- y[i]
-          y[i] <- beta[1] + beta[2] * cy[i] 
-          cy[neis] <- cy[neis] - tmp + y[i]
-          n.switch4 = n.switch4 + 1L
+        if (neis[1] > 0L) {
+          if (abs(y[i] - (beta[1] + beta[2] * cy[i])) > ttol) {
+            tmp <- y[i]
+            y[i] <- beta[1] + beta[2] * cy[i] 
+            cy[neis] <- cy[neis] - tmp + y[i]
+            n.switch4 = n.switch4 + 1L
+          }
         }  
       }
     } 
@@ -179,7 +194,7 @@ lminC_2.3 <- function(lw, y, sse.new, zero.policy=TRUE,
 }
 
 
-lminC_2.2 <- function(lw, res_2.1, zero.policy=TRUE,
+lminC_2.2 <- function(lw, res_2.1, crd, zero.policy=TRUE,
   control=list(
   trace=TRUE,
   tol=.Machine$double.eps^(1/2),
@@ -205,7 +220,7 @@ lminC_2.2 <- function(lw, res_2.1, zero.policy=TRUE,
 ### n.switch3 lw$neighbours y cy beta
 ### n.switch3 y
   if (control$useC) {
-    crd <- card(lw$neighbours)
+#    crd <- card(lw$neighbours)
     uCres22 <- .Call("lmin22", lw$neighbours, y, cy, crd, beta,
       PACKAGE="spdep")
     y <- uCres22[[1]]
@@ -214,14 +229,16 @@ lminC_2.2 <- function(lw, res_2.1, zero.policy=TRUE,
     n.switch3 <- 0L
     for (i in 1:n) {
       neis <- lw$neighbours[[i]] 
-      t1 <- abs(y[i] - cy[i]) + sum(abs(y[neis] - cy[neis]))
-      t2 <- abs(beta[1] + beta[2] * cy[i] - cy[i]) + sum(abs(y[neis] - 
-        (cy[neis] - y[i] + beta[1] + beta[2] * cy[i])))
-      if (t1 <= t2) {
-        tmp <- y[i]
-        y[i] <- beta[1] + beta[2] * cy[i] 
-        cy[neis] <- cy[neis] - tmp + y[i]
-        n.switch3 <- n.switch3 + 1L
+      if (neis[1] > 0L) {
+        t1 <- abs(y[i] - cy[i]) + sum(abs(y[neis] - cy[neis]))
+        t2 <- abs(beta[1] + beta[2] * cy[i] - cy[i]) + sum(abs(y[neis] - 
+          (cy[neis] - y[i] + beta[1] + beta[2] * cy[i])))
+        if (t1 <= t2) {
+          tmp <- y[i]
+          y[i] <- beta[1] + beta[2] * cy[i] 
+          cy[neis] <- cy[neis] - tmp + y[i]
+          n.switch3 <- n.switch3 + 1L
+        }
       }
     }
   }
@@ -232,7 +249,7 @@ lminC_2.2 <- function(lw, res_2.1, zero.policy=TRUE,
   y
 }
 
-lminC_2.1 <- function(lw, y, zero.policy=TRUE,
+lminC_2.1 <- function(lw, y, crd, zero.policy=TRUE,
   control=list(
   trace=TRUE,
   tol=.Machine$double.eps^(1/2),
@@ -263,7 +280,7 @@ lminC_2.1 <- function(lw, y, zero.policy=TRUE,
 ### lw$neighbours y cy
 ### n.switch y
     if (control$useC) {
-      crd <- card(lw$neighbours)
+#      crd <- card(lw$neighbours)
       uCres21 <- .Call("lmin21", lw$neighbours, y, cy, crd,
         PACKAGE="spdep")
       y <- uCres21[[1]]
@@ -272,15 +289,17 @@ lminC_2.1 <- function(lw, y, zero.policy=TRUE,
       n.switch <- 0L
       for (i in 1:n) {
         neis <- lw$neighbours[[i]] 
-        t1 <- abs(y[i] - cy[i]) + sum(abs(y[neis] - cy[neis]))
-        t2 <- abs(-2 * cy[i]) + sum(abs(y[neis] -
-          (cy[neis] - y[i] - cy[i])))
-        if (t1 <= t2) {
-          tmp <- y[i]
-          y[i] <- cy[i] * -1                     # update Ei with lag.Ei
-          cy[neis] <- cy[neis] - tmp + y[i]
+        if (neis[1] > 0L) {
+          t1 <- abs(y[i] - cy[i]) + sum(abs(y[neis] - cy[neis]))
+          t2 <- abs(-2 * cy[i]) + sum(abs(y[neis] -
+            (cy[neis] - y[i] - cy[i])))
+          if (t1 <= t2) {
+            tmp <- y[i]
+            y[i] <- cy[i] * -1                     # update Ei with lag.Ei
+            cy[neis] <- cy[neis] - tmp + y[i]
 # update lag.Ei with replacing old Ei with new Ei
-          n.switch <- n.switch + 1L
+            n.switch <- n.switch + 1L
+          }
         }
       }
 ###
@@ -289,7 +308,7 @@ lminC_2.1 <- function(lw, y, zero.policy=TRUE,
     y <- y/sqrt(sum(y^2))
     cy <- lag.listw(lw, y, zero.policy=zero.policy)
 
-    lm.y <- lm.fit(x=cbind(1,cy), y=y)#lm(y ~ cy)
+    lm.y <- .lm.fit(x=cbind(1,cy), y=y)#lm(y ~ cy)
     sse.new <- crossprod(lm.y$residuals)#summary(lm.y)$sigma
 
     if (iter > maxiter) {
