@@ -7,10 +7,6 @@ lextrW <- function(lw, zero.policy=TRUE, control=list()) {
 # n number of observations
   lwcard <- as.integer(attr(lw$weights, "comp")$d) #card(lw$neighbours)
   n <- as.integer(length(lwcard))
-#  wsums <- sapply(lw$weights, sum)
-#  stopifnot(all(as.numeric(lwcard) == as.numeric(wsums)))
-#  glist <- lapply(1:length(lwcard), function(i) lw$weights[[i]]*lwcard[i])
-#  stopifnot(all(unlist(glist) == 1))
   stopifnot(can.be.simmed(lw))
   lw <- similar.listw(lw)
 
@@ -88,7 +84,6 @@ lminW_3 <- function(lw, ev1, n.nei, zero.policy=TRUE,
     sse.new <- crossprod(lm.y$residuals)
     beta <- lm.y$coefficients
    
-# FIXME
     if (control$useC) {
       uCres3 <- .Call("lmin3", lw$neighbours, ev1, ev1.lag, n.nei, beta, tol,
         PACKAGE="spdep")
@@ -138,15 +133,12 @@ lextrS <- function(lw, zero.policy=TRUE, control=list()) {
 # must be variance-stabilized listw object
 # (possibly already transformed by similarity)
 
-  stopifnot(length(grep("S", lw$style)) > 0)
+  stopifnot(lw$style == "S")
+  stopifnot(attr(lw$weights, "mode") == "binary")
+  comp <- attr(lw$weights, "comp")
 # FIXME
-  lwcard <- card(lw$neighbours)
+  lwcard <- card(lw$neighbours) #as.integer(attr(lw$weights, "comp")$q) 
   n <- as.integer(length(lwcard))
-#  wsums <- sapply(lw$weights, sum)
-#  stopifnot(all(as.numeric(lwcard) == as.numeric(wsums)))
-# FIXME
-  glist <- lapply(1:length(lwcard), function(i) lw$weights[[i]]*lwcard[i])
-  stopifnot(all(unlist(glist) == 1))
   stopifnot(can.be.simmed(lw))
   if (lw$style != "S:sim") lw <- similar.listw(lw)
 
@@ -167,23 +159,23 @@ lextrS <- function(lw, zero.policy=TRUE, control=list()) {
   stopifnot(length(maxiter) == 1)
   control$maxiter <- maxiter
   useC <- control$useC
-  if (is.null(useC)) useC <- FALSE
+  if (is.null(useC)) useC <- TRUE
   stopifnot(is.logical(useC))
   stopifnot(length(useC) == 1)
   control$useC <- useC
   resl1 <- l_max(lw=lw, zero.policy=zero.policy, control=control)
   if (attr(resl1, "msg") != "converged") warning("lextrS: l_max not converged")
   lwB <- nb2listw(lw$neighbours, style="B")
-  resln_2.1 <- lminC_2.1(lw=lwB, y=attr(resl1, "e1")/c(resl1),
+  resln_2.1 <- lminC_2.1(lw=lwB, y=attr(resl1, "e1")/c(resl1), crd=lwcard,
     zero.policy=zero.policy, control=control)
   if (attr(resln_2.1, "msg") != "converged") warning("lextrS: 2.1 not converged")
-  resln_2.2 <- lminC_2.2(lwB, resln_2.1, zero.policy=zero.policy,
+  resln_2.2 <- lminC_2.2(lwB, resln_2.1, crd=lwcard, zero.policy=zero.policy,
     control=control)
-  lambda.n <- lminC_2.3(lwB, resln_2.2, attr(resln_2.1, "sse"), 
+  lambda.n <- lminC_2.3(lwB, resln_2.2, attr(resln_2.1, "sse"), crd=lwcard, 
     zero.policy=zero.policy, control=control)
   if (attr(lambda.n, "msg") != "converged") warning("lextrS: 2.3 not converged")
 
-  resln_3 <- lminS_3(lw, ev1=attr(lambda.n, "en"),
+  resln_3 <- lminS_3(lw, ev1=attr(lambda.n, "en"), comp=comp, crd=lwcard,
     zero.policy=zero.policy, control=control)
   if (attr(resln_3, "msg") != "converged") warning("lextrS: 3 not converged")
 
@@ -193,12 +185,12 @@ lextrS <- function(lw, zero.policy=TRUE, control=list()) {
   res
 }
 
-lminS_3 <- function(lw, ev1, zero.policy=TRUE,
+lminS_3 <- function(lw, ev1, comp, crd, zero.policy=TRUE,
   control=list(
   trace=TRUE,
   tol=.Machine$double.eps^(1/2),
   maxiter=6*(length(lw$neighbours)-2), useC=FALSE)) {
-  stopifnot(lw$style == "S:sim")
+#  stopifnot(lw$style == "S:sim")
   tol <- control$tol
   if (is.null(tol)) tol <- .Machine$double.eps^(1/2)
   trace <- control$trace
@@ -208,7 +200,13 @@ lminS_3 <- function(lw, ev1, zero.policy=TRUE,
   maxiter <- control$maxiter
   if (is.null(maxiter)) maxiter <- 6*(n-2)
 
-  n.nei <- card(lw$neighbours)
+#  n.nei <- card(lw$neighbours)
+  q <- comp$q
+  Q <- comp$Q
+  eff.n <- comp$eff.n
+
+#  n.nei <- ((eff.n)/Q)*n.nei
+  n.nei <- q
   n.nei.sq <- sqrt(n.nei)
   nn.nei <- n.nei.sq/sqrt(sum(n.nei.sq^2))
   ortho <- sum(ev1 * nn.nei)
@@ -225,10 +223,10 @@ lminS_3 <- function(lw, ev1, zero.policy=TRUE,
     sse.new <- crossprod(lm.y$residuals)
     beta <- lm.y$coefficients
    
-# FIXME
+# FIXME need double n.nei
     if (control$useC) {
-      uCres3 <- .Call("lmin3S", lw$neighbours, ev1, ev1.lag, n.nei, beta, tol,
-        PACKAGE="spdep")
+      uCres3 <- .Call("lmin3S", lw$neighbours, ev1, ev1.lag, n.nei, crd,
+        beta, tol, PACKAGE="spdep")
       ev1 <- uCres3[[1]]
     } else {
       for (i in 1:n) {

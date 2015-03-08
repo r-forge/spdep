@@ -46,6 +46,7 @@ SEXP lmin21(SEXP nb, SEXP y, SEXP cy, SEXP card);
 SEXP lmin22(SEXP nb, SEXP y, SEXP cy, SEXP card, SEXP beta);
 SEXP lmin23(SEXP nb, SEXP y, SEXP cy, SEXP card, SEXP beta, SEXP tol);
 SEXP lmin3(SEXP nb, SEXP ev1, SEXP ev1_lag, SEXP n_nei, SEXP beta, SEXP tol);
+SEXP lmin3S(SEXP nb, SEXP ev1, SEXP ev1_lag, SEXP n_nei, SEXP card, SEXP beta, SEXP tol);
 
 void dfs(SEXP nblst, SEXP cmpnm, SEXP visited, int curcmp, int nodeid);
 void compute_gabriel(int *no_nodes, int *g1, int *g2, int *nogab, int *ngaballoc,  double *nodes_xd, double *nodes_yd);

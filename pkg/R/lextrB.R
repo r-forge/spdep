@@ -87,13 +87,7 @@ lextrB <- function(lw, zero.policy=TRUE, control=list()) {
 # n number of observations
   lwcard <- card(lw$neighbours)
   n <- as.integer(length(lwcard))
-#  wsums <- sapply(lw$weights, sum)
-#  stopifnot(all(as.numeric(lwcard) == as.numeric(wsums)))
-#  stopifnot(all(unlist(lw$weights) == 1))
   stopifnot(attr(lw$weights, "mode") == "binary")
-#  m <- sum(lwcard)
-#  if (m > ((3*n) - 6))
-#    warning("Graph not planar (Euler's relation corollary 1)")
   maxiter <- control$maxiter
   if (is.null(maxiter)) maxiter <- 6L*(n-2L)
   stopifnot(is.integer(maxiter))
