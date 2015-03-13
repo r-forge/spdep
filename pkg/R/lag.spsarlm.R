@@ -145,6 +145,7 @@ lagsarlm <- function(formula, data = list(), listw,
         LMtest <- NULL
 	varb <- FALSE
 	ase <- FALSE
+        force_assign_eigen <- FALSE
 	if (method == "eigen" || do_asy) {
 		rest.se <- NULL
 		rho.se <- NULL

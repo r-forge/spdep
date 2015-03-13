@@ -241,6 +241,7 @@ sacsarlm <- function(formula, data = list(), listw, listw2=NULL, na.action,
         AIC_lm.model <- AIC(lm.model)
         ase <- FALSE
 	asyvar1 <- FALSE
+        force_assign_eigen <- FALSE
         if (method == "eigen") {
 # taken from spatial/sac_models/sac.m
 	    tr <- function(A) sum(diag(A))
