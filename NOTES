@@ -1,0 +1,7 @@
+deps <- package_dependencies(packages = "spdep", pdb, which = c("Depends", "Imports", "LinkingTo"), recursive = TRUE, reverse = TRUE)
+install.packages(deps$spdep)
+down <- download.packages(deps$spdep, destdir=".")
+res <- vector(mode="list", length=nrow(down))
+for (i in seq(along=res)) res[[i]] <- system(paste("_R_CHECK_FORCE_SUGGESTS_=FALSE R_LIBS=/home/rsb/topics/R/R-devel-libs-clang /home/rsb/topics/R/trunk/builddir_clang/bin/R CMD check", down[i,2]))
+down[as.logical(unlist(res)),1]
+
