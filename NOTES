@@ -1,4 +1,6 @@
-deps <- package_dependencies(packages = "spdep", pdb, which = c("Depends", "Imports", "LinkingTo"), recursive = TRUE, reverse = TRUE)
+library(tools)
+pdb <- available.packages()
+deps <- package_dependencies(packages = "spdep", pdb, which = c("Depends", "Imports", "LinkingTo", "Suggests"), recursive = FALSE, reverse = TRUE)
 install.packages(deps$spdep)
 down <- download.packages(deps$spdep, destdir=".")
 res <- vector(mode="list", length=nrow(down))
