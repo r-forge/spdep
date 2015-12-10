@@ -115,7 +115,10 @@ e.lm <- lm(OWNCONS ~ ROADACC, data=eire)
 e.locmor <- summary(localmoran.sad(e.lm, nb=eire.nb))
 e.locmor
 mean(e.locmor[,1])
+sum(e.locmor[,1])/Szero(lw)
 lm.morantest(e.lm, lw)
+# note equality for mean() only when the sum of weights equals
+# the number of observations (thanks to Juergen Symanzik)
 hist(e.locmor[,"Pr. (Sad)"])
 e.wlm <- lm(OWNCONS ~ ROADACC, data=eire, weights=RETSALE)
 e.locmorw1 <- summary(localmoran.sad(e.wlm, nb=eire.nb, resfun=weighted.residuals))
