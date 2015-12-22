@@ -1,6 +1,6 @@
 Package: spdep
 Version: 0.5-92
-Date: 2015-09-05
+Date: 2015-12-21
 Title: Spatial Dependence: Weighting Schemes, Statistics and Models
 Encoding: UTF-8
 Authors@R:c(person("Roger", "Bivand", role = c("cre", "aut"), email = "Roger.Bivand@nhh.no"),	person("Micah", "Altman", role = "ctb"),
