@@ -59,7 +59,7 @@ of influence neighbours list as \code{boston.soi}.
 \note{Details of the creation of the tract shapefile given in final don't run block; tract boundaries for 1990: \url{http://www.census.gov/geo/maps-data/data/cbf/cbf_tracts.html} then choose 1990 Census and Massachusetts to download: tr25_d90_shp.zip, counties in the BOSTON SMSA \url{http://www.census.gov/population/metro/files/lists/historical/63mfips.txt}; tract conversion table 1980/1970: \url{https://www.icpsr.umich.edu/icpsrweb/ICPSR/studies/7913?q=07913&permit[0]=AVAILABLE}, \url{http://www.icpsr.umich.edu/cgi-bin/bob/zipcart2?path=ICPSR&study=7913&bundle=all&ds=1&dups=yes}}
 
 \source{
- \url{http://lib.stat.cmu.edu/datasets/boston_corrected.txt}
+ Formerly at \dQuote{http://lib.stat.cmu.edu/datasets/boston\_corrected.txt} which is now offline, also as \code{data(BostonHousing2, package="mlbench")}
 }
 \references{
 Harrison, David, and Daniel L. Rubinfeld, Hedonic Housing Prices and

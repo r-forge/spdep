@@ -50,4 +50,5 @@ Description: A collection of functions to create spatial weights matrix
   models, and generalized spatial two stage least squares models.
 License: GPL (>= 2)
 VignetteBuilder: knitr
+URL: https://r-forge.r-project.org/projects/spdep/
 

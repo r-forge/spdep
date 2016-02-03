@@ -4,6 +4,10 @@ deps <- package_dependencies(packages = "spdep", pdb, which = c("Depends", "Impo
 install.packages(deps$spdep)
 down <- download.packages(deps$spdep, destdir=".")
 res <- vector(mode="list", length=nrow(down))
-for (i in seq(along=res)) res[[i]] <- system(paste("_R_CHECK_FORCE_SUGGESTS_=FALSE R_LIBS=/home/rsb/topics/R/R-devel-libs-clang /home/rsb/topics/R/trunk/builddir_clang/bin/R CMD check", down[i,2]))
+for (i in seq(along=res)) res[[i]] <- system(paste("_R_CHECK_FORCE_SUGGESTS_=FALSE R_LIBS=/home/rsb/topics/R/R-devel-clang-libs /home/rsb/topics/R/trunk/builddir-clang/bin/R CMD check", down[i,2]))
 down[as.logical(unlist(res)),1]
+down1 <- down[as.logical(unlist(res)),]
+res1 <- vector(mode="list", length=nrow(down1))
+for (i in seq(along=res1)) res1[[i]] <- system(paste("_R_CHECK_FORCE_SUGGESTS_=FALSE R_LIBS=/home/rsb/topics/R/R-devel-clang-libs /home/rsb/topics/R/trunk/builddir-clang/bin/R CMD check", down1[i,2]))
+down1[as.logical(unlist(res1)),1]
 
