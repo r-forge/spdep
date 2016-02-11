@@ -709,7 +709,7 @@ print.summary.lagImpact <- function(x, ...) {
     }
     cat("========================================================\n")
 
-    if (attr(x, "tp") == "MCMC samples") {
+    if (!is.null(attr(x, "tp")) && attr(x, "tp") == "MCMC samples") {
         cat("MCMC sample impact results:\n")
     } else {
         cat("Simulation results (", attr(x, "tp"), " variance matrix):\n",
