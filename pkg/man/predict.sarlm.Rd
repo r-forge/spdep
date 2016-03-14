@@ -167,7 +167,8 @@ COL.lag.eig <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD, lw)
 COL.mix.eig <- lagsarlm(CRIME ~ INC + HOVAL, data=COL.OLD, lw,
   type="mixed")
 print(p1 <- predict(COL.mix.eig))
-print(p2 <- predict(COL.mix.eig, newdata=COL.OLD, listw=lw, pred.type = "TS", legacy.mixed = TRUE))
+print(p2 <- predict(COL.mix.eig, newdata=COL.OLD, listw=lw, pred.type = "TS",
+ legacy.mixed = TRUE))
 AIC(COL.mix.eig)
 sqrt(deviance(COL.mix.eig)/length(COL.nb))
 sqrt(sum((COL.OLD$CRIME - as.vector(p1))^2)/length(COL.nb))
@@ -194,11 +195,14 @@ sqrt(sum((COL.OLD$CRIME - as.vector(predict(COL.lag.eig)))^2)/length(COL.nb))
 sqrt(sum((COL.OLD$CRIME - as.vector(predict(COL.lag.eig, newdata=COL.OLD,
   listw=lw, pred.type = "TS")))^2)/length(COL.nb))
 
-p3 <- predict(COL.mix.eig, newdata=COL.OLD, listw=lw, pred.type = "TS", legacy=FALSE, legacy.mixed = TRUE)
+p3 <- predict(COL.mix.eig, newdata=COL.OLD, listw=lw, pred.type = "TS",
+ legacy=FALSE, legacy.mixed = TRUE)
 all.equal(p2, p3, check.attributes=FALSE)
-p4 <- predict(COL.mix.eig, newdata=COL.OLD, listw=lw, pred.type = "TS", legacy=FALSE, power=TRUE, legacy.mixed = TRUE)
+p4 <- predict(COL.mix.eig, newdata=COL.OLD, listw=lw, pred.type = "TS",
+ legacy=FALSE, power=TRUE, legacy.mixed = TRUE)
 all.equal(p2, p4, check.attributes=FALSE)
-p5 <- predict(COL.mix.eig, newdata=COL.OLD, listw=lw, pred.type = "TS", legacy=TRUE, power=TRUE, legacy.mixed = TRUE)
+p5 <- predict(COL.mix.eig, newdata=COL.OLD, listw=lw, pred.type = "TS",
+ legacy=TRUE, power=TRUE, legacy.mixed = TRUE)
 all.equal(p2, p5, check.attributes=FALSE)
 }
 
