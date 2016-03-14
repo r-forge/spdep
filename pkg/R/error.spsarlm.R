@@ -216,9 +216,9 @@ errorsarlm <- function(formula, data = list(), listw, na.action, weights=NULL,
                     pp <- lm.model$rank
                     p1 <- 1L:pp
                     R <- chol2inv(lm.model$qr$qr[p1, p1, drop = FALSE])
-                    B <- tcrossprod(R, x) %*% A
+                    B <- tcrossprod(R, (sw*x)) %*% A
 #                    A <- solve(diag(n) - lambda*t(W))
-                    C <- A %*% x %*% R
+                    C <- A %*% (sw*x) %*% R
                     Hcov <- B %*% C
                     attr(Hcov, "method") <- method
                     timings[["eigen_hcov"]] <- proc.time() - .ptime_start
@@ -262,7 +262,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action, weights=NULL,
                     pp <- lm.model$rank
                     p1 <- 1L:pp
                     R <- chol2inv(lm.model$qr$qr[p1, p1, drop = FALSE])
-                    B <- tcrossprod(R, x)
+                    B <- tcrossprod(R, (sw*x))
                     W <- as(get("listw", envir=env), "CsparseMatrix")
                     B0 <- powerWeights(W=W, rho=lambda, order=con$pWOrder,
                         X=B, tol=tol.solve)
@@ -270,7 +270,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action, weights=NULL,
                         !attr(B0, "internal")$conv)
                         pWinternal <- c(pWinternal, attr(B0, "internal"))
                     B1 <- as(B0, "matrix")
-                    C <- x %*% R
+                    C <- (sw*x) %*% R
                     C0 <- powerWeights(W=t(W), rho=lambda, order=con$pWOrder,
                         X=C, tol=tol.solve)
                     if (!is.null(attr(C0, "internal")) &&
