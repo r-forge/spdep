@@ -14,6 +14,7 @@ if (.Platform$OS.type == "windows") importFrom(grDevices, bringToTop)
 
 import(Matrix)
 importFrom(LearnBayes, rwmetrop)
+importFrom(gmodels, estimable)
 
 import(sp)
 import(methods)

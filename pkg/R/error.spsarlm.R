@@ -192,7 +192,40 @@ errorsarlm <- function(formula, data = list(), listw, na.action, weights=NULL,
 	rest.se <- (summary(lm.target)$coefficients[,2])*sqrt((n-p)/n)
 	coef.lambda <- coefficients(lm.target)
 	names(coef.lambda) <- xcolnames
-        Vs <- summary.lm(lm.target, correlation = FALSE)$cov.unscaled
+        sum_lm_target <- summary.lm(lm.target, correlation = FALSE)
+        emixedImps <- NULL
+	if (etype == "emixed") {
+            odd <- (m%/%2) > 0
+            if (odd) {
+                m2 <- (m-1)/2
+            } else {
+                m2 <- m/2
+            }
+            if (K == 1 && odd) {
+                warning("model configuration issue: no total impacts")
+            } else {
+                cm <- matrix(0, ncol=m, nrow=m2)
+                if (K == 2) {
+                    if (odd) {
+                        rownames(cm) <- xcolnames[2:(m2+1)]
+                    } else {
+                        rownames(cm) <- xcolnames[1:m2]
+                    }
+                    for (i in 1:m2) cm[i, c(i+1, i+(m2+1))] <- 1
+                    dirImps <- sum_lm_target$coefficients[2:(m2+1), 1:2]
+                    indirImps <- sum_lm_target$coefficients[(m2+2):m, 1:2]
+                } else {
+                    rownames(cm) <- xcolnames[1:m2]
+                    for (i in 1:m2) cm[i, c(i, i+m2)] <- 1
+                    dirImps <- sum_lm_target$coefficients[1:m2, 1:2]
+                    indirImps <- sum_lm_target$coefficients[(m2+1):m, 1:2]
+                }
+            }
+            totImps <- as.matrix(estimable(lm.target, cm)[, 1:2])
+            emixedImps <- list(dirImps=dirImps, indirImps=indirImps,
+                totImps=totImps)
+        }
+        Vs <- sum_lm_target$cov.unscaled
         tarX <- model.matrix(lm.target)
         tary <- model.response(model.frame(lm.target))
 	lm.model <- lm(y ~ x - 1, weights=weights)
@@ -333,7 +366,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action, weights=NULL,
                 timings=do.call("rbind", timings)[, c(1, 3)], 
                 f_calls=get("f_calls", envir=env),
                 hf_calls=get("hf_calls", envir=env), intern_classic=iC,
-                pWinternal=pWinternal, weights=weights),
+                pWinternal=pWinternal, weights=weights, emixedImps=emixedImps),
                 class=c("sarlm"))
         rm(env)
         GC <- gc()
@@ -407,6 +440,7 @@ lmSLX <- function(formula, data = list(), listw, na.action, weights=NULL, zero.p
 	x <- model.matrix(mt, mf)
 	if (any(is.na(x))) stop("NAs in independent variable")
         n <- nrow(x)
+
         weights <- as.vector(model.extract(mf, "weights"))
         if (!is.null(weights) && !is.numeric(weights)) 
             stop("'weights' must be a numeric vector")
@@ -414,14 +448,45 @@ lmSLX <- function(formula, data = list(), listw, na.action, weights=NULL, zero.p
         if (any(is.na(weights))) stop("NAs in weights")
         if (any(weights < 0)) stop("negative weights")
 
-        sw <- sqrt(weights)
-        y <- sw*y
-        x <- sw*x
-
         WX <- create_WX(x, listw, zero.policy=zero.policy, prefix="lag")
-        data$WX <- WX
-        nfo <- update(formula, . ~ . + WX)
-        lm.model <- lm(nfo, data=data, na.action=na.action)
+        x <- cbind(x, WX)
+        lm.model <- lm(y ~ x - 1, weights=weights)
+
+        sum_lm_model <- summary.lm(lm.model, correlation = FALSE)
+        mixedImps <- NULL
+	K <- ifelse(names(coefficients(lm.model))[1] == "(Intercept)", 2, 1)
+        m <- length(coefficients(lm.model))
+        odd <- (m%/%2) > 0
+        if (odd) {
+            m2 <- (m-1)/2
+        } else {
+            m2 <- m/2
+        }
+        if (K == 1 && odd) {
+            warning("model configuration issue: no total impacts")
+        } else {
+            cm <- matrix(0, ncol=m, nrow=m2)
+            nclt <- names(coefficients(lm.model))
+            if (K == 2) {
+                if (odd) {
+                    rownames(cm) <- nclt[2:(m2+1)]
+                } else {
+                    rownames(cm) <- nclt[1:m2]
+                 }
+                for (i in 1:m2) cm[i, c(i+1, i+(m2+1))] <- 1
+                dirImps <- sum_lm_model$coefficients[2:(m2+1), 1:2]
+                indirImps <- sum_lm_model$coefficients[(m2+2):m, 1:2]
+            } else {
+                rownames(cm) <- nclt[1:m2] # FIXME
+                for (i in 1:m2) cm[i, c(i, i+m2)] <- 1
+                dirImps <- sum_lm_model$coefficients[1:m2, 1:2]
+                indirImps <- sum_lm_model$coefficients[(m2+1):m, 1:2]
+            }
+            totImps <- as.matrix(estimable(lm.model, cm)[, 1:2])
+            mixedImps <- list(dirImps=dirImps, indirImps=indirImps,
+                totImps=totImps)
+        }
+        attr(lm.model, "mixedImps") <- mixedImps
         lm.model
 }
 
