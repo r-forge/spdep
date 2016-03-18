@@ -69,6 +69,7 @@ errorsarlm <- function(formula, data = list(), listw, na.action, weights=NULL,
         if (any(weights < 0)) stop("negative weights")
 #
 	m <- NCOL(x)
+	xxcolnames <- colnames(x)
 
         stopifnot(is.logical(con$small_asy))
         if (method != "eigen") {
@@ -207,18 +208,22 @@ errorsarlm <- function(formula, data = list(), listw, na.action, weights=NULL,
                 cm <- matrix(0, ncol=m, nrow=m2)
                 if (K == 2) {
                     if (odd) {
-                        rownames(cm) <- xcolnames[2:(m2+1)]
+                        rownames(cm) <- xxcolnames[2:(m2+1)]
                     } else {
-                        rownames(cm) <- xcolnames[1:m2]
+                        rownames(cm) <- xxcolnames[1:m2]
                     }
                     for (i in 1:m2) cm[i, c(i+1, i+(m2+1))] <- 1
                     dirImps <- sum_lm_target$coefficients[2:(m2+1), 1:2]
+                    rownames(dirImps) <- rownames(cm)
                     indirImps <- sum_lm_target$coefficients[(m2+2):m, 1:2]
+                    rownames(indirImps) <- rownames(cm)
                 } else {
-                    rownames(cm) <- xcolnames[1:m2]
+                    rownames(cm) <- xxcolnames[1:m2]
                     for (i in 1:m2) cm[i, c(i, i+m2)] <- 1
                     dirImps <- sum_lm_target$coefficients[1:m2, 1:2]
+                    rownames(dirImps) <- rownames(cm)
                     indirImps <- sum_lm_target$coefficients[(m2+1):m, 1:2]
+                    rownames(indirImps) <- rownames(cm)
                 }
             }
             totImps <- as.matrix(estimable(lm.target, cm)[, 1:2])
@@ -440,6 +445,7 @@ lmSLX <- function(formula, data = list(), listw, na.action, weights=NULL, zero.p
 	x <- model.matrix(mt, mf)
 	if (any(is.na(x))) stop("NAs in independent variable")
         n <- nrow(x)
+        nclt <- colnames(x)
 
         weights <- as.vector(model.extract(mf, "weights"))
         if (!is.null(weights) && !is.numeric(weights)) 
@@ -454,7 +460,8 @@ lmSLX <- function(formula, data = list(), listw, na.action, weights=NULL, zero.p
 
         sum_lm_model <- summary.lm(lm.model, correlation = FALSE)
         mixedImps <- NULL
-	K <- ifelse(names(coefficients(lm.model))[1] == "(Intercept)", 2, 1)
+	K <- ifelse(isTRUE(grep("\\(Intercept\\)",
+            names(coefficients(lm.model))[1]) == 1L), 2, 1)
         m <- length(coefficients(lm.model))
         odd <- (m%/%2) > 0
         if (odd) {
@@ -466,7 +473,6 @@ lmSLX <- function(formula, data = list(), listw, na.action, weights=NULL, zero.p
             warning("model configuration issue: no total impacts")
         } else {
             cm <- matrix(0, ncol=m, nrow=m2)
-            nclt <- names(coefficients(lm.model))
             if (K == 2) {
                 if (odd) {
                     rownames(cm) <- nclt[2:(m2+1)]
@@ -475,12 +481,16 @@ lmSLX <- function(formula, data = list(), listw, na.action, weights=NULL, zero.p
                  }
                 for (i in 1:m2) cm[i, c(i+1, i+(m2+1))] <- 1
                 dirImps <- sum_lm_model$coefficients[2:(m2+1), 1:2]
+                rownames(dirImps) <- rownames(cm)
                 indirImps <- sum_lm_model$coefficients[(m2+2):m, 1:2]
+                rownames(indirImps) <- rownames(cm)
             } else {
                 rownames(cm) <- nclt[1:m2] # FIXME
                 for (i in 1:m2) cm[i, c(i, i+m2)] <- 1
                 dirImps <- sum_lm_model$coefficients[1:m2, 1:2]
+                rownames(dirImps) <- rownames(cm)
                 indirImps <- sum_lm_model$coefficients[(m2+1):m, 1:2]
+                rownames(indirImps) <- rownames(cm)
             }
             totImps <- as.matrix(estimable(lm.model, cm)[, 1:2])
             mixedImps <- list(dirImps=dirImps, indirImps=indirImps,

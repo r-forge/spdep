@@ -1,4 +1,4 @@
-% Copyright 2002-13 by Roger S. Bivand
+% Copyright 2002-16 by Roger S. Bivand
 \name{errorsarlm}
 \alias{errorsarlm}
 \alias{lmSLX}
@@ -138,10 +138,11 @@ standard errors)}
   \item{zero.policy}{zero.policy for this model}
   \item{na.action}{(possibly) named vector of excluded or omitted observations if non-default na.action argument used}
   \item{weights}{weights used in model fitting}
+  \item{emixedImps}{for \dQuote{emixed} models, a  list of three impact matrixes (impacts and standard errors) for direct, indirect and total impacts; total impacts calculated using gmodels::estimable}
 
 The internal sar.error.* functions return the value of the log likelihood function at \eqn{\lambda}{lambda}.
 
-The \code{lmSLX} function returns an \dQuote{lm} object.
+The \code{lmSLX} function returns an \dQuote{lm} object with a \dQuote{mixedImps} list of three impact matrixes (impacts and standard errors) for direct, indirect and total impacts; total impacts calculated using gmodels::estimable.
 }
 \references{Cliff, A. D., Ord, J. K. 1981 \emph{Spatial processes}, Pion;
 Ord, J. K. 1975 Estimation methods for models of spatial interaction,
@@ -162,7 +163,7 @@ Bivand, R. S., Hauke, J., and Kossowski, T. (2013). Computing the Jacobian in Ga
 \author{Roger Bivand \email{Roger.Bivand@nhh.no}}
 
 \seealso{\code{\link{lm}}, \code{\link{lagsarlm}}, \code{\link{similar.listw}}, \code{\link{summary.sarlm}}, \code{\link{predict.sarlm}},
-\code{\link{residuals.sarlm}}, \code{\link{do_ldet}}
+\code{\link{residuals.sarlm}}, \code{\link{do_ldet}}, \code{\link[gmodels]{estimable}}
 }
 
 \examples{
@@ -186,8 +187,10 @@ summary(COL.errW.M, correlation=TRUE)
 COL.SDEMW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  lw, method="eigen", etype="emixed")
 summary(COL.SDEMW.eig, correlation=TRUE)
+do.call("cbind", COL.SDEMW.eig$emixedImps)
 COL.SLX <- lmSLX(CRIME ~ INC + HOVAL, data=COL.OLD, listw=lw)
 summary(COL.SLX)
+do.call("cbind", attr(COL.SLX, "mixedImps"))
 COL.SLX <- lmSLX(CRIME ~ INC + HOVAL + I(HOVAL^2), data=COL.OLD, listw=lw)
 summary(COL.SLX)
 \donttest{
@@ -208,6 +211,7 @@ glst <- lapply(dists, function(d) 1/(d^opt$maximum))
 lw <- nb2listw(dnb, glist=glst, style="B")
 SLX <- lmSLX(CRIME ~ INC + HOVAL, data=COL.OLD, listw=lw)
 summary(SLX)
+do.call("cbind", attr(SLX, "mixedImps"))
 }
 NA.COL.OLD <- COL.OLD
 NA.COL.OLD$CRIME[20:25] <- NA
