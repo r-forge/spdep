@@ -34,14 +34,14 @@ soi.graph <- function(tri.nb, coords, quadsegs=10){
   if (any(is.na(coords))) stop("Data cannot include NAs")
   stopifnot(length(tri.nb) == nrow(coords))
   if (requireNamespace("RANN", quietly = TRUE)) {
-    dists_1 <- nn2(coords, k=2)$nn.dists[,2]
+    dists_1 <- RANN::nn2(coords, k=2)$nn.dists[,2]
   } else {
     stop("RANN required")
   }
   if (requireNamespace("rgeos", quietly = TRUE)) {
     SP <- SpatialPoints(coords)
-    bobj <- gBuffer(SP, byid=TRUE, width=dists_1, quadsegs=quadsegs)
-    gI <- gIntersects(bobj, byid=TRUE, returnDense=FALSE)
+    bobj <- rgeos::gBuffer(SP, byid=TRUE, width=dists_1, quadsegs=quadsegs)
+    gI <- rgeos::gIntersects(bobj, byid=TRUE, returnDense=FALSE)
   } else {
     stop("rgeos required")
   }
