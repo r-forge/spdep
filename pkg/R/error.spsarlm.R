@@ -526,7 +526,8 @@ predict.SLX <- function(object, newdata, listw, zero.policy=NULL, ...) {
         stop("listw and data of different lengths")
     WX <- create_WX(x, listw, zero.policy=zero.policy, prefix="lag")
     x <- cbind(x, WX)
-    res <- x %*% coef(object)
+    res <- as.vector(x %*% coef(object))
+    names(res) <- row.names(newdata)
     res
 }
 
