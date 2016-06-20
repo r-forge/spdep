@@ -5,6 +5,7 @@
 \alias{impacts.stsls}
 \alias{impacts.gmsar}
 \alias{impacts.SLX}
+\alias{impacts.MCMC_sar_g}
 \alias{plot.lagImpact}
 \alias{print.lagImpact}
 \alias{summary.lagImpact}
@@ -15,7 +16,7 @@
 \alias{HPDinterval.lagImpact}
 \alias{intImpacts}
 \title{Impacts in spatial lag models}
-\description{The calculation of impacts for spatial lag and spatial Durbin models is needed in order to interpret the regression coefficients correctly, because of the spillovers between the terms in these data generation processes (unlike the spatial error model).}
+\description{The calculation of impacts for spatial lag and spatial Durbin models is needed in order to interpret the regression coefficients correctly, because of the spillovers between the terms in these data generation processes (unlike the spatial error model). Methods for \dQuote{SLX} and Bayesian fitted models are also provided, the former do not need MC simulations, while the latter pass through MCMC draws.}
 \usage{
 \method{impacts}{sarlm}(obj, \dots, tr, R = NULL, listw = NULL, useHESS = NULL,
  tol = 1e-06, empirical = FALSE, Q=NULL)
@@ -24,6 +25,7 @@
 \method{impacts}{gmsar}(obj, \dots, n = NULL, tr = NULL, R = NULL, listw = NULL,
  tol = 1e-06, empirical = FALSE, Q=NULL)
 \method{impacts}{SLX}(obj, ...)
+\method{impacts}{MCMC_sar_g}(obj, ..., tr=NULL, listw=NULL, Q=NULL)
 \method{plot}{lagImpact}(x, ..., choice="direct", trace=FALSE, density=TRUE)
 \method{print}{lagImpact}(x, ..., reportQ=NULL)
 \method{summary}{lagImpact}(object, ..., zstats=FALSE, short=FALSE, reportQ=NULL)
@@ -104,6 +106,7 @@ summary(mobj)
 W <- as(listw, "CsparseMatrix")
 trMatc <- trW(W, type="mult")
 trMC <- trW(W, type="MC")
+set.seed(1)
 impacts(lobj, listw=listw)
 impacts(lobj, tr=trMatc)
 impacts(lobj, tr=trMC)
@@ -128,6 +131,7 @@ summary(impacts(eobj), adjust_k=TRUE)
 mobj1 <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw, type="mixed", 
 method="Matrix", control=list(fdHess=TRUE))
 summary(mobj1)
+set.seed(1)
 summary(impacts(mobj1, tr=trMatc, R=1000), zstats=TRUE, short=TRUE)
 summary(impacts(mobj, tr=trMatc, R=1000), zstats=TRUE, short=TRUE)
 mobj2 <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw, type="mixed", 

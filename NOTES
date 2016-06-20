@@ -6,7 +6,7 @@ down <- download.packages(deps$spdep, destdir=".")
 res <- vector(mode="list", length=nrow(down))
 for (i in seq(along=res)) res[[i]] <- system(paste("_R_CHECK_FORCE_SUGGESTS_=FALSE R_LIBS=/home/rsb/topics/R/R-devel-libs /home/rsb/topics/R/R-svn/builddir/bin/R CMD check", down[i,2]))
 down[as.logical(unlist(res)),1]
-down1 <- down[as.logical(unlist(res)),]
+down1 <- down[as.logical(unlist(res)),,drop=FALSE]
 res1 <- vector(mode="list", length=nrow(down1))
 for (i in seq(along=res1)) res1[[i]] <- system(paste("_R_CHECK_FORCE_SUGGESTS_=FALSE R_LIBS=/home/rsb/topics/R/R-devel-libs /home/rsb/topics/R/R-svn/builddir/bin/R CMD check", down1[i,2]))
 down1[as.logical(unlist(res1)),1]

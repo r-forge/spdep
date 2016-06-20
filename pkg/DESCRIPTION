@@ -23,6 +23,7 @@ Authors@R:c(person("Roger", "Bivand", role = c("cre", "aut"), email = "Roger.Biv
 	person("Nicholas", "Lewin-Koh", role = "ctb"),
 	person("Hongfei", "Li", role = "ctb"),
 	person("Jielai", "Ma", role = "ctb"),
+        person("Abhirup", "Mallik", role = c("ctb", "trl")),
 	person("Giovanni", "Millo", role = "ctb"),
 	person("Werner", "Mueller", role = "ctb"),
 	person("Hisaji", "Ono", role = "ctb"),

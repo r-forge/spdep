@@ -1,6 +1,7 @@
 useDynLib(spdep)
 
 importFrom(stats, model.matrix, model.response, aggregate, optimize, optim, nlminb, influence.measures, lag, punif, na.fail, as.formula, terms, lm, model.extract, coefficients, residuals, var, deviance, integrate, summary.lm, coef, pchisq, logLik, gaussian, pnorm, model.weights, model.offset, glm.fit, sd, predict, formula, lm.fit, anova, ppois, model.frame, AIC, qnorm, napredict, nlm, optimHess, resid, fitted, weighted.residuals, weights, naresid, rnorm, optimise, uniroot, mahalanobis, dist, p.adjust, density, fitted.values, delete.response, printCoefmat, quantile, na.omit, cor, predict.lm)
+importFrom("stats", "dbeta", "rchisq", "runif")
 importFrom(nlme, fdHess)
 importFrom(deldir, deldir)
 importFrom(boot, boot)
@@ -100,6 +101,8 @@ export(lextrB, lextrW, lextrS, l_max)
 
 export(lee.mc, lee, lee.test)
 
+export(spBreg_lag)
+
 #import(maptools)
 
 S3method(print, nb)
@@ -154,6 +157,8 @@ S3method(predict, sarlm)
 S3method(impacts, sarlm)
 S3method(Hausman.test, sarlm)
 S3method(MCMCsamp, sarlm)
+
+S3method(impacts, MCMC_sar_g)
 
 S3method(impacts, SLX)
 S3method(predict, SLX)
