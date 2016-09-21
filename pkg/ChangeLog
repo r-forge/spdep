@@ -1,3 +1,12 @@
+2016-09-21 07:49  rsbivand
+
+	* ChangeLog, inst/ChangeLog: tidy
+
+2016-09-21 07:48  rsbivand
+
+	* man/baltimore.Rd, man/columbus.Rd, man/nc.sids.Rd,
+	  man/read.gal.Rd, man/read.gwt2nb.Rd: tidy
+
 2016-09-21 07:10  rsbivand
 
 	* ChangeLog, inst/ChangeLog: tidy
