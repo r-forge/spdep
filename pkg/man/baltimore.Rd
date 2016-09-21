@@ -30,7 +30,7 @@
 }
 
 \source{Prepared by Luc Anselin. Original data made available by Robin Dubin, Weatherhead School of Management, Case Western Research University, Cleveland, OH.
-\url{http://la1.rcc.uchicago.edu/media/geoda_files/sampledata/baltimore.zip}}
+\url{https://spatial.uchicago.edu/sample-data}}
 
 \references{
 Dubin, Robin A. (1992). Spatial autocorrelation and neighborhood quality. Regional Science and Urban Economics 22(3), 433-452.
