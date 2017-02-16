@@ -2,7 +2,7 @@
 
 lagmess <- function(formula, data = list(), listw, zero.policy=NULL,
     na.action=na.fail, q=10, start=-2.5, control=list(), method="BFGS",
-    verbose=NULL) {
+    verbose=NULL, use_expm=FALSE) {
     stopifnot(inherits(listw, "listw"))
     if (is.null(verbose)) verbose <- get("verbose", envir = .spdepOptions)
     stopifnot(is.logical(verbose))
@@ -25,29 +25,40 @@ lagmess <- function(formula, data = list(), listw, zero.policy=NULL,
     nullLL <- logLik(lm(formula, data, na.action=na.action))
 
     W <- as(listw, "CsparseMatrix")
-    Y <- powerWeightsMESS(W, y, q=q)
 
-    v <- 0:(q-1)
-    G1 <- diag(1/factorial(v))
+    if (!use_expm) {
+        Y <- powerWeightsMESS(W, y, q=q)
+        v <- 0:(q-1)
+        G1 <- diag(1/factorial(v))
+    }
 
-    bestmess <- optim(start, mymess, gr=NULL, method=method, hessian=TRUE,
-        control=control, Y=Y, X=X, G1=G1, v=v)
+    if (use_expm) {
+        bestmess <- optim(start, mymess1, gr=NULL, method=method, hessian=TRUE,
+            control=control, y=y, X=X, W)
+    } else {
+        bestmess <- optim(start, mymess, gr=NULL, method=method, hessian=TRUE,
+            control=control, Y=Y, X=X, G1=G1, v=v)
+    }
     alpha <- bestmess$par[1]
     alphase <- 1.0/(bestmess$hessian[1,1])^0.5
     rho <- 1.0 - exp(alpha[1])
 
-    va <- alpha^v
-    Sy <- Y %*% G1 %*% va
+    if (use_expm) {
+        Sy <- expAtv(alpha*W, y)$eAtv
+    } else {
+        va <- alpha^v
+        Sy <- Y %*% G1 %*% va
+    }
     data$Sy <- Sy
-    formula[[2]] <- formula(~ Sy)[[2]]
-    lmobj <- lm(formula=formula, data=data)
+#    formula[[2]] <- formula(~ Sy)[[2]]
+    lmobj <- lm(formula=update(formula, Sy ~ .), data=data)
 
     call <- match.call()
     lmobj$call <- call
 
     res <- list(lmobj=lmobj, alpha=alpha, alphase=alphase, rho=rho,
         bestmess=bestmess, q=q, start=start, na.action=na.act,
-        nullLL=nullLL)
+        nullLL=nullLL, use_expm=use_expm)
     class(res) <- "lagmess"
     res
 }
@@ -74,6 +85,14 @@ mymess <- function(alpha, Y, X, G1, v, verbose=FALSE) {
     res
 }
 
+mymess1 <- function(alpha, y, X, W, verbose=FALSE) {
+    Sy <- expAtv(alpha*W, y)$eAtv
+    lmobj <- lm(Sy ~ X - 1)
+    res <- -c(logLik(lmobj))
+    if (verbose) cat("res:", res, "\n")
+    res
+}
+
 print.lagmess <- function(x, ...) {
     print(x$lmobj, ...)
     cat("Alpha: ", x$alpha, "\n", sep="")
@@ -83,6 +102,7 @@ print.lagmess <- function(x, ...) {
 print.summary.lagmess <- function(x, digits = max(5, .Options$digits - 3),
     signif.stars = FALSE, ...) {
     cat("Matrix exponential spatial lag model:\n")
+    if (x$use_expm) cat("(calculated with expm)\n")
     print(x$lmsum, signif.stars=signif.stars, digits=digits)
     cat("Alpha: ", format(signif(x$alpha, digits)), ", standard error: ",
         format(signif(x$alphase, digits)), "\n    z-value: ", 
