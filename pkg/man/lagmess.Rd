@@ -82,18 +82,16 @@ The function returns an object of class \code{lagmess} with components:
 data(baltimore)
 baltimore$AGE <- ifelse(baltimore$AGE < 1, 1, baltimore$AGE)
 lw <- nb2listw(knn2nb(knearneigh(cbind(baltimore$X, baltimore$Y), k=7)))
-obj1 <- lm(log(PRICE) ~ PATIO + log(AGE) + log(SQFT) + lag(lw, log(AGE)),
+obj1 <- lm(log(PRICE) ~ PATIO + log(AGE) + log(SQFT),
  data=baltimore)
 lm.morantest(obj1, lw)
 lm.LMtests(obj1, lw, test="all")
-system.time(obj2 <- lagmess(log(PRICE) ~ PATIO + log(AGE) + log(SQFT) + 
- lag(lw, log(AGE)), data=baltimore, listw=lw))
+system.time(obj2 <- lagmess(log(PRICE) ~ PATIO + log(AGE) + log(SQFT), data=baltimore, listw=lw))
 summary(obj2)
-system.time(obj2a <- lagmess(log(PRICE) ~ PATIO + log(AGE) + log(SQFT) + 
- lag(lw, log(AGE)), data=baltimore, listw=lw, use_expm=TRUE))
+system.time(obj2a <- lagmess(log(PRICE) ~ PATIO + log(AGE) + log(SQFT), data=baltimore, listw=lw,
+ use_expm=TRUE))
 summary(obj2a)
-obj3 <- lagsarlm(log(PRICE) ~ PATIO + log(AGE) + log(SQFT) + 
- lag(lw, log(AGE)), data=baltimore, listw=lw)
+obj3 <- lagsarlm(log(PRICE) ~ PATIO + log(AGE) + log(SQFT), data=baltimore, listw=lw)
 summary(obj3)
 data(boston)
 lw <- nb2listw(boston.soi)
