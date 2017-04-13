@@ -98,9 +98,19 @@ void gcdist(double *lon1, double *lon2, double *lat1, double *lat2,
 
 // Maeel Le Noc bug 2017-04-12
 
-    if (lat1[0] == lat2[0] && lon1[0] == lon2[0]) {
+    if (fabs(lat1[0] - lat2[0]) < DOUBLE_EPS) {
+        if (fabs(lon1[0] - lon2[0]) < DOUBLE_EPS) {
+            dist[0] = 0.0;
+            return;
+/* Wouter Buytaert bug caught 100211 */
+        } else if (fabs((fabs(lon1[0]) + fabs(lon2[0])) - 360.0) < DOUBLE_EPS) {
+            dist[0] = 0.0;
+            return;
+        }
+    }
+/*    if (lat1[0] == lat2[0] && lon1[0] == lon2[0]) {
       dist[0] = 0.0;
-    } else {
+    } else {*/
     
     DE2RA = M_PI/180;
     a = 6378.137;              /* WGS-84 equatorial radius in km */
@@ -134,6 +144,6 @@ void gcdist(double *lon1, double *lon2, double *lat1, double *lat2,
     H2 = ( 3*R + 1 )/( 2*S );
 
     dist[0] = D*( 1 + f*H1*sinF2*cosG2 - f*H2*cosF2*sinG2 ); 
-    }
+//    }
 }
 
