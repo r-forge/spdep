@@ -1,5 +1,6 @@
 system("R CMD javareconf")
 install.packages("rJava")
+update.packages(ask=FALSE)
 library(tools)
 pdb <- available.packages()
 deps <- package_dependencies(packages = "spdep", pdb, which = c("Depends", "Imports", "LinkingTo", "Suggests"), recursive = FALSE, reverse = TRUE)
