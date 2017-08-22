@@ -6,7 +6,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Exact local Moran's Ii tests}
 \description{
- \code{localmoran.exact} provides exact local Moran's Ii tests under the null hypothesis, while \code{localmoran.exact.alt} provides exact local Moran's Ii tests under the alternative hypothesis. In this case, the model may be a fitted model returned by \code{errorsarlm} from which the covariance matrix is retrieved, or the covariance matrix can be passed through the \code{Omega=} argument.
+ \code{localmoran.exact} provides exact local Moran's Ii tests under the null hypothesis, while \code{localmoran.exact.alt} provides exact local Moran's Ii tests under the alternative hypothesis. In this case, the model may be a fitted model derived from a model fitted by \code{errorsarlm}, with the covariance matrix can be passed through the \code{Omega=} argument.
 }
 \usage{
 localmoran.exact(model, select, nb, glist = NULL, style = "W", 
