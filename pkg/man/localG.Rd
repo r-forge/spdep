@@ -25,7 +25,7 @@ If the neighbours member of listw has a "self.included" attribute set
 to TRUE, the Gstar variant, including the self-weight \eqn{w_{ii} > 0},
 is calculated and returned.  The returned vector will have a "gstari"
 attribute set to TRUE.  Self-weights can be included by using the
-\code{include.self} function in the spweights package before converting
+\code{include.self} function before converting
 the neighbour list to a spatial weights list with \code{nb2listw} as
 shown below in the example.
 
