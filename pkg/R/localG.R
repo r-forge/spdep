@@ -39,11 +39,11 @@ localG <- function(x, listw, zero.policy=NULL, spChk=NULL, return_internals=FALS
         res <- res / sqrt(VG)
         if (return_internals) {
           if (gstari) {
-            attr(res, "internals") <- cbind(G=lx/sum(c(y)),
-              EG=EG/sum(c(y)), VG=VG/sum(c(y))^2)
+            attr(res, "internals") <- cbind(G=lx/sum(c(x)),
+              EG=EG/sum(c(x)), VG=VG/sum(c(x))^2)
           } else {
-            attr(res, "internals") <- cbind(G=lx/(sum(c(y))-c(y)),
-              EG=EG/(sum(c(y))-c(y)), VG=VG/(sum(c(y))-c(y))^2)
+            attr(res, "internals") <- cbind(G=lx/(sum(c(x))-c(x)),
+              EG=EG/(sum(c(x))-c(x)), VG=VG/(sum(c(x))-c(x))^2)
           }
 	}
         attr(res, "gstari") <- gstari
