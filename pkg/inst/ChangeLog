@@ -1,3 +1,11 @@
+2017-09-01 13:27  rsbivand
+
+	* ChangeLog, inst/ChangeLog: tidy
+
+2017-09-01 13:26  rsbivand
+
+	* R/localG.R: add returned attribute to localG
+
 2017-09-01 13:23  rsbivand
 
 	* ChangeLog, inst/ChangeLog: tidy
