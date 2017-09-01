@@ -1,3 +1,7 @@
+2017-09-01 13:23  rsbivand
+
+	* ChangeLog, inst/ChangeLog: tidy
+
 2017-09-01 13:22  rsbivand
 
 	* R/localG.R, man/localmoran.exact.Rd: add returned attribute to
