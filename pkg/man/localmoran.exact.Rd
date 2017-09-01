@@ -51,10 +51,9 @@ row names assigned from localmoranex object}
 \value{
 A list with class \code{localmoranex} containing "select" lists, each with
  class \code{moranex} with the following components:
-  \item{statistic}{the value of the saddlepoint approximation of the
- standard deviate of global Moran's I.}
+  \item{statistic}{the value of the exact standard deviate of global Moran's I.}
   \item{p.value}{the p-value of the test.}
-  \item{estimate}{the value of the observed global Moran's I.}
+  \item{estimate}{the value of the observed local Moran's Ii.}
   \item{method}{a character string giving the method used.}
   \item{alternative}{a character string describing the alternative hypothesis.}
   \item{gamma}{eigenvalues (two extreme values for null, vector for alternative)}

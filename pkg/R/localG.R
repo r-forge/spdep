@@ -37,9 +37,16 @@ localG <- function(x, listw, zero.policy=NULL, spChk=NULL, return_internals=FALS
                 VG <- si2*(((n-1)*S1i - Wi^2)/(n-2))
 	}
         res <- res / sqrt(VG)
-        if (return_internals)
-          attr(res, "internals") <- cbind(G=lx, EG=EG, VG=VG)
-	attr(res, "gstari") <- gstari
+        if (return_internals) {
+          if (gstari) {
+            attr(res, "internals") <- cbind(G=lx/sum(c(y)),
+              EG=EG/sum(c(y)), VG=VG/sum(c(y))^2)
+          } else {
+            attr(res, "internals") <- cbind(G=lx/(sum(c(y))-c(y)),
+              EG=EG/(sum(c(y))-c(y)), VG=VG/(sum(c(y))-c(y))^2)
+          }
+	}
+        attr(res, "gstari") <- gstari
 	attr(res, "call") <- match.call()
 	class(res) <- "localG"
 	res
