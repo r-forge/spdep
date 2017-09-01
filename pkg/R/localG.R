@@ -1,7 +1,7 @@
 # Copyright 2001-3 by Roger Bivand 
 #
 
-localG <- function(x, listw, zero.policy=NULL, spChk=NULL) {
+localG <- function(x, listw, zero.policy=NULL, spChk=NULL, return_internals=FALSE) {
 	if (!inherits(listw, "listw"))
 		stop(paste(deparse(substitute(listw)), "is not a listw object"))
 	if (!is.numeric(x))
@@ -29,12 +29,16 @@ localG <- function(x, listw, zero.policy=NULL, spChk=NULL) {
 	}
 	Wi <- sapply(listw$weights, sum)
 	S1i <- sapply(listw$weights, function(x) sum(x^2))
-	res <- (lx - Wi*xibar)
+        EG <- Wi*xibar
+	res <- (lx - EG)
 	if (gstari) {
-		res <- res / sqrt(si2*((n*S1i - Wi^2)/(n-1)))
+                VG <- si2*((n*S1i - Wi^2)/(n-1))
 	} else {
-		res <- res / sqrt(si2*(((n-1)*S1i - Wi^2)/(n-2)))
+                VG <- si2*(((n-1)*S1i - Wi^2)/(n-2))
 	}
+        res <- res / sqrt(VG)
+        if (return_internals)
+          attr(res, "internals") <- cbind(G=lx, EG=EG, VG=VG)
 	attr(res, "gstari") <- gstari
 	attr(res, "call") <- match.call()
 	class(res) <- "localG"
