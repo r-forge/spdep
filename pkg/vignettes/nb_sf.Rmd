@@ -1,0 +1,285 @@
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Creating Neighbours using sf objects}
+-->
+
+# Creating Neighbours using sf objects
+
+## Introduction
+
+This vignette tracks the legacy nb vignette, which was based on part of the first (2008) edition of ASDAR. It adds hints to the code in the nb vignette to use the sf vector representation instead of the sp vector representation to create neighbour objects. 
+
+## nb and listw objects (copied from the nb_igraph vignette)
+
+Since the **spdep** package was created, *spatial weights* objects have been constructed as lists with three components and a few attributes, in old-style class `listw` objects. The first component of a `listw` object is an `nb` object, a list of `n` integer vectors, with at least a character vector `region.id` attribute with `n` unique values (like the `row.names` of a `data.frame` object); `n` is the number of spatial entities. Component `i` of this list contains the integer identifiers of the neighbours of `i` as a sorted vector with no duplication and values in `1:n`; if `i` has no neighbours, the component is a vector of length `1` with value `0L`. The `nb` object may contain an attribute indicating whether it is symmetric or not, that is whether `i` is a neighbour of `j` implies that `j` is a neighbour of `i`. Some neighbour definitions are symmetric by construction, such as contiguities or distance thresholds, others are asymmetric, such as `k`-nearest neighbours. The `nb` object redundantly stores both `i`-`j` and `j`-`i` links.
+
+The second component of a `listw` object is a list of `n` numeric vectors, each of the same length as the corresponding non-zero vectors in the `nb`object. These give the values of the spatial weights for each `i`-`j` neighbour pair. It is often the case that while the neighbours are symmetric by construction, the weights are not, as for example when weights are *row-standardised* by dividing each row of input weights by the count of neighbours or cardinality of the neighbour set of `i`. In the `nb2listw`function, it is also possible to pass through general weights, such as inverse distances, shares of boundary lengths and so on.
+
+The third component of a `listw` object records the `style` of the weights as a character code, with `"B"` for binary weights taking values zero or one (only one is recorded), `"W"` for row-standardised weights, and so on. In order to subset `listw` objects, knowledge of the `style` may be necessary
+
+Read in data
+
+```{r}
+library(maptools)
+suppressWarnings(NY8 <- readShapeSpatial(system.file("etc/shapes/NY8_utm18.shp", package="spdep")))
+class(NY8)
+```
+```{r}
+is_s3 <- function(x) all(names(methods::getSlots(class(x))) == ".S3Class")
+is_s3(NY8)
+```
+
+
+
+```{r}
+library(sf)
+NY8_sf <- st_read(system.file("etc/shapes/NY8_utm18.shp", package="spdep"), quiet=TRUE)
+class(NY8_sf)
+```
+```{r}
+is_s3(NY8_sf)
+```
+
+Subset to Syracuse:
+
+```{r}
+Syracuse <- NY8[NY8$AREANAME == "Syracuse city",]
+```
+
+```{r}
+Syracuse_sf <- NY8_sf[NY8_sf$AREANAME == "Syracuse city",]
+class(st_geometry(Syracuse_sf))[1]
+```
+
+```{r}
+class(st_geometry(Syracuse_sf)[[1]])[1]
+```
+
+Read GAL queen contiguity file into nb object:
+
+```{r}
+library(spdep)
+NY_nb <- read.gal(system.file("etc/weights/NY_nb.gal", package="spdep"), region.id=row.names(NY8))
+```
+
+Subset nb object:
+
+```{r}
+Sy0_nb <- subset(NY_nb, NY8$AREANAME == "Syracuse city")
+print(Sy0_nb)
+```
+
+Re-generate queen contiguity nb object and check for consistency:
+
+```{r}
+Sy1_nb <- poly2nb(Syracuse)
+isTRUE(all.equal(Sy0_nb, Sy1_nb, check.attributes=FALSE))
+```
+
+Define un-snapped relational patterns for GEOS:
+
+```{r}
+st_rook = function(a, b = a) st_relate(a, b, pattern = "F***1****")
+st_queen <- function(a, b = a) st_relate(a, b, pattern = "F***T****")
+```
+
+The output is a list without attributes:
+
+```{r}
+Sy1_nb_sf <- st_queen(Syracuse_sf)
+isTRUE(all.equal(Sy0_nb, Sy1_nb_sf, check.attributes=FALSE))
+# FIXME watch no-neighbour cases !!!
+```
+
+The same with rook contiguities:
+
+```{r}
+Sy2_nb <- poly2nb(Syracuse, queen=FALSE)
+isTRUE(all.equal(Sy0_nb, Sy2_nb, check.attributes=FALSE))
+```
+
+```{r}
+Sy2_nb_sf <- st_rook(Syracuse_sf)
+isTRUE(all.equal(Sy2_nb, Sy2_nb_sf, check.attributes=FALSE))
+```
+To compare the rook/queen differences 'diffnb' needs an S3 class attribute:
+
+```{r}
+diff_sp <- diffnb(Sy0_nb, Sy2_nb, verbose=FALSE)
+class(Sy2_nb_sf) <- "nb"
+diff_sf <- diffnb(Sy0_nb, Sy2_nb_sf, verbose=FALSE)
+isTRUE(all.equal(diff_sp, diff_sf, check.attributes=FALSE))
+```
+
+Getting a 2D matrix of centroid coordinates (centroids of largest exterior ring) from SpatialPolygons* is just 'coordinates'; 'row.names' gives the IDS (from feature FIDs if read with 'rgdal::readOGR'):
+
+```{r}
+coords <-  coordinates(Syracuse)
+IDs <- row.names(Syracuse)
+```
+
+We can use 'st_centroid' to get the centroids; if the sf object is sfc_MULTIPOLYGON, the 'of_largest_polygon' attribute should be set to replicate sp 'coordinates' behaviour:
+
+```{r}
+if (class(st_geometry(Syracuse_sf))[1] == "sfc_MULTIPOLYGON") {
+  Syracuse_pt_sf <- st_centroid(Syracuse_sf, of_largest_polygon=TRUE)
+} else {
+  Syracuse_pt_sf <- st_centroid(Syracuse_sf)
+}
+class(st_geometry(Syracuse_pt_sf))[1]
+```
+
+Before getting the coordinate matrix, we need to drop any Z or M coordinates:
+
+```{r}
+zm <- class(st_geometry(Syracuse_pt_sf)[[1]])[1]
+if (zm %in% c("XYM", "XYZM"))
+  Syracuse_pt_sf <- st_zm(Syracuse_pt_sf, drop=TRUE, what="ZM")
+if (zm %in% c("XYZ"))
+  Syracuse_pt_sf <- st_zm(Syracuse_pt_sf, drop=TRUE, what="ZM")
+```
+
+We need to check whether coordinates are planar or not:
+
+```{r}
+st_is_longlat(Syracuse_pt_sf)
+```
+
+Then 'st_coordinates' can be used to get the coordinate matrix:
+
+```{r}
+coords_sf <- st_coordinates(Syracuse_pt_sf)
+all.equal(coords, coords_sf, check.attributes=FALSE)
+```
+
+From this, we can check the graph-based neighbours (planar coordinates only):
+
+```{r}
+Sy4_nb <- tri2nb(coords, row.names=IDs)
+if (require(rgeos, quietly=TRUE) && require(RANN, quietly=TRUE)) {
+  Sy5_nb <- graph2nb(soi.graph(Sy4_nb, coords), row.names=IDs)
+} else Sy5_nb <- NULL
+Sy6_nb <- graph2nb(gabrielneigh(coords), row.names=IDs)
+Sy7_nb <- graph2nb(relativeneigh(coords), row.names=IDs)
+```
+
+Using 'st_triangulate' is unsatisfactory, as is 'rgeos::gDelaunayTriangulation' because they do not maintain node order, see the example in '?rgeos::gDelaunayTriangulation' for details:
+
+```{r}
+Sy4_nb_sf <- tri2nb(coords_sf)
+isTRUE(all.equal(Sy4_nb_sf, Sy4_nb, check.attributes=FALSE))
+```
+
+The 'soi.graph' function may be re-written to use sf functionality internally:
+
+```{r}
+if (require(rgeos, quietly=TRUE) && require(RANN, quietly=TRUE)) {
+  Sy5_nb_sf <- graph2nb(soi.graph(Sy4_nb, coords_sf))
+} else Sy5_nb_sf <- NULL
+isTRUE(all.equal(Sy5_nb_sf, Sy5_nb, check.attributes=FALSE))
+```
+
+```{r}
+Sy6_nb_sf <- graph2nb(gabrielneigh(coords_sf))
+isTRUE(all.equal(Sy6_nb_sf, Sy6_nb, check.attributes=FALSE))
+```
+
+```{r}
+Sy7_nb_sf <- graph2nb(relativeneigh(coords_sf))
+isTRUE(all.equal(Sy7_nb_sf, Sy7_nb, check.attributes=FALSE))
+```
+
+K-nearest neighbours use the coordinate matrices, and can handle Great Circle distances:
+
+```{r}
+Sy8_nb <- knn2nb(knearneigh(coords, k=1), row.names=IDs)
+Sy8_nb_sf <- knn2nb(knearneigh(coords_sf, k=1))
+isTRUE(all.equal(Sy8_nb_sf, Sy8_nb, check.attributes=FALSE))
+```
+
+```{r}
+Sy9_nb <- knn2nb(knearneigh(coords, k=2), row.names=IDs)
+Sy9_nb_sf <- knn2nb(knearneigh(coords_sf, k=2))
+isTRUE(all.equal(Sy9_nb_sf, Sy9_nb, check.attributes=FALSE))
+```
+
+```{r}
+Sy10_nb <- knn2nb(knearneigh(coords, k=4), row.names=IDs)
+Sy10_nb_sf <- knn2nb(knearneigh(coords_sf, k=4))
+isTRUE(all.equal(Sy10_nb_sf, Sy10_nb, check.attributes=FALSE))
+```
+Distance neighbours need a threshold - `nbdists` shows the maximum distance to first nearest neighbour:
+
+```{r}
+dsts <- unlist(nbdists(Sy8_nb_sf, coords_sf))
+summary(dsts)
+max_1nn <- max(dsts)
+```
+
+`dnearneigh` can also handle Great Circle distances:
+
+```{r}
+system.time(Sy11_nb <- dnearneigh(coords, d1=0, d2=0.75*max_1nn, row.names=IDs))
+```
+
+```{r}
+system.time(Sy11_nb_sf <- dnearneigh(coords_sf, d1=0, d2=0.75*max_1nn))
+```
+
+```{r}
+isTRUE(all.equal(Sy11_nb_sf, Sy11_nb, check.attributes=FALSE))
+```
+
+We could use more sf functionality, but it is an order of magnitude slower, through buffering all points by the threshold while distance is symmetric, so i to j and j to i are equal. Buffering also presupposes planar coordinates. In addition, the point itself intersects, so has to be removed:
+
+```{r}
+system.time({Sy11_buf <- st_buffer(Syracuse_pt_sf, dist=0.75*max_1nn)
+Sy11_nb_sf_buff0 <- st_intersects(Sy11_buf, Syracuse_pt_sf)
+Sy11_nb_sf_buff <- lapply(1:length(Sy11_nb_sf_buff0), function(i) Sy11_nb_sf_buff0[[i]][-match(i, Sy11_nb_sf_buff0[[i]])])})
+```
+
+And it still does not match:
+
+```{r}
+isTRUE(all.equal(Sy11_nb_sf_buff, Sy11_nb, check.attributes=FALSE))
+```
+
+This is because, as noted at the beginning, no-neighbour objects are represented by an entry of `OL`, not a zero-length integer vector.
+
+```{r}
+all.equal(Sy11_nb_sf_buff, Sy11_nb, check.attributes=FALSE)
+```
+
+```{r}
+str(Sy11_nb_sf_buff[[46]])
+```
+```{r}
+str(Sy11_nb[[46]])
+```
+So we need to make this substitution too:
+
+```{r}
+system.time(Sy11_nb_sf_buffNN <- lapply(Sy11_nb_sf_buff, function(x) if(length(x) == 0L) 0L else x))
+```
+
+and now we are OK:
+
+```{r}
+all.equal(Sy11_nb_sf_buffNN, Sy11_nb, check.attributes=FALSE)
+```
+
+
+
+```{r}
+Sy12_nb <- dnearneigh(coords, d1=0, d2=1*max_1nn, row.names=IDs)
+Sy12_nb_sf <- dnearneigh(coords_sf, d1=0, d2=1*max_1nn)
+isTRUE(all.equal(Sy12_nb_sf, Sy12_nb, check.attributes=FALSE))
+```
+
+
+```{r}
+Sy13_nb <- dnearneigh(coords, d1=0, d2=1.5*max_1nn, row.names=IDs)
+Sy13_nb_sf <- dnearneigh(coords_sf, d1=0, d2=1.5*max_1nn)
+isTRUE(all.equal(Sy13_nb_sf, Sy13_nb, check.attributes=FALSE))
+```
+
