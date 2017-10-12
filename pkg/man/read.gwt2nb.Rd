@@ -39,7 +39,7 @@ write.sn2dat(sn, file)
 \seealso{\code{\link{read.gal}}}
 
 \examples{
-data(baltimore)
+data(baltimore, package="spData")
 STATION <- baltimore$STATION
 gwt1 <- read.gwt2nb(system.file("etc/weights/baltk4.GWT", package="spdep")[1],
  STATION)

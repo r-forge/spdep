@@ -49,7 +49,7 @@ International), 261--277; Sokal, R. R, Oden, N. L. and Thomson, B. A. 1998. Loca
 \seealso{\code{\link{localG}}}
 
 \examples{
-data(afcon)
+data(afcon, package="spData")
 oid <- order(afcon$id)
 resI <- localmoran(afcon$totcon, nb2listw(paper.nb))
 printCoefmat(data.frame(resI[oid,], row.names=afcon$name[oid]),

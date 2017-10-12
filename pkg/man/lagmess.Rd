@@ -79,7 +79,7 @@ The function returns an object of class \code{lagmess} with components:
 \seealso{\code{\link{lagsarlm}}, \code{\link[stats]{optim}}}
 
 \examples{
-data(baltimore)
+data(baltimore, package="spData")
 baltimore$AGE <- ifelse(baltimore$AGE < 1, 1, baltimore$AGE)
 lw <- nb2listw(knn2nb(knearneigh(cbind(baltimore$X, baltimore$Y), k=7)))
 obj1 <- lm(log(PRICE) ~ PATIO + log(AGE) + log(SQFT),

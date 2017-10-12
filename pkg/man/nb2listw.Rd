@@ -62,7 +62,7 @@ summary(unlist(col.w$weights))
 summary(unlist(col.w.d$weights))
 # introducing other conditions into weights - only earlier sales count
 # see http://sal.uiuc.edu/pipermail/openspace/2005-October/000610.html
-data(baltimore)
+data(baltimore, package="spData")
 set.seed(211)
 dates <- sample(1:500, nrow(baltimore), replace=TRUE)
 nb_15nn <- knn2nb(knearneigh(cbind(baltimore$X, baltimore$Y), k=15))

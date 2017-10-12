@@ -2,6 +2,7 @@
 \alias{NY_data}
 \alias{nydata}
 \alias{listw_NY}
+\alias{NY8}
 \docType{data}
 \title{New York leukemia data}
 \description{
