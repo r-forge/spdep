@@ -47,7 +47,7 @@ legend("bottomleft", fill=attr(fcI, "palette"),
 title(main="Global moment estimator of infant mortality per 1000 per year")
 }
 }
-data(huddersfield)
+data(huddersfield, package="spData")
 res <- EBest(huddersfield$cases, huddersfield$total, family="binomial")
 round(res[,1:2],4)*100
 }
