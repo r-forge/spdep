@@ -153,7 +153,7 @@ data=boston.c, nb2listw(boston.soi), type="mixed", method="Matrix",
 control=list(fdHess=TRUE), trs=trMatb)
 summary(gp2mMi)
 summary(impacts(gp2mMi, tr=trMatb, R=1000), zstats=TRUE, short=TRUE)
-data(house)
+data(house, package="spData")
 lw <- nb2listw(LO_nb)
 form <- formula(log(price) ~ age + I(age^2) + I(age^3) + log(lotsize) +
    rooms + log(TLA) + beds + syear)

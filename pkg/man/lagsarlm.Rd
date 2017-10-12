@@ -239,7 +239,7 @@ summary(COL.lag.Bayes)
 set.seed(1)
 summary(impacts(COL.lag.Bayes, tr=trMatc), short=TRUE, zstats=TRUE)
 \dontrun{
-data(elect80)
+data(elect80, package="spData")
 lw <- nb2listw(e80_queen, zero.policy=TRUE)
 el_ml <- lagsarlm(log(pc_turnout) ~ log(pc_college) + log(pc_homeownership)
  + log(pc_income), data=elect80, listw=lw, zero.policy=TRUE, method="LU")
