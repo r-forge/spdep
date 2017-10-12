@@ -49,7 +49,7 @@ International), 261--277.}
 %\seealso{\code{\link{localmoran}}}
 
 \examples{
-data(getisord)
+data(getisord, package="spData")
 xycoords <- cbind(xyz$x, xyz$y)
 nb30 <- dnearneigh(xycoords, 0, 30)
 G30 <- localG(xyz$val, nb2listw(nb30, style="B"))
