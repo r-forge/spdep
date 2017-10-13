@@ -99,7 +99,8 @@ Roger Bivand, Gianfranco Piras (2015). Comparing Implementations of Estimation M
 \code{\link{trW}}, \code{\link{lagsarlm}}, \code{\link{nb2listw}}, \code{\link[MASS]{mvrnorm}}, \code{\link[coda]{plot.mcmc}}, \code{\link[coda]{summary.mcmc}}, \code{\link[coda]{HPDinterval}}
 }
 \examples{
-example(columbus)
+if (require(rgdal, quietly=TRUE)) {
+example(columbus, package="spData")
 listw <- nb2listw(col.gal.nb)
 lobj <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw)
 summary(lobj)
@@ -144,6 +145,7 @@ summary(impacts(mobj2, tr=trMatc, R=1000), zstats=TRUE, short=TRUE)
 mobj3 <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw, type="mixed", 
 method="spam", control=list(fdHess=TRUE))
 summary(impacts(mobj3, tr=trMatc, R=1000), zstats=TRUE, short=TRUE)
+}
 data(boston)
 Wb <- as(nb2listw(boston.soi), "CsparseMatrix")
 trMatb <- trW(Wb, type="mult")

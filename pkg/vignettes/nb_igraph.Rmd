@@ -29,8 +29,8 @@ library(spdep)
 The legacy Columbus OH data set has 49 spatial entities, polygons, defined as the boundaries of policing districts in the city. **spdep** suggests **maptools** for portability, but in regular applications, **rgdal** should be used, because it handles coordinate reference systems more gracefully. We see that the shapefile-based entity IDs are zero-based:
 
 ```{r}
-library(maptools)
-columbus <- readShapePoly(system.file("etc/shapes/columbus.shp", package="spdep")[1])
+library(rgdal)
+columbus <- readOGR(system.file("shapes/columbus.shp", package="spData")[1])
 row.names(columbus)[1:10]
 ```
 

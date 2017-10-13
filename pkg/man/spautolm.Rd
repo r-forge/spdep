@@ -176,7 +176,8 @@ summary(ecar1wf)
 system.time(ecar1wM <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
  data=nydata, listw=listw_NY, weights=POP8, family="CAR", method="Matrix"))
 summary(ecar1wM)
-example(nc.sids)
+if (require(rgdal, quietly=TRUE)) {
+example(nc.sids, package="spData")
 ft.SID74 <- sqrt(1000)*(sqrt(nc.sids$SID74/nc.sids$BIR74) +
  sqrt((nc.sids$SID74+1)/nc.sids$BIR74))
 lm_nc <- lm(ft.SID74 ~ 1)
@@ -231,6 +232,7 @@ ecarIVaw <- spautolm(ft.SID74 ~ ft.NWBIR74, data=mdata.4,
 summary(ecarIVaw)
 nc.sids$fitIV <- append(fitted.values(ecarIVaw), NA, outl-1)
 spplot(nc.sids, c("fitIV"), cuts=12) # Cressie 1993, p. 565
+}
 data(oldcol)
 COL.errW.eig <- errorsarlm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="W"))

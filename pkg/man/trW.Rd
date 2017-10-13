@@ -37,7 +37,8 @@ A numeric vector of \code{m} traces, with \dQuote{timings} and \dQuote{type} att
 \code{\link{as_dgRMatrix_listw}}, \code{\link{nb2listw}}
 }
 \examples{
-example(columbus)
+if (require(rgdal, quietly=TRUE)) {
+example(columbus, package="spData")
 listw <- nb2listw(col.gal.nb)
 W <- as(listw, "CsparseMatrix")
 system.time(trMat <- trW(W, type="mult"))
@@ -62,6 +63,7 @@ all.equal(trMat, trmom, check.attributes=FALSE)
 set.seed(1)
 system.time(trMC <- trW(W, m=24, type="MC"))
 str(trMC)
+}
 \donttest{
 data(boston)
 listw <- nb2listw(boston.soi)
