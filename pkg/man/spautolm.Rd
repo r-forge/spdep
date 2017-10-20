@@ -129,7 +129,8 @@ Ord, J. K. 1975 Estimation methods for models of spatial interaction,
 
 \seealso{\code{\link[stats]{optimize}}, \code{\link{errorsarlm}}, \code{\link{do_ldet}}}
 \examples{
-example(NY_data)
+if (require(foreign, quietly=TRUE)) {
+example(NY_data, package="spData")
 lm0 <- lm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata)
 summary(lm0)
 lm0w <- lm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME, data=nydata, weights=POP8)
@@ -176,6 +177,7 @@ summary(ecar1wf)
 system.time(ecar1wM <- spautolm(Z ~ PEXPOSURE + PCTAGE65P + PCTOWNHOME,
  data=nydata, listw=listw_NY, weights=POP8, family="CAR", method="Matrix"))
 summary(ecar1wM)
+}
 if (require(rgdal, quietly=TRUE)) {
 example(nc.sids, package="spData")
 ft.SID74 <- sqrt(1000)*(sqrt(nc.sids$SID74/nc.sids$BIR74) +
