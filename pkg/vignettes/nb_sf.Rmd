@@ -233,7 +233,7 @@ if (suppressPackageStartupMessages(require(rgeos, quietly=TRUE))) suppressWarnin
 We can see that there are a number of differences between the neighbour sets derived from the fully valid geometries and the older partly invalid set:
 
 ```{r, echo=dothis, eval=dothis}
-try(NY8_sp_old_1_nb <- poly2nb(NY8_sp_old))
+try(NY8_sp_old_1_nb <- poly2nb(NY8_sp_old), silent = TRUE)
 all.equal(NY8_sp_old_1_nb, NY8_sp_1_nb, check.attributes=FALSE)
 ```
 spdep::poly2nb does not object to using invalid geometries, as it only uses the boundary points defining the polygons (as do the rgeos STR tree construction and query functions, because points are sufficient to construct bounding boxes).
@@ -247,7 +247,7 @@ table(gIsValid(NY8_sp_old_buf, byid=TRUE))
 Hoverver, in doing this, we change the geometries, so the new sets of neighbours still differ from those made with the valid geometries in the same ways as before imposing validity:
 
 ```{r, echo=dothis, eval=dothis}
-try(NY8_sp_old_1_nb_buf <- poly2nb(NY8_sp_old_buf))
+try(NY8_sp_old_1_nb_buf <- poly2nb(NY8_sp_old_buf), silent = TRUE)
 all.equal(NY8_sp_old_1_nb_buf, NY8_sp_1_nb, check.attributes=FALSE)
 ```
 
@@ -266,7 +266,8 @@ suppressWarnings(table(st_is_valid(NY8_sf_old)))
 On trying to find contiguities, sf::st_relate fails:
 
 ```{r, echo=dothis, eval=dothis}
-try(NY8_sf_old_1_sgbp <- st_queen(NY8_sf_old))
+NY8_sf_old_1_sgbp <- try(st_queen(NY8_sf_old), silent = TRUE)
+if (class(NY8_sf_old_1_sgbp) == "try-error") cat(NY8_sf_old_1_sgbp)
 ```
 Using the buffer by 0 approach, we can impose validity:
 
@@ -277,7 +278,7 @@ table(st_is_valid(NY8_sf_old_buf))
 We can now find the neighbours, but with differences from the sets found from the valid polygons:
 
 ```{r, echo=dothis, eval=dothis}
-try(NY8_sf_old_1_nb_buf <- st_queen(NY8_sf_old_buf))
+try(NY8_sf_old_1_nb_buf <- st_queen(NY8_sf_old_buf), silent = TRUE)
 all.equal(NY8_sf_old_1_nb_buf, NY8_sf_1_nb, check.attributes=FALSE)
 ```
 There are also differences between the sets found when imposing validity on the sf and sp routes.
