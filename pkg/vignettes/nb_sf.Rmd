@@ -422,28 +422,37 @@ The 'soi.graph' function may be re-written to use sf functionality internally, b
 if (require(rgeos, quietly=TRUE) && require(RANN, quietly=TRUE)) {
   NY85_nb_sf <- graph2nb(soi.graph(NY84_nb_sf, coords_sf))
 } else NY85_nb_sf <- NULL
-isTRUE(all.equal(NY85_nb_sf, NY85_nb, check.attributes=FALSE))
+if (!is.null(NY85_nb_sf) && !is.null(NY85_nb)) {
+  isTRUE(all.equal(NY85_nb_sf, NY85_nb, check.attributes=FALSE))
+}
 ```
 
 The discrepancy is for one of the polygons with a hole:
 
 ```{r, echo=dothis, eval=dothis}
-diffs <- diffnb(NY85_nb_sf, NY85_nb)
-wdiffs <- which(card(NY85_nb_sf) != card(NY85_nb))
-wdiffs
+if (!is.null(NY85_nb_sf) && !is.null(NY85_nb)) {
+  diffs <- diffnb(NY85_nb_sf, NY85_nb)
+  wdiffs <- which(card(NY85_nb_sf) != card(NY85_nb))
+  wdiffs
+}
 ```
+
 ```{r, echo=dothis, eval=dothis}
-c(dist(rbind(coords[97,], coords_sf[97,])))
+if (!is.null(NY85_nb_sf) && !is.null(NY85_nb)) {
+  c(dist(rbind(coords[97,], coords_sf[97,])))
+}
 ```
 
 Here the difference between the points is enough to remove the triangulation link between 97 and 99 under the sphere of influence criterion.
 
 ```{r, echo=dothis, eval=dothis}
-plot(NY8_sp[wdiffs,], border="grey30", lwd=2)
-plot(NY8_sp, border="grey80", add=TRUE)
-plot(diffs, coordinates(NY8_sp), points=FALSE, add=TRUE, lwd=2)
-plot(NY85_nb, coordinates(NY8_sp), points=FALSE, add=TRUE, col="red")
-text(coordinates(NY8_sp), IDs, pos=1)
+if (!is.null(NY85_nb_sf) && !is.null(NY85_nb)) {
+  plot(NY8_sp[wdiffs,], border="grey30", lwd=2)
+  plot(NY8_sp, border="grey80", add=TRUE)
+  plot(diffs, coordinates(NY8_sp), points=FALSE, add=TRUE, lwd=2)
+  plot(NY85_nb, coordinates(NY8_sp), points=FALSE, add=TRUE, col="red")
+  text(coordinates(NY8_sp), IDs, pos=1)
+}
 ```
 
 If we use the GEOS-based coordinates, the distance is reduced to zero:
@@ -459,7 +468,9 @@ NY84g_nb <- tri2nb(gcoords, row.names=IDs)
 if (require(rgeos, quietly=TRUE) && require(RANN, quietly=TRUE)) {
   NY85g_nb <- graph2nb(soi.graph(NY84g_nb, gcoords), row.names=IDs)
 } else NY85g_nb <- NULL
-isTRUE(all.equal(NY85_nb_sf, NY85g_nb, check.attributes=FALSE))
+if (!is.null(NY85_nb_sf) && !is.null(NY85_nb)) {
+  isTRUE(all.equal(NY85_nb_sf, NY85g_nb, check.attributes=FALSE))
+}
 ```
 
 If we coerce from sf to sp representation before extracting point coordinates, we get:
