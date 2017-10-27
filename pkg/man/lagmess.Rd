@@ -93,7 +93,7 @@ system.time(obj2a <- lagmess(log(PRICE) ~ PATIO + log(AGE) + log(SQFT), data=bal
 summary(obj2a)
 obj3 <- lagsarlm(log(PRICE) ~ PATIO + log(AGE) + log(SQFT), data=baltimore, listw=lw)
 summary(obj3)
-data(boston)
+data(boston, package="spData")
 lw <- nb2listw(boston.soi)
 gp2 <- lagsarlm(log(CMEDV) ~ CRIM + ZN + INDUS + CHAS + I(NOX^2) + I(RM^2)
  +  AGE + log(DIS) + log(RAD) + TAX + PTRATIO + B + log(LSTAT),

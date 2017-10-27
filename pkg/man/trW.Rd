@@ -65,7 +65,7 @@ system.time(trMC <- trW(W, m=24, type="MC"))
 str(trMC)
 }
 \donttest{
-data(boston)
+data(boston, package="spData")
 listw <- nb2listw(boston.soi)
 listwS <- similar.listw(listw)
 system.time(trmom <- trW(listw=listwS, m=24, type="moments"))

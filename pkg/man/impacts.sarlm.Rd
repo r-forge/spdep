@@ -146,7 +146,7 @@ mobj3 <- lagsarlm(CRIME ~ INC + HOVAL, columbus, listw, type="mixed",
 method="spam", control=list(fdHess=TRUE))
 summary(impacts(mobj3, tr=trMatc, R=1000), zstats=TRUE, short=TRUE)
 }
-data(boston)
+data(boston, package="spData")
 Wb <- as(nb2listw(boston.soi), "CsparseMatrix")
 trMatb <- trW(Wb, type="mult")
 gp2mMi <- lagsarlm(log(CMEDV) ~ CRIM + ZN + INDUS + CHAS + I(NOX^2) + 

@@ -35,7 +35,7 @@ The functions return approximations to the extreme eigenvalues with the eigenvec
 \note{It may be necessary to modify control arguments if warnings about lack of convergence are seen.}
 
 \examples{
-data(boston)
+data(boston, package="spData")
 ab.listb <- nb2listw(boston.soi, style="B")
 er <- range(eigenw(ab.listb))
 er

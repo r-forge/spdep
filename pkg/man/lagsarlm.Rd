@@ -219,7 +219,7 @@ COL.lag.NA$na.action
 COL.lag.NA
 resid(COL.lag.NA)
 \dontrun{
-data(boston)
+data(boston, package="spData")
 gp2mM <- lagsarlm(log(CMEDV) ~ CRIM + ZN + INDUS + CHAS + I(NOX^2) + 
 I(RM^2) +  AGE + log(DIS) + log(RAD) + TAX + PTRATIO + B + log(LSTAT), 
 data=boston.c, nb2listw(boston.soi), type="mixed", method="Matrix")

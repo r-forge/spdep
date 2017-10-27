@@ -78,7 +78,7 @@ Pace, R. Kelley, and O.W. Gilley, Using the Spatial Configuration of
 
 
 \examples{
-data(boston)
+data(boston, package="spData")
 hr0 <- lm(log(MEDV) ~ CRIM + ZN + INDUS + CHAS + I(NOX^2) + I(RM^2) +
  AGE + log(DIS) + log(RAD) + TAX + PTRATIO + B + log(LSTAT), data=boston.c)
 summary(hr0)
@@ -89,12 +89,11 @@ summary(gp0)
 logLik(gp0)
 lm.morantest(hr0, nb2listw(boston.soi))
 \dontrun{
-require(maptools)
-boston.tr <- readShapePoly(system.file("etc/shapes/boston_tracts.shp",
-  package="spdep")[1], ID="poltract",
-  proj4string=CRS(paste("+proj=longlat +datum=NAD27 +no_defs +ellps=clrk66",
-  "+nadgrids=@conus,@alaska,@ntv2_0.gsb,@ntv1_can.dat")))
+if (require(rgdal, quietly=TRUE)) {
+boston.tr <- readOGR(system.file("shapes/boston_tracts.shp",
+  package="spData")[1])
 boston_nb <- poly2nb(boston.tr)
+}
 }
 \dontrun{gp1 <- errorsarlm(log(CMEDV) ~ CRIM + ZN + INDUS + CHAS + I(NOX^2)
  + I(RM^2) +  AGE + log(DIS) + log(RAD) + TAX + PTRATIO + B + log(LSTAT),

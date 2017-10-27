@@ -242,7 +242,7 @@ summary(COL.errW.eig)
 COL.errW.sar <- spautolm(CRIME ~ INC + HOVAL, data=COL.OLD,
  nb2listw(COL.nb, style="W"))
 summary(COL.errW.sar)
-data(boston)
+data(boston, package="spData")
 gp1 <- spautolm(log(CMEDV) ~ CRIM + ZN + INDUS + CHAS + I(NOX^2)
  + I(RM^2) + AGE + log(DIS) + log(RAD) + TAX + PTRATIO + B + log(LSTAT), 
  data=boston.c, nb2listw(boston.soi), family="SMA")
